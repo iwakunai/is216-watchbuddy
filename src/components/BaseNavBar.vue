@@ -20,13 +20,15 @@
 
     <!-- Primary navigation -->
     <nav class="primary-nav" aria-label="Primary">
-      <ul
-        :id="navId"
+      <ul class="nav-list">
+        <!-- :id="navId"
         class="nav-list"
         :data-open="isOpen ? 'true' : 'false'"
-      >
-        <li v-for="item in items" :key="item.to" class="nav-item">
-          <!-- Vue Router auto-applies .router-link-active / .router-link-exact-active -->
+      > -->
+      
+
+        <!-- <li v-for="item in items" :key="item.to" class="nav-item">
+          
           <RouterLink
             :to="item.to"
             class="nav-link"
@@ -35,8 +37,10 @@
             {{ item.label }}
           </RouterLink>
 
-          <!-- this.$router -->
-          <!-- router.push() -->
+        </li> -->
+
+        <li v-for="route in $router.options.routes" :key="route.name" class="nav-item">
+            <RouterLink :to="route" class="nav-link">{{ route.meta?.label }}</RouterLink>
         </li>
       </ul>
     </nav>
@@ -44,11 +48,13 @@
 </template>
 
 <script setup lang="ts">
-    import { ref } from 'vue'
+import { ref } from 'vue'
+import { RouterLink } from 'vue-router';
+
 
     
     const isOpen = ref(false)
-    const toggle = () => { isOpen.value = !isOpen.value }
+    // const toggle = () => { isOpen.value = !isOpen.value }
 
     const navId = 'primary-nav'
 
