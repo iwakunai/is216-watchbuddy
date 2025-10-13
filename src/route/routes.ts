@@ -6,12 +6,13 @@ import HomePage from '@/pages/HomePage.vue';
 import ProfileView from "@/pages/ProfilePage.vue";
 import MoviePage from '@/pages/MoviePage.vue';
 import TvPage from '@/pages/TvPage.vue';
+import WatchPartyPage from '@/pages/WatchPartyPage.vue';
 // import path from "path";
 
 // const history = createWebHi
 
 const routes = [
-    { path: '/', name: 'home', component: HomePage, 
+    { path: '/', name: 'Home', component: HomePage, 
         meta: { label: 'Home', showInNav: true }},
     { path: '/movies', name: 'movies',component: MoviePage,
         meta: { label: 'Movies', showInNav: true }
@@ -21,6 +22,9 @@ const routes = [
     },
     { path: '/profile', name: 'profile', component: ProfileView,
         meta: { label: 'Profile', showInNav: true }
+    },
+    { path: '/profile', name: 'profile', component: WatchPartyPage,
+        meta: { label: 'Watch Party', showInNav: true }
     },
 ]
 
