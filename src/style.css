@@ -1,416 +1,81 @@
 @import "tailwindcss";
 
-/* Reset and Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
   min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.card {
+  padding: 2em;
 }
 
 #app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Header Styles */
-.header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-}
-
-.nav-brand h1 {
-  color: #667eea;
-  font-size: 1.8rem;
-  font-weight: bold;
-}
-
-.nav-links {
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-link {
-  text-decoration: none;
-  color: #555;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 25px;
-  transition: all 0.3s ease;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  background: #667eea;
-  color: white;
-  transform: translateY(-2px);
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
   padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-/* Hero Section */
-.hero {
-  text-align: center;
-  padding: 3rem 0;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  margin-bottom: 3rem;
-  backdrop-filter: blur(10px);
-}
-
-.hero-content {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.hero-title {
-  font-size: 3rem;
-  color: white;
-  margin-bottom: 1rem;
-  font-weight: 700;
-}
-
-.hero-subtitle {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2rem;
-}
-
-/* Mood Selector */
-.mood-selector {
-  margin-bottom: 2rem;
-}
-
-.mood-selector h3 {
-  color: white;
-  margin-bottom: 1rem;
-  font-size: 1.3rem;
-}
-
-.mood-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.mood-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.mood-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.mood-btn.active {
-  background: #ff6b6b;
-  border-color: #ff6b6b;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-}
-
-/* Search Section */
-.search-section {
-  margin-top: 2rem;
-}
-
-.search-bar {
-  display: flex;
-  max-width: 500px;
-  margin: 0 auto;
-  background: white;
-  border-radius: 25px;
-  overflow: hidden;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-}
-
-.search-input {
-  flex: 1;
-  padding: 1rem 1.5rem;
-  border: none;
-  outline: none;
-  font-size: 1rem;
-}
-
-.search-btn {
-  background: #667eea;
-  border: none;
-  color: white;
-  padding: 1rem 1.5rem;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: background 0.3s ease;
-}
-
-.search-btn:hover {
-  background: #5a6fd8;
-}
-
-/* Content Sections */
-.featured-section,
-.recommendations-section,
-.watch-parties-section {
-  margin-bottom: 3rem;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-}
-
-.featured-section h3,
-.recommendations-section h3,
-.watch-parties-section h3 {
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
-  color: #333;
   text-align: center;
 }
 
-/* Movie Grid */
-.movie-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.movie-card {
-  background: white;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.movie-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.movie-poster {
-  position: relative;
-  overflow: hidden;
-}
-
-.movie-poster img {
-  width: 100%;
-  height: 300px;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.movie-card:hover .movie-poster img {
-  transform: scale(1.05);
-}
-
-.movie-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.movie-card:hover .movie-overlay {
-  opacity: 1;
-}
-
-.play-btn,
-.add-btn {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.add-btn {
-  background: #ff6b6b;
-}
-
-.play-btn:hover,
-.add-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.movie-info {
-  padding: 1.5rem;
-}
-
-.movie-info h4 {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  color: #333;
-}
-
-.movie-year,
-.movie-genre {
-  color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.movie-rating {
-  color: #ff6b6b;
-  font-weight: bold;
-}
-
-/* Watch Parties */
-.parties-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.party-card {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  padding: 2rem;
-  border-radius: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-}
-
-.party-card:hover {
-  transform: translateY(-3px);
-}
-
-.party-info h4 {
-  font-size: 1.3rem;
-  margin-bottom: 0.5rem;
-}
-
-.party-host,
-.party-time,
-.party-participants {
-  font-size: 0.9rem;
-  opacity: 0.9;
-  margin-bottom: 0.3rem;
-}
-
-.join-btn {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.join-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-}
-
-/* Footer */
-.footer {
-  background: rgba(255, 255, 255, 0.95);
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-  margin-top: auto;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
   }
-
-  .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
+  a:hover {
+    color: #747bff;
   }
-
-  .hero-title {
-    font-size: 2rem;
-  }
-
-  .main-content {
-    padding: 1rem;
-  }
-
-  .mood-buttons {
-    gap: 0.5rem;
-  }
-
-  .mood-btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  .movie-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-
-  .parties-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .party-card {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
+  button {
+    background-color: #f9f9f9;
   }
 }
