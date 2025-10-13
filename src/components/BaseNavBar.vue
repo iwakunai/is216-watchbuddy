@@ -1,5 +1,12 @@
 <template>
-    <header class="site-header">
+    <header class="site-header bg-indigo-100">
+        <RouterLink to="/">
+          <img 
+            :src="logoImage"
+            class="h-16 px-4"
+          >
+        </RouterLink>
+
       <!-- Mobile menu toggle -->
       <div class="brand-row">
         <RouterLink to="/" class="brand">WatchBuddy</RouterLink>
@@ -29,6 +36,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import logoImage from '@/assets/logo/logo.png'
 // import { RouterLink } from 'vue-router';
 const isOpen = ref(false)
 const toggle = () => { isOpen.value = !isOpen.value }
@@ -39,13 +47,31 @@ const toggle = () => { isOpen.value = !isOpen.value }
 .site-header {
   width: 100%;
   margin: 0;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 0.5rem 1rem;
+  padding: 10px 1px;
   display: flex;
-  /* place-items: center; */
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   /* box-sizing: border-box; */
+}
+
+/* Logo Section */
+.logo-section {
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
 /* START Mobile Responsive Stuff */
@@ -82,6 +108,12 @@ const toggle = () => { isOpen.value = !isOpen.value }
 
   .nav-list {
     display: flex !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .logo-section {
+    display: none;
   }
 }
 

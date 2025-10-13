@@ -1,6 +1,6 @@
 <template>
     <div>
-        Home
+
     </div>
     <BaseNavBar />
     <BaseSearchBar />
@@ -8,6 +8,7 @@
     <HomeMood />
     <WatchParty />
     <Leaderboard />
+    <BaseFooter />
 </template>
 
 <script setup lang="ts">
@@ -17,6 +18,7 @@ import HomeMood from '@/components/HomeMood.vue';
 import Leaderboard from '@/components/Leaderboard.vue';
 import Trending from '@/components/Trending.vue';
 import WatchParty from '@/components/WatchParty.vue';
+import BaseFooter from '@/components/BaseFooter.vue';
 
 
 </script>

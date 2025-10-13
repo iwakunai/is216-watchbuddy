@@ -1,5 +1,5 @@
 <template>
-    <div class="search">
+    <div class="search py-2 bg-gray-50">
         <form action="/search" id="inner_search_form">
             <label class="inner_search_wrapper">
                 <input type="text" name="query" placeholder="Search...">

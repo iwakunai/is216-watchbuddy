@@ -1,6 +1,6 @@
 <template>
     <div>
-        <p class="text-3xl font-semibold text-left mb-4">Trending</p>
+        <p class="py-2 text-3xl font-semibold text-left mb-4">Trending</p>
 
         <!-- overflow-x-auto : horizontal scrolling -->
         <!-- space-x-8 : spacing in between the movie cards -->
