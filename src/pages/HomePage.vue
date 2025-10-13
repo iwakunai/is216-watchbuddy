@@ -1,6 +1,6 @@
 <template>
-
-    <BaseNavBar />
+    <BaseNavBar /> 
+    <!-- TODO: Move BaseSearchBar into BaseNavBar ?-->
     <BaseSearchBar />
     <Trending />
     <HomeMood />

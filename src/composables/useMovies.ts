@@ -1,3 +1,7 @@
+// TODO: Debug and refactor
+// TODO: Fix styles
+// @ts-nocheck remove when typed
+
 import { ref } from 'vue';
 import localMovies from '@/assets/movies.json';
 
