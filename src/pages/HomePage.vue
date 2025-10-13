@@ -1,7 +1,5 @@
 <template>
-    <div>
-        Home
-    </div>
+
     <BaseNavBar />
     <BaseSearchBar />
     <Trending />
