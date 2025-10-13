@@ -1,6 +1,21 @@
-# Watchbuddy 
+# WatchBuddy - Movie & TV Discovery Platform
 
-movie site :D
+A gamified, mood-based movie and TV discovery web application that helps users overcome decision fatigue in content streaming.
+
+## Features
+
+- **Mood-Based Recommendations**: Get personalized movie suggestions based on your current emotional state
+- **Interactive UI**: Clean, modern interface with smooth animations and transitions
+- **Movie Database**: Browse trending movies and TV shows
+- **Watch Parties**: Join virtual watch parties with friends
+- **Responsive Design**: Works seamlessly across desktop and mobile devices
+
+## Tech Stack
+
+- **Frontend**: Vue.js 3, TypeScript
+- **Build Tool**: Vite
+- **Styling**: CSS3 with modern features
+- **Deployment**: Supabase (planned)
 
 ## Prerequisites
 
