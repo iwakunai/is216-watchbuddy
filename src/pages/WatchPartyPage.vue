@@ -1,5 +1,6 @@
 <!-- TODO: Debug and refactor -->
 
+
 <script setup lang="ts">
 // @ts-nocheck remove when typed
 import BaseNavBar from "@/components/BaseNavBar.vue";
