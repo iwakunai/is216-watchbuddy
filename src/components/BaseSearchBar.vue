@@ -1,6 +1,6 @@
 <template>
     <div class="search">
-        <form action="/search" id="inner_search_form">
+        <form action="/search" id="inner_search_form" class="bg-blue-900 text-white rounded">
             <label class="inner_search_wrapper">
                 <input type="text" name="query" placeholder="Search...">
             </label>
