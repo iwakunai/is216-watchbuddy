@@ -12,6 +12,6 @@
     },
     "types": ["vite/client"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/composables/useMovies.js"],
   "exclude": ["dist", "node_modules"]
 }
