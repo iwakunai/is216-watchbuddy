@@ -2,7 +2,6 @@
   <header
     :class="[
       'w-full',
-      'bg-indigo-100',
       'md:border-b md:border-gray-200 md:divide-y-0',
       'divide-y divide-gray-200',
       isOpen ? 'border-b border-gray-200' : 'border-b-0',
@@ -34,42 +33,35 @@
           />
         </svg>
       </button>
-      <RouterLink to="/" class="font-semibold no-underline flex items-center justify-center"
-        ><img :src="logoImage" alt="WatchBuddy Logo" class="w-8 h-8" /></RouterLink
+      <RouterLink to="/" class="font-semibold no-underline"
+        >WatchBuddy</RouterLink
       >
     </div>
 
     <!-- Primary Navigation -->
-    <nav class="p-2 px-6">
-      <div class="md:flex md:items-center md:justify-between">
-
-        <RouterLink to="/" class="hidden md:block">
-          <img :src="logoImage" alt="WatchBuddy Logo" class=" h-18" />
-        </RouterLink>
-        
-        <ul
-          :class="[
-            isOpen ? 'block text-center' : 'hidden',
-            'md:flex justify-center',
-            'list-none p-0 m-0',
-            'space-y-2 md:space-y-0 md:gap-x-6',
-          ]"
+    <nav class="mt-2 mx-auto pb-2 md:pb-3">
+      <ul
+        :class="[
+          isOpen ? 'block text-center' : 'hidden',
+          'md:flex justify-center',
+          'list-none p-0 m-0',
+          'space-y-2 md:space-y-0 md:gap-x-6',
+        ]"
+      >
+        <li
+          v-for="route in $router.options.routes"
+          :key="route.name"
+          class="md:m-0"
         >
-          <li
-            v-for="route in $router.options.routes"
-            :key="route.name"
-            class="md:m-0"
+          <RouterLink
+            :to="route"
+            class="inline-block no-underline py-0 transparent"
+            exact-active-class="border-b-2 border-blue-600"
           >
-            <RouterLink
-              :to="route"
-              class="inline-block no-underline py-0 transparent"
-              exact-active-class="border-b-2 border-blue-600"
-            >
-              {{ route.meta?.label }}
-            </RouterLink>
-          </li>
-        </ul>
-      </div>
+            {{ route.meta?.label }}
+          </RouterLink>
+        </li>
+      </ul>
     </nav>
   </header>
 </template>
