@@ -1,0 +1,7 @@
+[
+  { "id": 101, "title": "Breaking Bad", "year": 2008, "poster": "/posters/shawshank.jpg" },
+  { "id": 102, "title": "Stranger Things", "year": 2016, "poster": "/posters/inception.jpg" },
+  { "id": 103, "title": "The Last of Us", "year": 2023, "poster": "/posters/parasite.jpg" }
+]
+
+
