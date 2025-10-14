@@ -8,7 +8,7 @@
 
     <!-- TODO: Hide scrollbar, add arrow keys to navigate -->
     <div class="flex overflow-x-auto space-x-8 pb-3">
-      <MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" />
+      <MovieCard v-for="movie in movies" :key="movie" :movie="movie" />
     </div>
   </div>
 </template>
@@ -17,64 +17,35 @@
 import MovieCard from "./MovieCard.vue";
 import { ref } from "vue";
 
-// TODO: Unhardcode
-const movies = ref([
-  {
-    id: 1,
-    title: "One-Punch Man",
-    releaseDate: "Oct 05, 2015",
-    img: "/images/opm.webp",
-  },
-  {
-    id: 2,
-    title: "TRON: Ares",
-    releaseDate: "Oct 09, 2025",
-    img: "/images/ares.webp",
-  },
-  {
-    id: 3,
-    title: "The Conjuring: Last Rites",
-    releaseDate: "Sep 04, 2025",
-    img: "/images/conjuring.webp",
-  },
-  {
-    id: 4,
-    title: "The Chair Company",
-    releaseDate: "Oct 12, 2025",
-    img: "/images/chaircompany.webp",
-  },
-  {
-    id: 5,
-    title: "Monster: The Ed Gein Story",
-    releaseDate: "Oct 03, 2025",
-    img: "/images/monster.webp",
-  },
-  {
-    id: 6,
-    title: "Mission: Impossible - The Final Reckoning",
-    releaseDate: "May 17, 2025",
-    img: "/images/missionimp.webp",
-  },
-  {
-    id: 7,
-    title: "The Fantastic 4: First Steps",
-    releaseDate: "Jul 24, 2025",
-    img: "/images/fan4.webp",
-  },
-  { id: 8, title: "xXx", releaseDate: "Aug 09, 2002", img: "/images/x3.webp" },
-  {
-    id: 9,
-    title: "Peacemaker",
-    releaseDate: "Jan 13, 2022",
-    img: "/images/peacemaker.webp",
-  },
-  {
-    id: 10,
-    title: "The Woman in Cabin 10",
-    releaseDate: "Oct 10, 2025",
-    img: "/images/cabin.webp",
-  },
-]);
+const res = ref([]);
+const movies = ref([]);
+
+const options = {
+  method: 'GET',
+  headers: {
+    accept: 'application/json',
+    Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzODNkNGYwYTcxNTYyZjE4MzIzZWUwZTkxNTlkZTc2YSIsIm5iZiI6MTc2MDM2NjAwNi44OTYsInN1YiI6IjY4ZWQwZGI2ZjhiYmI3ZjY3NzBkN2NhNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.1CeXVdZ2Ix3XIoBP88Gm9D95Cz9A0J9-b2z53NjwsfQ'
+  }
+};
+
+async function fetchMovie(): Promise<[]> {
+    try{
+        const res = await fetch('https://api.themoviedb.org/3/trending/all/week?language=en-US', options);
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        return data.results;
+    }catch(err){
+        console.error("Error fetching movies: ", err);
+        return [];
+    }
+}
+
+fetchMovie().then(data => {
+    console.log("Fetched Movies: ", data);
+    movies.value = data;
+})
 </script>
 
 <style scoped>
