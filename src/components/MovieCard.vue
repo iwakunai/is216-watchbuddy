@@ -7,7 +7,7 @@
         </a>
         <div class="text-left mt-2">
             <p class="text-lg font-semibold">{{ movie.title || movie.name }}</p>
-            <p class="font-light">{{ movie.release_date }}</p>
+            <p class="font-light">{{ movie.release_date || movie.first_air_date }}</p>
         </div>
     </div>
 </template>
