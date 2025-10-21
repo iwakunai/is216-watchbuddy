@@ -7,6 +7,7 @@ import {
 import App from "@/App.vue";
 import HomePage from "@/pages/HomePage.vue";
 import ProfileView from "@/pages/ProfilePage.vue";
+import EditProfilePage from "@/pages/EditProfilePage.vue";
 import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
@@ -35,6 +36,12 @@ const routes = [
     name: "profile",
     component: ProfileView,
     meta: { label: "Profile", showInNav: true },
+  },
+  {
+    path: "/profile/edit",
+    name: "profile-edit",
+    component: EditProfilePage,
+    meta: { label: "", showInNav: false },
   },
   {
     path: "/watchparty",
