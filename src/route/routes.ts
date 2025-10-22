@@ -10,6 +10,7 @@ import ProfileView from "@/pages/ProfilePage.vue";
 import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
+import WParty from "@/pages/WPartyPage.vue";
 
 const routes = [
   {
@@ -41,6 +42,12 @@ const routes = [
     name: "watchparty",
     component: WatchPartyPage,
     meta: { label: "Watch Party", showInNav: true },
+  },
+  {
+    path: "/wparty",
+    name: "wparty",
+    component: WParty,
+    meta: { label: "WParty", showInNav: true },
   },
 ];
 

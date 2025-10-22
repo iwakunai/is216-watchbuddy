@@ -4,7 +4,7 @@
     <BaseSearchBar />
     <Trending />
     <HomeMood />
-    <WatchParty />
+    <WatchPartyList />
     <Leaderboard />
     <BaseFooter />
 </template>
@@ -15,7 +15,7 @@ import BaseSearchBar from '@/components/BaseSearchBar.vue';
 import HomeMood from '@/components/HomeMood.vue';
 import Leaderboard from '@/components/Leaderboard.vue';
 import Trending from '@/components/Trending.vue';
-import WatchParty from '@/components/WatchParty.vue';
+import WatchPartyList from '@/components/WatchParty/WatchPartyList.vue';
 import BaseFooter from '@/components/BaseFooter.vue';
 
 

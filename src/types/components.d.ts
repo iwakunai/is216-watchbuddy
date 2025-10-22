@@ -13,15 +13,17 @@ declare module 'vue' {
     BaseNavBar: typeof import('./../components/BaseNavBar.vue')['default']
     BaseSearchBar: typeof import('./../components/BaseSearchBar.vue')['default']
     Button: typeof import('primevue/button')['default']
+    CreateParty: typeof import('./../components/WatchParty/CreateParty.vue')['default']
     DbTemplate: typeof import('./../components/DbTemplate.vue')['default']
     HomeMood: typeof import('./../components/HomeMood.vue')['default']
     Leaderboard: typeof import('./../components/Leaderboard.vue')['default']
     MovieCard: typeof import('./../components/MovieCard.vue')['default']
+    PartyRoomCard: typeof import('./../components/WatchParty/PartyRoomCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TestNavBar: typeof import('./../components/TestNavBar.vue')['default']
     Toolbar: typeof import('primevue/toolbar')['default']
     Trending: typeof import('./../components/Trending.vue')['default']
-    WatchParty: typeof import('./../components/WatchParty.vue')['default']
+    WatchPartyList: typeof import('./../components/WatchParty/WatchPartyList.vue')['default']
   }
 }
