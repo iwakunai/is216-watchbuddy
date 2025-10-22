@@ -61,6 +61,9 @@
             {{ route.meta?.label }}
           </RouterLink>
         </li>
+        <li>
+          <UserManagement />
+        </li>
       </ul>
     </nav>
   </header>

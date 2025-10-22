@@ -10,6 +10,7 @@ import ProfileView from "@/pages/ProfilePage.vue";
 import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
+import LoginPage from "@/components/UserManagement.vue";
 
 const routes = [
   {

@@ -8,13 +8,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Avatar: typeof import('primevue/avatar')['default']
     BaseFooter: typeof import('./../components/BaseFooter.vue')['default']
     BaseNavBar: typeof import('./../components/BaseNavBar.vue')['default']
     BaseSearchBar: typeof import('./../components/BaseSearchBar.vue')['default']
     Button: typeof import('primevue/button')['default']
+    ButtonGroup: typeof import('primevue/buttongroup')['default']
     DbTemplate: typeof import('./../components/DbTemplate.vue')['default']
     HomeMood: typeof import('./../components/HomeMood.vue')['default']
+    Image: typeof import('primevue/image')['default']
     Leaderboard: typeof import('./../components/Leaderboard.vue')['default']
     MovieCard: typeof import('./../components/MovieCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
@@ -22,6 +23,7 @@ declare module 'vue' {
     TestNavBar: typeof import('./../components/TestNavBar.vue')['default']
     Toolbar: typeof import('primevue/toolbar')['default']
     Trending: typeof import('./../components/Trending.vue')['default']
+    UserManagement: typeof import('./../components/UserManagement.vue')['default']
     WatchParty: typeof import('./../components/WatchParty.vue')['default']
   }
 }
