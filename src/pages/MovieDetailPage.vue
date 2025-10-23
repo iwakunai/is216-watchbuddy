@@ -114,7 +114,7 @@
             </div>
 
             <div>
-              <h5 class="font-semibold text-lg mb-2">Technical</h5>
+              <h5 class="font-semibold text-lg mb-2">Additional Information</h5>
               <ul class="text-sm text-[#98a1b3] space-y-1">
                 <li><strong>Status:</strong> {{ movie.status || '-' }}</li>
                 <li><strong>Original language:</strong> {{ movie.original_language || '-' }}</li>
