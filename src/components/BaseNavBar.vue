@@ -1,77 +1,78 @@
 <template>
-  <header
-    :class="[
-      'w-full',
-      'md:border-b md:border-gray-200 md:divide-y-0',
-      'divide-y divide-gray-200',
-      isOpen ? 'border-b border-gray-200' : 'border-b-0',
-    ]"
-  >
-    <!-- Mobile toggle bar -->
-    <div class="md:hidden w-full py-2 px-4 grid grid-cols-3 items-center">
-      <button
-        class="justify-self-start inline-flex items-center justify-center p-2 bg-transparent border border-gray-300 rounded-md"
-        type="button"
-        aria-label="Toggle navigation"
-        aria-controls="primary-menu"
-        :aria-expanded="isOpen ? 'true' : 'false'"
-        @click="toggle()"
-      >
-        <!-- Menu Bar SVG -->
-        <svg
-          class="w-6 h-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-      </button>
-      <RouterLink to="/" class="font-semibold no-underline"
-        >WatchBuddy</RouterLink
-      >
-    </div>
+  <nav class="bg-[#0b1220] border-b border-white/5 sticky top-0 z-50 backdrop-blur-md bg-opacity-95">
+    <div class="max-w-[1200px] mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo/Brand -->
+        <router-link to="/" class="text-xl font-bold bg-gradient-to-r from-white to-[#cfd8ff] bg-clip-text text-transparent">
+          MovieApp
+        </router-link>
 
-    <!-- Primary Navigation -->
-    <nav class="mt-2 mx-auto pb-2 md:pb-3">
-      <ul
-        :class="[
-          isOpen ? 'block text-center' : 'hidden',
-          'md:flex justify-center',
-          'list-none p-0 m-0',
-          'space-y-2 md:space-y-0 md:gap-x-6',
-        ]"
-      >
-        <li
-          v-for="route in $router.options.routes"
-          :key="route.name"
-          class="md:m-0"
-        >
-          <RouterLink
-            :to="route"
-            class="inline-block no-underline py-0 transparent"
-            exact-active-class="border-b-2 border-blue-600"
+        <!-- Navigation Links -->
+        <div class="flex items-center gap-1">
+          <router-link 
+            to="/" 
+            class="nav-link"
+            exact-active-class="nav-link-active"
           >
-            {{ route.meta?.label }}
-          </RouterLink>
-        </li>
-      </ul>
-    </nav>
-  </header>
+            Home
+          </router-link>
+          
+          <router-link 
+            to="/movies" 
+            class="nav-link"
+            active-class="nav-link-active"
+          >
+            Movies
+          </router-link>
+          
+          <router-link 
+            to="/tv" 
+            class="nav-link"
+            active-class="nav-link-active"
+          >
+            TV Shows
+          </router-link>
+          
+          <router-link 
+            to="/watchparty" 
+            class="nav-link"
+            active-class="nav-link-active"
+          >
+            Watch Party
+          </router-link>
+          
+          <router-link 
+            to="/profile" 
+            class="nav-link"
+            active-class="nav-link-active"
+          >
+            Profile
+          </router-link>
+        </div>
+      </div>
+    </div>
+  </nav>
 </template>
 
-<script setup lang="ts">
-import { ref } from "vue";
-const isOpen = ref(false);
-const toggle = () => {
-  isOpen.value = !isOpen.value;
-};
-</script>
+<style scoped>
+.nav-link {
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: #98a1b3;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
 
-<style scoped></style>
+.nav-link:hover {
+  color: #eaf0ff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link-active {
+  color: #6b6bff;
+  background: rgba(107, 107, 255, 0.1);
+}
+</style>
