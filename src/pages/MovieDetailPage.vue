@@ -295,3 +295,116 @@ async function fetchAll() {
     loading.value = false;
   }
 }
+</script>
+
+<style scoped>
+.app-bg {
+  background: radial-gradient(1200px 400px at 10% 10%, rgba(255,255,255,0.02), transparent 8%),
+              radial-gradient(800px 300px at 90% 80%, rgba(107,107,255,0.02), transparent 6%),
+              linear-gradient(180deg, #07080a 0%, #0b1220 50%, #05060a 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.movie-detail-page { 
+  color: #eaf0ff; 
+}
+
+.rating-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.35));
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  flex-direction: column;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 6px 20px rgba(2,6,23,0.6);
+}
+
+.rating-value { 
+  font-weight: 700; 
+  font-size: 18px; 
+  color: #fff; 
+}
+
+.rating-label { 
+  color: #98a1b3; 
+  font-size: 11px; 
+}
+
+.imdb-box {
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: #0f1724;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.imdb-score { 
+  font-weight: 700; 
+  color: #fff; 
+}
+
+.badge { 
+  padding: 6px 8px; 
+  background: rgba(255,255,255,0.03); 
+  border-radius: 8px; 
+  border: 1px solid rgba(255,255,255,0.03); 
+}
+
+.vibe-pill { 
+  background: rgba(255,255,255,0.02); 
+  padding: 8px 12px; 
+  border-radius: 10px; 
+  display: inline-block; 
+  color: #d6def8; 
+  border: 1px solid rgba(255,255,255,0.03); 
+}
+
+.overview-panel { 
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.2)); 
+}
+
+.poster-card img { 
+  display: block; 
+  width: 100%; 
+  height: auto; 
+  object-fit: cover; 
+}
+
+.cast-panel img { 
+  object-fit: cover; 
+}
+
+.loader-ring { 
+  border-top-color: #6b6bff; 
+  border-left-color: rgba(255,255,255,0.06); 
+  border-right-color: rgba(255,255,255,0.04); 
+  border-bottom-color: rgba(255,255,255,0.02); 
+  border-style: solid; 
+  border-width: 4px; 
+  border-radius: 999px; 
+  animation: spin 1s linear infinite; 
+}
+
+@keyframes spin { 
+  to { 
+    transform: rotate(360deg); 
+  } 
+}
+
+@media (max-width: 900px) {
+  .movie-detail-page { 
+    padding: 12px; 
+  }
+  .rating-circle { 
+    width: 60px;
+    height: 60px; 
+  }
+  .imdb-box { 
+    padding: 6px 8px; 
+  }
+}
+</style>
