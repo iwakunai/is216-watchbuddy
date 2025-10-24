@@ -109,18 +109,105 @@
           <!-- Optional: full credits or other details -->
           <div class="mt-4 grid md:grid-cols-2 gap-6">
             <div>
-              <h5 class="font-semibold text-lg mb-2">Full Cast & Crew</h5>
-              <p class="text-sm text-[#98a1b3]">Click "Show more" (you can implement expansion) to display full credits.</p>
+              <h5 class="font-semibold text-lg mb-2">Production Info</h5>
+              <div class="text-sm text-[#98a1b3] space-y-2">
+                <div v-if="movie.production_companies && movie.production_companies.length">
+                  <strong class="text-white">Production:</strong> {{ movie.production_companies.map((c: any) => c.name).join(', ') }}
+                </div>
+                <div><strong class="text-white">Status:</strong> {{ movie.status || '-' }}</div>
+                <div><strong class="text-white">Original language:</strong> {{ movie.original_language?.toUpperCase() || '-' }}</div>
+              </div>
             </div>
 
             <div>
-              <h5 class="font-semibold text-lg mb-2">Additional Information</h5>
-              <ul class="text-sm text-[#98a1b3] space-y-1">
-                <li><strong>Status:</strong> {{ movie.status || '-' }}</li>
-                <li><strong>Original language:</strong> {{ movie.original_language || '-' }}</li>
-                <li><strong>Budget:</strong> {{ movie.budget ? `$${movie.budget.toLocaleString()}` : '-' }}</li>
-                <li><strong>Revenue:</strong> {{ movie.revenue ? `$${movie.revenue.toLocaleString()}` : '-' }}</li>
+              <h5 class="font-semibold text-lg mb-2">Box Office</h5>
+              <ul class="text-sm text-[#98a1b3] space-y-2">
+                <li><strong class="text-white">Budget:</strong> {{ movie.budget ? `${movie.budget.toLocaleString()}` : '-' }}</li>
+                <li><strong class="text-white">Revenue:</strong> {{ movie.revenue ? `${movie.revenue.toLocaleString()}` : '-' }}</li>
               </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Cast & Crew Section -->
+      <div v-if="allCast.length > 0" class="mt-12">
+        <h2 class="text-2xl font-bold mb-6">
+          <span class="section-title">Cast & Crew</span>
+        </h2>
+        
+        <div class="cast-crew-grid">
+          <div v-for="person in allCast" :key="person.id" class="cast-crew-item">
+            <div class="flex items-center gap-4">
+              <div class="cast-crew-photo">
+                <img v-if="person.profile_path" :src="tmdbImage(person.profile_path, 185)" :alt="person.name" class="w-full h-full object-cover" />
+                <div v-else class="w-full h-full flex items-center justify-center bg-gray-700">
+                  <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <div class="flex-1">
+                <div class="font-semibold text-white text-sm">{{ person.name }}</div>
+                <div class="text-xs text-[#98a1b3] mt-1">{{ person.role }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews Summary Section -->
+      <div v-if="movie.vote_count && movie.vote_count > 0" class="mt-12">
+        <h2 class="text-2xl font-bold mb-6">
+          <span class="section-title">Audience Reviews</span>
+        </h2>
+        
+        <div class="reviews-summary-panel">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="review-score-large">
+              <div class="text-4xl font-bold text-white">{{ movie.vote_average?.toFixed(1) }}</div>
+              <div class="text-xs text-[#98a1b3] mt-1">/ 10</div>
+            </div>
+            <div>
+              <div class="text-lg font-semibold text-white">{{ formatVoteCount(movie.vote_count) }} User Reviews</div>
+              <div class="text-sm text-[#98a1b3]">{{ movie.popularity?.toFixed(0) || 'N/A' }} Popularity Score</div>
+            </div>
+          </div>
+          
+          <div class="review-summary-text">
+            <h3 class="font-semibold text-white mb-2">Summary</h3>
+            <p class="text-sm text-[#d7dde8] leading-relaxed">
+              Audiences appreciate <strong>{{ movie.title }}</strong> for its {{ getReviewTone() }}. 
+              With a rating of <strong>{{ movie.vote_average?.toFixed(1) }}/10</strong> from 
+              <strong>{{ formatVoteCount(movie.vote_count) }}</strong> viewers, 
+              the film has resonated with {{ movie.vote_average && movie.vote_average >= 7 ? 'most audiences' : 'many viewers' }}.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Similar Movies -->
+      <div v-if="similarMovies.length > 0" class="mt-12 mb-8">
+        <h2 class="text-2xl font-bold mb-6">
+          <span class="section-title">More Like This</span>
+        </h2>
+        
+        <div class="similar-movies-grid">
+          <div v-for="similar in similarMovies" :key="similar.id" @click="navigateToMovie(similar.id)" class="similar-movie-card group cursor-pointer">
+            <div class="similar-poster">
+              <img v-if="similar.poster_path" :src="tmdbImage(similar.poster_path, 342)" :alt="similar.title" class="w-full h-full object-cover" />
+              <div v-else class="w-full h-full flex items-center justify-center bg-gray-800">
+                <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+                </svg>
+              </div>
+            </div>
+            <div class="p-3">
+              <h3 class="font-semibold text-sm text-white line-clamp-1 group-hover:text-[#6b6bff] transition-colors">{{ similar.title }}</h3>
+              <div class="flex items-center gap-2 mt-2">
+                <span v-if="similar.vote_average" class="text-xs text-[#98a1b3]">⭐ {{ similar.vote_average.toFixed(1) }}</span>
+                <span class="text-xs text-[#6b7280]">{{ similar.release_date ? new Date(similar.release_date).getFullYear() : '' }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -148,6 +235,7 @@ const error = ref<string|null>(null);
 const movie = ref<Movie>({} as Movie);
 const credits = ref<any>({} as any);
 const imdbRating = ref<string|null>(null);
+const similarMovies = ref<any[]>([]);
 
 const movieId = ref<string | null>(String(route.params.id || ''));
 
@@ -205,6 +293,26 @@ const certificationDisplay = computed(() => {
 
 const topCast = computed<CastMember[]>(() => (credits.value?.cast ? credits.value.cast.slice(0, 5) : []));
 
+const allCast = computed(() => {
+  const cast = credits.value?.cast?.slice(0, 15).map((c: any) => ({
+    id: c.id,
+    name: c.name,
+    role: c.character || 'Actor',
+    profile_path: c.profile_path
+  })) || [];
+  
+  const crew = credits.value?.crew?.filter((c: any) => 
+    ['Director', 'Producer', 'Screenplay', 'Writer', 'Director of Photography', 'Editor'].includes(c.job)
+  ).slice(0, 10).map((c: any) => ({
+    id: c.id,
+    name: c.name,
+    role: c.job,
+    profile_path: c.profile_path
+  })) || [];
+  
+  return [...crew, ...cast];
+});
+
 const directorsDisplay = computed(() => {
   const crew = credits.value?.crew || [];
   const directors = crew.filter((c: any) => c.job === 'Director').map((d: any) => d.name);
@@ -255,12 +363,34 @@ const imdbRatingDisplay = computed(() => {
   return '-';
 });
 
+function formatVoteCount(count: number): string {
+  if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+  if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+  return count.toString();
+}
+
+function getReviewTone(): string {
+  const rating = movie.value?.vote_average || 0;
+  if (rating >= 8) return 'exceptional performances, compelling storytelling, and masterful direction';
+  if (rating >= 7) return 'strong performances, engaging plot, and solid execution';
+  if (rating >= 6) return 'interesting concept and decent performances';
+  if (rating >= 5) return 'ambitious attempt with mixed results';
+  return 'unique vision despite some challenges';
+}
+
+function navigateToMovie(id: number) {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  movieId.value = String(id);
+  fetchAll();
+}
+
 async function fetchAll() {
   loading.value = true;
   error.value = null;
   movie.value = {};
   credits.value = {};
   imdbRating.value = null;
+  similarMovies.value = [];
 
   if (!TMDB_API_KEY) {
     error.value = 'TMDB API key not configured. Set VITE_TMDB_API_KEY in your .env.local';
@@ -269,13 +399,14 @@ async function fetchAll() {
   }
 
   try {
-    const url = `${TMDB_BASE}/movie/${movieId.value}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates,external_ids,keywords`;
+    const url = `${TMDB_BASE}/movie/${movieId.value}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates,external_ids,keywords,similar`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`TMDB fetch failed: ${res.status} ${res.statusText}`);
     const data = await res.json();
 
     movie.value = data;
     credits.value = data.credits || {};
+    similarMovies.value = data.similar?.results?.slice(0, 6) || [];
 
     const imdbId = data?.external_ids?.imdb_id;
     if (OMDB_API_KEY && imdbId) {
@@ -406,5 +537,94 @@ async function fetchAll() {
   .imdb-box { 
     padding: 6px 8px; 
   }
+}
+
+/* Cast & Crew Grid */
+.cast-crew-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.cast-crew-item {
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.2));
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.3s;
+}
+
+.cast-crew-item:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.25));
+  border-color: rgba(107,107,255,0.2);
+  transform: translateY(-2px);
+}
+
+.cast-crew-photo {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.02);
+  flex-shrink: 0;
+}
+
+/* Section Title */
+.section-title {
+  background: linear-gradient(90deg, #fff, #cfd8ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Reviews Summary Panel */
+.reviews-summary-panel {
+  padding: 24px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.2));
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.review-score-large {
+  text-align: center;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(107,107,255,0.1);
+  border: 1px solid rgba(107,107,255,0.2);
+}
+
+.review-summary-text {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+/* Similar Movies Grid */
+.similar-movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.similar-movie-card {
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.22));
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.3s;
+}
+
+.similar-movie-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  border-color: rgba(107,107,255,0.3);
+}
+
+.similar-poster {
+  width: 100%;
+  aspect-ratio: 2/3;
+  overflow: hidden;
+  background: rgba(255,255,255,0.02);
 }
 </style>
