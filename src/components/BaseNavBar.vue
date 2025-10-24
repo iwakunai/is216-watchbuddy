@@ -1,58 +1,68 @@
 <template>
-  <nav class="bg-[#0b1220] border-b border-white/5 sticky top-0 z-50 backdrop-blur-md bg-opacity-95">
+  <nav
+    :class="[
+      'w-full',
+      'bg-[#0b1220] border-b border-white/5 sticky top-0 z-50 backdrop-blur-md bg-opacity-95',
+      isOpen ? 'border-b border-gray-200' : 'border-b-0',
+    ]"
+  >
     <div class="max-w-[1200px] mx-auto px-4">
       <div class="flex items-center justify-between h-16">
         <!-- Logo/Brand -->
-        <RouterLink to="/" class="text-xl font-bold bg-gradient-to-r from-white to-[#cfd8ff] bg-clip-text text-transparent">
-          MovieApp
+        <RouterLink
+          to="/"
+          class="text-xl font-bold text-indigo-500 bg-clip-text"
+        >
+          <!-- TODO: Replace Text with brand logo -->
+          WatchBuddy
         </RouterLink>
 
-        <!-- Navigation Links -->
-        <div class="flex items-center gap-1">
-          <RouterLink 
-            to="/" 
-            class="nav-link"
-            exact-active-class="nav-link-active"
-          >
-            Home
-          </RouterLink>
-          
-          <RouterLink 
-            to="/movies" 
-            class="nav-link"
-            active-class="nav-link-active"
-          >
-            Movies
-          </RouterLink>
-          
-          <RouterLink 
-            to="/tv" 
-            class="nav-link"
-            active-class="nav-link-active"
-          >
-            TV Shows
-          </RouterLink>
-          
-          <RouterLink 
-            to="/watchparty" 
-            class="nav-link"
-            active-class="nav-link-active"
-          >
-            Watch Party
-          </RouterLink>
-          
-          <RouterLink 
-            to="/profile" 
-            class="nav-link"
-            active-class="nav-link-active"
-          >
-            Profile
-          </RouterLink>
+        <!-- Links for Desktop -->
+        <div class="hidden md:flex">
+          <NavLinks />
+          <UserManagement />
         </div>
+
+        <!-- Mobile dropdown menu -->
+        <button
+          class="md:hidden inline-flex items-center justify-center p-2 border border-gray-300 rounded-md"
+          type="button"
+          aria-label="Toggle navigation"
+          aria-controls="primary-menu"
+          :aria-expanded="isOpen ? 'true' : 'false'"
+          @click="toggle"
+        >
+          <svg
+            class="w-6 h-6 stroke-current text-indigo-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Links for mobile on toggle -->
+      <div v-if="isOpen" class="md:hidden flex flex-col gap-1 py-2">
+        <NavLinks />
       </div>
     </div>
   </nav>
 </template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+const isOpen = ref(false);
+const toggle = () => {
+  isOpen.value = !isOpen.value;
+};
+</script>
 
 <style scoped>
 .nav-link {

@@ -1,14 +1,9 @@
 <template>
-    <!-- <BaseNavBar/> -->
-     <test/>
+  <BaseNavBar />
 </template>
 
 <script setup lang="ts">
-import BaseNavBar from '@/components/BaseNavBar.vue';
-import test from '@/components/TestNavBar.vue';
-
+import BaseNavBar from "@/components/BaseNavBar.vue";
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

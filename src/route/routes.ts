@@ -17,10 +17,10 @@ import LoginPage from "@/components/UserManagement.vue";
 
 const routes = [
   {
-    path: "/",
+    path: "/:pathMatch(.*)*",
     name: "Home",
     component: HomePage,
-    meta: { label: "Home", showInNav: true },
+    meta: { label: "Home", showInNav: false },
   },
   {
     path: "/movies",
@@ -41,6 +41,18 @@ const routes = [
     meta: { label: "TV Shows", showInNav: true },
   },
   {
+    path: "/watchparty",
+    name: "watchparty",
+    component: WatchPartyPage,
+    meta: { label: "Watch Party", showInNav: false },
+  },
+  {
+    path: "/wparty",
+    name: "wparty",
+    component: WParty,
+    meta: { label: "Watch Party", showInNav: true },
+  },
+  {
     path: "/profile",
     name: "profile",
     component: ProfileView,
@@ -52,22 +64,12 @@ const routes = [
     component: EditProfilePage,
     meta: { label: "", showInNav: false },
   },
-  {
-    path: "/watchparty",
-    name: "watchparty",
-    component: WatchPartyPage,
-    meta: { label: "Watch Party", showInNav: true },
-  },
-  {
-    path: "/:pathMatch(.*)*",
-    redirect: "/",
-  },
-  {
-    path: "/wparty",
-    name: "wparty",
-    component: WParty,
-    meta: { label: "WParty", showInNav: true },
-  },
+  // {
+  //   path: "/:pathMatch(.*)*",
+  //   redirect: "/",
+  //   meta: { label: "", showInNav: false },
+  // },
+  
 ];
 
 export const router = createRouter({
