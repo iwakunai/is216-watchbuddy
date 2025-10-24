@@ -1,6 +1,6 @@
 <template>
     <!-- MARGIN + PADDING -->
-    <div class="px-10 my-8 "> 
+    <div class="my-8 "> 
 
         <!-- HEADING -->
         <div>
@@ -9,20 +9,31 @@
 
         <!-- WATCH PARTY ROOM CARDS -->
         <div class="flex overflow-x-auto gap-8 pb-3 px-10">
-            <PartyRoomCard v-for="room in watchRooms" :key="room.roomid" :room="room" />
+            <RoomCard v-for="room in filterRooms" :key="room.roomid" :room="room" />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import PartyRoomCard from '@/components/WatchParty/PartyRoomCard.vue';
+import { ref, computed } from "vue";
+import RoomCard from '@/components/WatchParty/RoomCard.vue';
+import { useUserStore } from "@/stores/user";
 
 const watchRooms = ref([
-    { roomid: "001", name: "OPM EP1", movie: "One-Punch Man", datetime: "16 Oct 7.30PM SGT", status: "Not Started", waiting: 199, watching: 0, tags: ["Anime", "Fighting"], mood: ['🤩', '🤪','🔥']}, 
-    { roomid: "002",name: "Monster EP3", movie: "Monster: The Ed Gein Story", datetime: "20 Oct 5.30AM SGT", status: "Started", waiting: 0, watching: 235, tags: ["Movie", "Horror"], mood: ['😱', '👻','🤩']}, 
-    { roomid: "003",name: "Mis Imp", movie: "Mission: Impossible - The Final Reckoning", datetime: "24 Oct 3.30PM SGT", status: "Not Started", waiting: 78, watching: 0, tags: ["Adventure", "Fighting"], mood: ['🤩', '😎', '😩']}, 
+    { roomid: "001", name: "OPM EP1", movie: "One-Punch Man", datetime: "2025-10-30T19:30:00+08:00", joined: 199, tags: ["Anime", "Fighting"], mood: ['🤩', '🤪','🔥']}, 
+    { roomid: "002",name: "Monster EP3", movie: "Monster: The Ed Gein Story", datetime: "2025-10-28T05:30:00+08:00", joined: 182, tags: ["Movie", "Horror"], mood: ['😱', '👻','🤩']}, 
+    { roomid: "003",name: "Mis Imp", movie: "Mission: Impossible - The Final Reckoning", datetime: "2025-10-24T15:00:00+08:00", joined: 78, tags: ["Adventure", "Fighting"], mood: ['🤩', '😎', '😩']}, 
 ]);
+
+const userStore = useUserStore();
+
+const filterRooms = computed(()=>{
+    if(!userStore.selectedMood) return watchRooms.value
+    return watchRooms.value.filter(room =>
+        room.mood.includes(userStore.selectedMood!)
+    )
+})
+
 </script>
 
 <style scoped>

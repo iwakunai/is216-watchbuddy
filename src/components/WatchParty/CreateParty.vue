@@ -1,5 +1,5 @@
 <template>
-    <form action="">
+    <form action="" class="flex px-10">
         <div class="bg-white/5 p-4 rounded-lg text-center shadow-md w-sm"> 
             <!-- HEADING -->
             <div>
@@ -27,12 +27,11 @@
             <div class="text-left mb-4">
                 <label for="party-datetime" class="block text-md/6 font-medium text-gray-900 dark:text-white">Date Time</label>
                 <div class="mt-2">
-                    <input id="flatpickr-date-time" type="datetime" placeholder="YYYY-MM-DD HH:MM" name="party-datetime" 
+                    <input id="party-datetime" placeholder="MM-DD-YYYY HH:MM" type="datetime-local" name="party-datetime" 
                     class="input block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
                 </div>
             </div>
             <!-- TO DO: DATETIME PICKER -->
-            <!-- https://flyonui.com/docs/third-party-plugins/flatpickr/#datetime-picker -->
 
             <!-- PUBLIC PRIVATE -->
             <div class="flex gap-10 mb-4">
@@ -63,8 +62,13 @@
                     class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
                 </div>
             </div>
+            <button class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm 
+            dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">
+                Create
+            </button>
 
         </div>
+        
     </form>
     
 </template>
