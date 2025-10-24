@@ -7,6 +7,7 @@
         <CreateParty />
         <UserParty />
     </div>
+    <PartyRoom />
     <BaseFooter />
 </template>
 
