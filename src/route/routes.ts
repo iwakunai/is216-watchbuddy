@@ -1,12 +1,17 @@
-// src/router/routes.ts
-import { createRouter, createWebHistory } from "vue-router";
+import {
+  createMemoryHistory,
+  createRouter,
+  createWebHistory,
+} from "vue-router";
 
-const HomePage = () => import('@/pages/HomePage.vue');
-const MoviePage = () => import('@/pages/MoviePage.vue');
-const TvPage = () => import('@/pages/TvPage.vue');
-const ProfileView = () => import('@/pages/ProfilePage.vue');
-const WatchPartyPage = () => import('@/pages/WatchPartyPage.vue');
-const MovieDetailPage = () => import('@/pages/MovieDetailPage.vue');
+import App from "@/App.vue";
+import HomePage from "@/pages/HomePage.vue";
+import ProfileView from "@/pages/ProfilePage.vue";
+import MoviePage from "@/pages/MoviePage.vue";
+import TvPage from "@/pages/TvPage.vue";
+import WatchPartyPage from "@/pages/WatchPartyPage.vue";
+import WParty from "@/pages/WPartyPage.vue";
+import MovieDetailPage from "@/pages/MovieDetailPage.vue";
 
 const routes = [
   { 
@@ -48,6 +53,12 @@ const routes = [
   { 
     path: "/:pathMatch(.*)*", 
     redirect: "/" 
+  },
+  {
+    path: "/wparty",
+    name: "wparty",
+    component: WParty,
+    meta: { label: "WParty", showInNav: true },
   },
 ];
 
