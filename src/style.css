@@ -7,10 +7,10 @@
   --color-brand-hover: #535bf2;
 
   --color-fg-dark: rgba(255, 255, 255, 0.87);
-  --color-bg-dark: #121212;
+  /* --color-bg-dark: #121212; */
 
   --color-fg-light: #213547;
-  --color-bg-light: #ffffff;
+  --color-bg-light: #fafafa;
 }
 
 @layer base {
@@ -21,8 +21,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    color: var(--color-fg-dark);
-    background-color: var(--color-bg-dark);
+    color: var(--color-fg-light);
+    background-color: var(--color-bg-light);
   }
 
   body {
@@ -49,7 +49,7 @@
     line-height: 1.1;
   }
 
-  button {
+  /* button {
     border-radius: 8px;
     border: 1px solid transparent;
     padding: 0.6em 1.2em;
@@ -59,7 +59,7 @@
     background-color: #1a1a1a;
     cursor: pointer;
     transition: border-color 0.25s;
-  }
+  } */
   button:hover {
     border-color: var(--color-brand);
   }
@@ -72,6 +72,18 @@
     padding: 2em;
   }
 
+  .p-toolbar {
+    --p-toolbar-border-radius: 1rem;
+    --p-toolbar-padding: 1;
+    --p-toolbar-background: #ffffff;
+  }
+
+  .p-toolbar button {
+    --p-button-border-radius: 1rem;
+    /* --p-button-primary-background: transparent; */
+  }
+
+
   #app {
     margin: 0 auto;
     padding: 0;
@@ -82,7 +94,7 @@
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
+    background-color: #fafafa;
   }
   a:hover {
     color: #747bff;

@@ -3,51 +3,51 @@
     <div class="max-w-[1200px] mx-auto px-4">
       <div class="flex items-center justify-between h-16">
         <!-- Logo/Brand -->
-        <router-link to="/" class="text-xl font-bold bg-gradient-to-r from-white to-[#cfd8ff] bg-clip-text text-transparent">
+        <RouterLink to="/" class="text-xl font-bold bg-gradient-to-r from-white to-[#cfd8ff] bg-clip-text text-transparent">
           MovieApp
-        </router-link>
+        </RouterLink>
 
         <!-- Navigation Links -->
         <div class="flex items-center gap-1">
-          <router-link 
+          <RouterLink 
             to="/" 
             class="nav-link"
             exact-active-class="nav-link-active"
           >
             Home
-          </router-link>
+          </RouterLink>
           
-          <router-link 
+          <RouterLink 
             to="/movies" 
             class="nav-link"
             active-class="nav-link-active"
           >
             Movies
-          </router-link>
+          </RouterLink>
           
-          <router-link 
+          <RouterLink 
             to="/tv" 
             class="nav-link"
             active-class="nav-link-active"
           >
             TV Shows
-          </router-link>
+          </RouterLink>
           
-          <router-link 
+          <RouterLink 
             to="/watchparty" 
             class="nav-link"
             active-class="nav-link-active"
           >
             Watch Party
-          </router-link>
+          </RouterLink>
           
-          <router-link 
+          <RouterLink 
             to="/profile" 
             class="nav-link"
             active-class="nav-link-active"
           >
             Profile
-          </router-link>
+          </RouterLink>
         </div>
       </div>
     </div>
