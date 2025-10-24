@@ -9,8 +9,7 @@ import HomePage from "@/pages/HomePage.vue";
 import ProfileView from "@/pages/ProfilePage.vue";
 import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
-import WatchPartyPage from "@/pages/WatchPartyPage.vue";
-import WParty from "@/pages/WPartyPage.vue";
+import WPartyPage from "@/pages/WPartyPage.vue";
 
 const routes = [
   {
@@ -38,15 +37,9 @@ const routes = [
     meta: { label: "Profile", showInNav: true },
   },
   {
-    path: "/watchparty",
-    name: "watchparty",
-    component: WatchPartyPage,
-    meta: { label: "Watch Party", showInNav: true },
-  },
-  {
     path: "/wparty",
     name: "wparty",
-    component: WParty,
+    component: WPartyPage,
     meta: { label: "WParty", showInNav: true },
   },
 ];
