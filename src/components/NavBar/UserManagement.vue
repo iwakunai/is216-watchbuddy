@@ -1,13 +1,10 @@
 <template>
     <SignedOut>
       <SignInButton/>
-      <button>Out Test Button</button>
     </SignedOut>
     <SignedIn>
-      <UserButton/>
-      <button>In Test Button</button>
+      <BaseUserButton />
     </SignedIn>
-    <!-- <button>Test Button</button> -->
 </template>
 
 <script setup lang="ts">

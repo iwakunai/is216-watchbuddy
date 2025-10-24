@@ -6,12 +6,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900">PROFILE</h1>
-        <RouterLink to="/profile/edit" class="bg-blue-600 hover:bg-blue-700  px-3 py-1.5 rounded-md text-sm font-medium transition-colors text-white">
+        <!-- <RouterLink to="/profile/edit" class="bg-blue-600 hover:bg-blue-700  px-3 py-1.5 rounded-md text-sm font-medium transition-colors text-white">
           Edit profile
-        </RouterLink>
+        </RouterLink> -->
       </div>
-
-      
 
       <!-- Profile Summary -->
       <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
@@ -319,7 +317,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import BaseNavBar from "@/components/BaseNavBar.vue"
+import BaseNavBar from "@/components/NavBar/BaseNavBar.vue"
 import BaseFooter from "@/components/BaseFooter.vue"
 
 const activeTab = ref('overview')

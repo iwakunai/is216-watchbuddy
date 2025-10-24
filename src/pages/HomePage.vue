@@ -1,12 +1,12 @@
 <template>
     <BaseNavBar /> 
     <!-- TODO: Move BaseSearchBar into BaseNavBar ?-->
-    <BaseSearchBar />
+    <!-- <BaseSearchBar /> -->
     <Trending />
     <HomeMood />
     <WatchPartyList />
     <Leaderboard />
-    <BaseFooter />
+    <!-- <BaseFooter /> -->
 </template>
 
 <script setup lang="ts">

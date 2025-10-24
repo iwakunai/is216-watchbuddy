@@ -3,7 +3,7 @@
 
 <script setup lang="ts">
 // @ts-nocheck remove when typed
-import BaseNavBar from "@/components/BaseNavBar.vue";
+import BaseNavBar from "@/components/NavBar/BaseNavBar.vue";
 import { ref, computed } from "vue";
 
 const currentUser = ref("my_username");

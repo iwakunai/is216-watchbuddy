@@ -9,21 +9,20 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BaseFooter: typeof import('./../components/BaseFooter.vue')['default']
-    BaseNavBar: typeof import('./../components/BaseNavBar.vue')['default']
+    BaseNavBar: typeof import('./../components/NavBar/BaseNavBar.vue')['default']
     BaseSearchBar: typeof import('./../components/BaseSearchBar.vue')['default']
+    BaseUserButton: typeof import('./../components/NavBar/BaseUserButton.vue')['default']
     CreateParty: typeof import('./../components/WatchParty/CreateParty.vue')['default']
-    DbTemplate: typeof import('./../components/DbTemplate.vue')['default']
+    DbTemplate: typeof import('./../components/Database/DbTemplate.vue')['default']
     HomeMood: typeof import('./../components/HomeMood.vue')['default']
     Leaderboard: typeof import('./../components/Leaderboard.vue')['default']
     MovieCard: typeof import('./../components/MovieCard.vue')['default']
-    NavLinks: typeof import('./../components/NavLinks.vue')['default']
-    OldBaseNavBar: typeof import('./../components/oldBaseNavBar.vue')['default']
+    NavLinks: typeof import('./../components/NavBar/NavLinks.vue')['default']
     PartyRoomCard: typeof import('./../components/WatchParty/PartyRoomCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    TestNavBar: typeof import('./../components/TestNavBar.vue')['default']
     Trending: typeof import('./../components/Trending.vue')['default']
-    UserManagement: typeof import('./../components/UserManagement.vue')['default']
+    UserManagement: typeof import('./../components/NavBar/UserManagement.vue')['default']
     WatchPartyList: typeof import('./../components/WatchParty/WatchPartyList.vue')['default']
   }
 }

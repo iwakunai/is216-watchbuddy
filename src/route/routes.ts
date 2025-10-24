@@ -13,7 +13,7 @@ import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
 import WParty from "@/pages/WPartyPage.vue";
 import MovieDetailPage from "@/pages/MovieDetailPage.vue";
-import LoginPage from "@/components/UserManagement.vue";
+import LoginPage from "@/components/NavBar/UserManagement.vue";
 
 const routes = [
   {
@@ -40,15 +40,15 @@ const routes = [
     component: TvPage,
     meta: { label: "TV Shows", showInNav: true },
   },
+  // {
+  //   path: "/watchparty",
+  //   name: "watchparty",
+  //   component: WatchPartyPage,
+  //   meta: { label: "Watch Party", showInNav: false },
+  // },
   {
     path: "/watchparty",
     name: "watchparty",
-    component: WatchPartyPage,
-    meta: { label: "Watch Party", showInNav: false },
-  },
-  {
-    path: "/wparty",
-    name: "wparty",
     component: WParty,
     meta: { label: "Watch Party", showInNav: true },
   },
@@ -56,7 +56,7 @@ const routes = [
     path: "/profile",
     name: "profile",
     component: ProfileView,
-    meta: { label: "Profile", showInNav: true },
+    meta: { label: "Profile", showInNav: false },
   },
   {
     path: "/profile/edit",
