@@ -8,6 +8,7 @@ import App from "@/App.vue";
 import HomePage from "@/pages/HomePage.vue";
 import ProfileView from "@/pages/ProfilePage.vue";
 import EditProfilePage from "@/pages/EditProfilePage.vue";
+import AchievementsPage from "@/pages/AchievementsPage.vue";
 import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
@@ -42,6 +43,12 @@ const routes = [
     name: "profile-edit",
     component: EditProfilePage,
     meta: { label: "", showInNav: false },
+  },
+  {
+    path: "/achievements",
+    name: "achievements",
+    component: AchievementsPage,
+    meta: { label: "Achievements", showInNav: false },
   },
   {
     path: "/watchparty",

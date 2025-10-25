@@ -206,12 +206,20 @@
               <span class="w-1 h-6 bg-amber-600 rounded-full mr-3"></span>
               Badges & Achievements
             </h3>
-            <button 
-              @click="showAllBadges = !showAllBadges"
-              class="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-            >
-              {{ showAllBadges ? 'Hide All' : 'Show All Badges' }}
-            </button>
+            <div class="flex items-center space-x-3">
+              <RouterLink 
+                to="/achievements"
+                class="text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors px-3 py-1 bg-amber-50 hover:bg-amber-100 rounded-lg"
+              >
+                View All Achievements
+              </RouterLink>
+              <button 
+                @click="showAllBadges = !showAllBadges"
+                class="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                {{ showAllBadges ? 'Hide All' : 'Show All Badges' }}
+              </button>
+            </div>
           </div>
           <p class="text-sm text-gray-600 mb-6">
             Earn badges by completing watch parties, challenges, and milestones. Hover over badges to see how to earn them!
@@ -219,7 +227,7 @@
 
           <!-- Featured Badges (First 6) -->
           <div v-if="!showAllBadges" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <div v-for="badge in featuredBadges" :key="badge.id" class="text-center group cursor-pointer" :title="badge.description">
+            <div v-for="badge in featuredBadges" :key="badge.id" class="text-center relative group cursor-pointer">
               <div 
                 class="w-20 h-20 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md group-hover:shadow-lg transition-all ring-4"
                 :class="[
@@ -232,6 +240,15 @@
               </div>
               <p class="text-xs font-semibold text-gray-700">{{ badge.name }}</p>
               <p class="text-xs text-gray-500 mt-1">{{ badge.earned ? 'Earned' : 'Locked' }}</p>
+              
+              <!-- Enhanced Tooltip -->
+              <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                <div class="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl max-w-xs whitespace-normal">
+                  <p class="font-bold mb-1">{{ badge.name }}</p>
+                  <p class="text-gray-300">{{ badge.description }}</p>
+                  <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -244,7 +261,7 @@
                 Mood Mastery
               </h4>
               <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <div v-for="badge in badgesByCategory.moodMastery" :key="badge.id" class="text-center group cursor-pointer" :title="badge.description">
+                <div v-for="badge in badgesByCategory.moodMastery" :key="badge.id" class="text-center relative group cursor-pointer">
                   <div 
                     class="w-20 h-20 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md group-hover:shadow-lg transition-all ring-4"
                     :class="[
@@ -257,6 +274,15 @@
                   </div>
                   <p class="text-xs font-semibold text-gray-700">{{ badge.name }}</p>
                   <p class="text-xs text-gray-500 mt-1">{{ badge.earned ? 'Earned' : 'Locked' }}</p>
+                  
+                  <!-- Enhanced Tooltip -->
+                  <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                    <div class="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl max-w-xs whitespace-normal">
+                      <p class="font-bold mb-1">{{ badge.name }}</p>
+                      <p class="text-gray-300">{{ badge.description }}</p>
+                      <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -268,7 +294,7 @@
                 Genre Explorer
               </h4>
               <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <div v-for="badge in badgesByCategory.genreExplorer" :key="badge.id" class="text-center group cursor-pointer" :title="badge.description">
+                <div v-for="badge in badgesByCategory.genreExplorer" :key="badge.id" class="text-center relative group cursor-pointer">
                   <div 
                     class="w-20 h-20 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md group-hover:shadow-lg transition-all ring-4"
                     :class="[
@@ -281,6 +307,15 @@
                   </div>
                   <p class="text-xs font-semibold text-gray-700">{{ badge.name }}</p>
                   <p class="text-xs text-gray-500 mt-1">{{ badge.earned ? 'Earned' : 'Locked' }}</p>
+                  
+                  <!-- Enhanced Tooltip -->
+                  <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                    <div class="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl max-w-xs whitespace-normal">
+                      <p class="font-bold mb-1">{{ badge.name }}</p>
+                      <p class="text-gray-300">{{ badge.description }}</p>
+                      <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -292,7 +327,7 @@
                 Social Butterfly
               </h4>
               <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <div v-for="badge in badgesByCategory.socialButterfly" :key="badge.id" class="text-center group cursor-pointer" :title="badge.description">
+                <div v-for="badge in badgesByCategory.socialButterfly" :key="badge.id" class="text-center relative group cursor-pointer">
                   <div 
                     class="w-20 h-20 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md group-hover:shadow-lg transition-all ring-4"
                     :class="[
@@ -305,6 +340,15 @@
                   </div>
                   <p class="text-xs font-semibold text-gray-700">{{ badge.name }}</p>
                   <p class="text-xs text-gray-500 mt-1">{{ badge.earned ? 'Earned' : 'Locked' }}</p>
+                  
+                  <!-- Enhanced Tooltip -->
+                  <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                    <div class="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl max-w-xs whitespace-normal">
+                      <p class="font-bold mb-1">{{ badge.name }}</p>
+                      <p class="text-gray-300">{{ badge.description }}</p>
+                      <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
