@@ -23,24 +23,5 @@ const navRoutes = routes.filter((route) => route.meta?.showInNav);
 </script>
 
 <style scoped>
-.nav-link {
-  padding: 8px 16px;
-  border-radius: 8px;
-  color: #98a1b3;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  display: inline-block;
-}
 
-.nav-link:hover {
-  color: #eaf0ff;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.nav-link-active {
-  color: #6b6bff;
-  background: rgba(107, 107, 255, 0.1);
-}
 </style>

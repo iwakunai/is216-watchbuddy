@@ -1,5 +1,5 @@
 <template>
-  <div class="relative" @click="toggleDropdown" @blur="closeDropdown" tabindex="0">
+  <div class="flex flex-col md:flex-row items-center ml-1 md:m-3" @click="toggleDropdown" @blur="closeDropdown" tabindex="0">
     <UserButton>
         <UserButton.MenuItems>
             <UserButton.Link label="Profile" href="/profile"> 
@@ -10,13 +10,6 @@
             <UserButton.Action label="signOut"/>
         </UserButton.MenuItems>
     </UserButton>
-
-    <!-- <div v-if="isOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-      <a href="/profile" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
-      <button @click="signOut" class="block w-full text-left px-4 py-2 hover:bg-gray-200">Sign Out</button>
-      
-    </div> -->
-
   </div>
 </template>
 

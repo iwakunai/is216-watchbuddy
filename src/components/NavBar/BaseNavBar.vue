@@ -6,8 +6,14 @@
       isOpen ? 'border-b border-gray-200' : 'border-b-0',
     ]"
   >
-    <div class="max-w-[1200px] mx-auto px-4">
+    <div class="mx-auto px-4">
       <div class="flex items-center justify-between h-16">
+
+        <!-- User Button for Mobile -->
+        <div class="flex md:hidden">
+          <UserManagement />
+        </div>
+
         <!-- Logo/Brand -->
         <RouterLink
           to="/"
@@ -65,7 +71,7 @@ const toggle = () => {
 </script>
 
 <style scoped>
-.nav-link {
+/* .nav-link {
   padding: 8px 16px;
   border-radius: 8px;
   color: #98a1b3;
@@ -84,5 +90,5 @@ const toggle = () => {
 .nav-link-active {
   color: #6b6bff;
   background: rgba(107, 107, 255, 0.1);
-}
+} */
 </style>
