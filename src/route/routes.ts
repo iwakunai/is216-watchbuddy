@@ -4,14 +4,12 @@ import {
   createWebHistory,
 } from "vue-router";
 
-import App from "@/App.vue";
 import HomePage from "@/pages/HomePage.vue";
 import ProfileView from "@/pages/ProfilePage.vue";
 import EditProfilePage from "@/pages/EditProfilePage.vue";
 import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
-import WParty from "@/pages/WPartyPage.vue";
 import MovieDetailPage from "@/pages/MovieDetailPage.vue";
 import LoginPage from "@/components/NavBar/UserManagement.vue";
 
@@ -49,7 +47,7 @@ const routes = [
   {
     path: "/watchparty",
     name: "watchparty",
-    component: WParty,
+    component: WatchPartyPage,
     meta: { label: "Watch Party", showInNav: true },
   },
   {
