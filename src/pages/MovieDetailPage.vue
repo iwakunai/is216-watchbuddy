@@ -344,7 +344,7 @@ function inferVibe(movieObj: any, keywordsList: any[]): string {
   };
 
   for (const k in mapping) {
-    if (bag.includes(k)) return mapping[k];
+    if (bag.includes(k)) return mapping[k] as string;
   }
   if (bag.includes('zombie') || bag.includes('monster') || bag.includes('creepy')) return 'Frightening';
   if (bag.includes('survival')) return 'Tense / Survival';
