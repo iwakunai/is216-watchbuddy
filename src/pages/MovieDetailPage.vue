@@ -183,6 +183,7 @@
               the film has resonated with {{ movie.vote_average && movie.vote_average >= 7 ? 'most audiences' : 'many viewers' }}.
             </p>
           </div>
+          <MovieReviews :movie-id="movie.id" />
         </div>
       </div>
 
@@ -220,6 +221,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import BaseNavBar from '@/components/NavBar/BaseNavBar.vue';
+import MovieReviews from '@/components/Reviews/MovieReviews.vue';
 
 const route = useRoute();
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '';
