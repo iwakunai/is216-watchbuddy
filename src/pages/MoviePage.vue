@@ -355,7 +355,8 @@ onMounted(() => {
 }
 
 .hero-title {
-  background: linear-gradient(90deg, #fff, #cfd8ff 30%, #8b5cf6 65%, #6b6bff);
+  /* background: linear-gradient(90deg, #fff, #cfd8ff 30%, #8b5cf6 65%, #6b6bff)  */
+  background: white;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
