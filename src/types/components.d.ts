@@ -21,6 +21,7 @@ declare module 'vue' {
     MessageBox: typeof import('./../components/Room/MessageBox.vue')['default']
     MoodSelector: typeof import('./../components/WatchParty/MoodSelector.vue')['default']
     MovieCard: typeof import('./../components/MovieCard.vue')['default']
+    MovieReviews: typeof import('./../components/Reviews/MovieReviews.vue')['default']
     NavLinks: typeof import('./../components/NavBar/NavLinks.vue')['default']
     RoomCard: typeof import('./../components/WatchParty/RoomCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

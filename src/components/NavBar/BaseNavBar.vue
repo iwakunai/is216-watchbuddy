@@ -8,7 +8,6 @@
   >
     <div class="mx-auto px-4">
       <div class="flex items-center justify-between h-16">
-
         <!-- User Button for Mobile -->
         <div class="flex md:hidden">
           <UserManagement />
@@ -22,7 +21,7 @@
           <!-- TODO: Replace Text with brand logo -->
           WatchBuddy
         </RouterLink>
-        
+
         <!-- Links for Desktop -->
         <div class="hidden md:flex">
           <!-- <BaseSearchBar/> -->

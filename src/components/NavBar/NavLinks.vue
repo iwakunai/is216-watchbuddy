@@ -22,6 +22,4 @@ const routes = router.getRoutes();
 const navRoutes = routes.filter((route) => route.meta?.showInNav);
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
