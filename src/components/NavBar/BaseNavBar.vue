@@ -22,9 +22,10 @@
           <!-- TODO: Replace Text with brand logo -->
           WatchBuddy
         </RouterLink>
-
+        
         <!-- Links for Desktop -->
         <div class="hidden md:flex">
+          <!-- <BaseSearchBar/> -->
           <NavLinks />
           <UserManagement />
         </div>

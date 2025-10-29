@@ -6,6 +6,10 @@
                 <template #labelIcon>
                 </template>
             </UserButton.Link>
+            <UserButton.Link label="Friends" href="/friends"> 
+                <template #labelIcon>
+                </template>
+            </UserButton.Link>
             <UserButton.Action label="manageAccount"/>
             <UserButton.Action label="signOut"/>
         </UserButton.MenuItems>
