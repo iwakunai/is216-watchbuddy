@@ -309,6 +309,7 @@
                 </div>
               </div>
             </div>
+            <MovieReviews :movie-id="movie.id" />
           </div>
         </div>
 
