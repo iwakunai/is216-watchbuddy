@@ -91,28 +91,26 @@
         </div>
 
         <!-- Col 2? -->
-        <div class="col-span-3 md:col-span-2 grid gap-6">
+        <div class="col-span-3 md:col-span-2 gap-[2rem]">
           <!-- Details -->
-          <div class="flex flex-col items-center gap-4">
+          <div class="flex flex-col items-center gap-[4rem] h-min">
             <div class="flex-1 items-center">
               <h1
-                class="text-3xl md:text-4xl font-extrabold text-white leading-tight"
+                class="text-3xl md:text-4xl font-extrabold text-white text-center leading-tight"
               >
                 {{ movie.title }}
                 <span class="text-base font-medium text-[#b6c0d6]"
                   >({{ releaseYear }})</span
                 >
               </h1>
-
               <div
-                class="mt-3 flex flex-wrap items-center gap-3 text-sm text-[#98a1b3]"
+                class="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-[#98a1b3]"
               >
                 <span
-                  class="px-2 py-1 rounded-md border border-white/5 bg-white/[0.03]"
+                  class="px-2 py-1 rounded-md border border-white/5 bg-white/[0.03] text-center"
                   >{{ certificationDisplay }}</span
                 >
                 <span>{{ formattedDate }}</span>
-                <!-- <span>{{ genresDisplay }}</span> -->
                 <span>{{ formattedRuntime }}</span>
               </div>
             </div>
@@ -121,12 +119,14 @@
           <!-- Col 3 -->
           <div class="grid md:grid-cols-3 gap-6">
             <div class="md:col-span-3">
+              <!-- Vibe -->
               <div
                 class="inline-block mb-3 px-3 py-2 rounded-lg border border-white/5 bg-white/[0.03] text-[#d6def8]"
               >
                 <strong>Vibe:</strong> <span class="ml-2">{{ vibe }}</span>
               </div>
 
+              <!-- Overview -->
               <div
                 class="p-4 rounded-lg border border-white/10 bg-gradient-to-b from-white/5 to-black/20"
               >
@@ -215,12 +215,11 @@
                     movie.revenue ? "$" + movie.revenue.toLocaleString() : "-"
                   }}</span>
                 </div>
-                
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- TODO: Add show more button, only show top 5 and rest of cast in new page -->
         <!-- Full Cast & Crew Section -->
         <div v-if="allCast.length > 0" class="mt-12 col-span-3">
@@ -289,9 +288,9 @@
             Audience Reviews
           </h2>
           <div
-            class="p-6 rounded-xl border border-white/10 bg-gradient-to-b from-white/5 to-black/20"
+            class="grid items-center p-6 rounded-xl border border-white/10 bg-gradient-to-b from-white/5 to-black/20"
           >
-            <div class="flex items-center gap-4 mb-4">
+            <div class="flex justify-center items-center gap-4 mb-4">
               <div
                 class="text-center p-4 rounded-lg border border-[#6b6bff]/30 bg-[#6b6bff]/10"
               >
@@ -384,10 +383,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import BaseNavBar from '@/components/NavBar/BaseNavBar.vue';
-import MovieReviews from '@/components/Reviews/MovieReviews.vue';
+import { ref, computed, watch, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import BaseNavBar from "@/components/NavBar/BaseNavBar.vue";
+import MovieReviews from "@/components/Reviews/MovieReviews.vue";
 
 const route = useRoute();
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
