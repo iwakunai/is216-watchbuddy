@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/vue";
+import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/vue";
 </script>
 
 <style scoped></style>
