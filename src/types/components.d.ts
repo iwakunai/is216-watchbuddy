@@ -24,6 +24,7 @@ declare module 'vue' {
     MovieReviews: typeof import('./../components/Reviews/MovieReviews.vue')['default']
     NavLinks: typeof import('./../components/NavBar/NavLinks.vue')['default']
     RoomCard: typeof import('./../components/WatchParty/RoomCard.vue')['default']
+    RoomRow: typeof import('./../components/WatchParty/RoomRow.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchBar: typeof import('./../components/WatchParty/SearchBar.vue')['default']
