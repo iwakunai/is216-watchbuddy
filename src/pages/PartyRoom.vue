@@ -4,18 +4,18 @@
         <!-- HEADER -->
         <header class="flex items-center justify-between px-6 py-4 bg-gray-800 border-b border-gray-700 flex-shrink-0">
             <button @click="goBack" class="flex items-center gap-2 hover:text-indigo-400">
-            <span class="text-lg">←</span>
-            <span>Back</span>
+                <span class="text-lg">←</span>
+                <span>Back</span>
             </button>
             <div class="text-center">
-            <h2 class="text-xl font-semibold">{{ room?.name }}</h2>
-            <p class="text-sm text-gray-400">{{ room?.movie }}</p>
+                <h2 class="text-xl font-semibold">{{ room?.name }}</h2>
+                <p class="text-sm text-gray-400">{{ room?.movie }}</p>
             </div>
             <button
-            class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium"
-            @click="inviteFriends"
+                class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium"
+                @click="inviteFriends"
             >
-            Invite
+                Invite
             </button>
         </header>
 
@@ -31,10 +31,10 @@
             <h3 class="text-sm font-semibold mb-3 text-gray-400">In Room</h3>
             <ul class="space-y-2">
                 <li v-for="user in users" :key="user.id" class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-sm">
-                    {{ user.initial }}
-                </div>
-                <span>{{ user.name }}</span>
+                    <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-sm">
+                        {{ user.initial }}
+                    </div>
+                    <span>{{ user.name }}</span>
                 </li>
             </ul>
             </aside>
