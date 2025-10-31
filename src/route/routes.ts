@@ -38,17 +38,17 @@ const routes = [
     component: TvPage,
     meta: { label: "TV Shows", showInNav: true },
   },
-  // {
-  //   path: "/watchparty",
-  //   name: "watchparty",
-  //   component: WatchPartyPage,
-  //   meta: { label: "Watch Party", showInNav: false },
-  // },
   {
     path: "/watchparty",
     name: "watchparty",
     component: WatchPartyPage,
     meta: { label: "Watch Party", showInNav: true },
+  },
+  {
+    path: '/party/:roomid',
+    name: 'PartyRoom',
+    component: () => import('@/pages/PartyRoom.vue'),
+    meta: { label: "Party Room", showInNav: false },
   },
   {
     path: "/profile",

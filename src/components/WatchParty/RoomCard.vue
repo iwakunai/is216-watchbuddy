@@ -26,7 +26,10 @@
         </div>
 
         <!-- JOIN PARTY BUTTON -->
-        <button class="w-full px-3 py-1 border rounded-lg mt-auto">
+        <button
+            class="w-full px-3 py-1 border rounded-lg mt-auto hover:bg-white/10"
+            @click="joinRoom"
+        >
             Join Room
         </button>
 
@@ -34,7 +37,10 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const props = defineProps({
     room: {
         type: Object,
         required: true
@@ -50,6 +56,10 @@ function formatStatus(status: string) {
         default:
             return "Waiting to Start";
     }
+}
+
+function joinRoom() {
+    router.push(`/party/${props.room.roomid}`)
 }
 </script>
 
