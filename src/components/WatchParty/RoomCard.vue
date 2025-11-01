@@ -15,12 +15,14 @@
             <span
                 :class="[
                     'text-xs font-semibold px-2 py-1 rounded-md whitespace-nowrap',
-                    room.status === 'playing'
-                    ? 'bg-green-600/80 text-white'
-                    : 'bg-gray-500/70 text-white'
+                    status === 'playing'
+                        ? 'bg-green-600/80 text-white'
+                        : status === 'scheduled'
+                        ? 'bg-gray-500/70 text-white'
+                        : 'bg-red-600/80 text-white'
                 ]"
             >
-                {{ formatStatus(room.status) }}
+                {{ formatStatus(status) }}
             </span>
         </div>
 
@@ -47,14 +49,25 @@ const props = defineProps({
     }
 })
 
+// Example: assume each room has a `datetime` (start time) and `duration` in seconds
+const status = computed(() => {
+    if (!props.room.datetime || !props.room.duration) return "scheduled";
+
+    const now = new Date();
+    const start = new Date(props.room.datetime);
+    const end = new Date(start.getTime() + props.room.duration * 1000);
+
+    if (now < start) return "scheduled";
+    if (now >= start && now <= end) return "playing";
+    return "ended";
+});
+
 function formatStatus(status: string) {
     switch (status) {
-        case "playing":
-            return "Playing";
-        case "scheduled":
-            return "Scheduled";
-        default:
-            return "Waiting to Start";
+        case "playing": return "Playing";
+        case "scheduled": return "Scheduled";
+        case "ended": return "Ended";
+        default: return "Unknown";
     }
 }
 
@@ -63,6 +76,7 @@ const formattedDatetime = computed(() => {
     if (!props.room.datetime) return '';
     const date = new Date(props.room.datetime);
     return date.toLocaleString('en-SG', {
+        weekday: 'short',
         year: 'numeric',
         month: 'short',
         day: 'numeric',

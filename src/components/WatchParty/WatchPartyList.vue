@@ -47,7 +47,7 @@ import RoomRow from "@/components/WatchParty/RoomRow.vue";
 
 const props = defineProps<{
     view: "card" | "list";
-    statusFilter: "all" | "waiting" | "playing" | "scheduled";
+    statusFilter: "all" | "playing" | "scheduled" | "ended";
 }>();
 
 // Reactive state
@@ -67,26 +67,28 @@ async function fetchRooms() {
         movie_or_show,
         host,
         scheduled_time,
+        duration,
         public_status
     `)
     .eq("public_status", true)
     .order("scheduled_time", { ascending: true });
 
 
-    console.log("✅ Supabase fetched data:", data);
+    console.log("Supabase fetched data:", data);
     if (error) {
         console.error("Error fetching rooms:", error);
     } else if (data && data.length > 0) {
         // Map DB results to frontend-friendly structure
         watchRooms.value = data.map((room) => ({
-        roomid: room.id,
-        name: room.room_name,
-        movie: room.movie_or_show,
-        host: room.host, // this is still the host UUID (can join with users later)
-        datetime: room.scheduled_time,
-        status: getStatus(room.scheduled_time),
-        tags: [],
-        mood: [],
+            roomid: room.id,
+            name: room.room_name,
+            movie: room.movie_or_show,
+            host: room.host,
+            datetime: room.scheduled_time,
+            duration: room.duration,
+            status: getStatus(room.scheduled_time, room.duration),
+            tags: [],
+            mood: [],
         }));
     } else {
         watchRooms.value = [];
@@ -95,15 +97,20 @@ async function fetchRooms() {
     loading.value = false;
 }
 
-// Determine room status from scheduled_time
-function getStatus(scheduledTime: string) {
+
+// Determine room status using scheduled_time + duration
+function getStatus(scheduledTime: string, duration?: number | null) {
+    if (!scheduledTime) return "scheduled";
+
     const now = new Date();
     const start = new Date(scheduledTime);
-    const diff = start.getTime() - now.getTime();
+    const end = duration
+        ? new Date(start.getTime() + duration * 1000)
+        : new Date(start.getTime() + 2 * 60 * 60 * 1000); // fallback: 2h
 
-    if (diff > 0) return "scheduled";
-    else if (diff < 0 && diff > -2 * 60 * 60 * 1000) return "playing"; 
-    else return "waiting";
+    if (now < start) return "scheduled";
+    if (now >= start && now <= end) return "playing";
+    return "ended";
 }
 
 // Fetch when component mounts
@@ -117,9 +124,9 @@ const filteredRooms = computed(() => {
     if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase();
         rooms = rooms.filter(
-        (room) =>
-            room.name.toLowerCase().includes(query) ||
-            room.movie.toLowerCase().includes(query)
+            (room) =>
+                room.name.toLowerCase().includes(query) ||
+                room.movie.toLowerCase().includes(query)
         );
     }
 
@@ -127,6 +134,13 @@ const filteredRooms = computed(() => {
     if (props.statusFilter !== "all") {
         rooms = rooms.filter((room) => room.status === props.statusFilter);
     }
+
+    // Move ended rooms to the end
+    rooms.sort((a, b) => {
+        if (a.status === "ended" && b.status !== "ended") return 1;
+        if (a.status !== "ended" && b.status === "ended") return -1;
+        return 0; // otherwise keep original order
+    });
 
     return rooms;
 });

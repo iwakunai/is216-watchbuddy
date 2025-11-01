@@ -14,7 +14,7 @@
                 <!-- STATUS FILTER BUTTONS -->
                 <div class="flex gap-3 mt-3">
                     <button
-                        v-for="option in ['all','playing','scheduled']"
+                        v-for="option in ['all','playing','scheduled','ended']"
                         :key="option"
                         @click="$emit('status-filter', option)"
                         :class="[
