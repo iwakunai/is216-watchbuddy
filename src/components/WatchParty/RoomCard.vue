@@ -11,19 +11,32 @@
                 <p class="text-left break-words whitespace-normal">Hosted by: {{ room.host }}</p>
             </div>
 
-            <!-- ROOM STATUS -->
-            <span
-                :class="[
-                    'text-xs font-semibold px-2 py-1 rounded-md whitespace-nowrap',
-                    status === 'playing'
-                        ? 'bg-green-600/80 text-white'
-                        : status === 'scheduled'
-                        ? 'bg-gray-500/70 text-white'
-                        : 'bg-red-600/80 text-white'
-                ]"
-            >
-                {{ formatStatus(status) }}
-            </span>
+            <!-- ROOM STATUS + VIBE? -->
+            <div class="flex flex-col items-end gap-1">
+                <!-- STATUS -->
+                <span
+                    :class="[
+                        'text-xs font-semibold px-2 py-1 rounded-md whitespace-nowrap',
+                        status === 'playing'
+                            ? 'bg-green-600/80 text-white'
+                            : status === 'scheduled'
+                            ? 'bg-gray-500/70 text-white'
+                            : 'bg-red-600/80 text-white'
+                    ]"
+                >
+                    {{ formatStatus(status) }}
+                </span>
+
+                <!-- VIBE -->
+                <span
+                    v-if="room.vibe"
+                    class="text-xl"
+                    :title="room.vibe"
+                >
+                    {{ getVibeEmoji(room.vibe) }}
+                </span>
+            </div>
+            
         </div>
 
         <!-- JOIN PARTY BUTTON -->
@@ -40,6 +53,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router';
+const vibes = [
+    { id: 'happy', label: 'Happy', emoji: '😊' },
+    { id: 'sad', label: 'Sad', emoji: '😢' },
+    { id: 'excited', label: 'Excited', emoji: '🤩' },
+    { id: 'relaxed', label: 'Relaxed', emoji: '😌' },
+    { id: 'angry', label: 'Angry', emoji: '😠' },
+    { id: 'bored', label: 'Bored', emoji: '😐' },
+    { id: 'romantic', label: 'Romantic', emoji: '❤️' },
+    { id: 'chill', label: 'Chill', emoji: '😎' },
+    { id: 'motivated', label: 'Motivated', emoji: '💪' },
+    { id: 'playful', label: 'Playful', emoji: '😜' }
+];
 
 const router = useRouter();
 const props = defineProps({
@@ -49,13 +74,17 @@ const props = defineProps({
     }
 })
 
-// Example: assume each room has a `datetime` (start time) and `duration` in seconds
+function getVibeEmoji(vibeId: string) {
+    const v = vibes.find(v => v.id === vibeId);
+    return v ? v.emoji : '';
+}
+
 const status = computed(() => {
     if (!props.room.datetime || !props.room.duration) return "scheduled";
 
     const now = new Date();
     const start = new Date(props.room.datetime);
-    const end = new Date(start.getTime() + props.room.duration * 1000);
+    const end = new Date(start.getTime() + props.room.duration * 60 * 1000); // duration in minutes
 
     if (now < start) return "scheduled";
     if (now >= start && now <= end) return "playing";

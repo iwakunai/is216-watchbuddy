@@ -25,23 +25,50 @@
                     />
                 </div>
 
+                <div class="flex gap-4">
+                    <label>
+                        <input type="radio" value="movie" v-model="contentType" /> Movie
+                    </label>
+                    <label>
+                        <input type="radio" value="tv" v-model="contentType" /> TV Show
+                    </label>
+                </div>
+
+
                 <!-- MOVIE/SHOW TITLE -->
-                <div class="flex flex-col">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Movie/Show Title</label>
+                <div class="flex flex-col relative">
                     <input
-                        type="text" v-model="movieOrShow"
-                        placeholder="e.g., The Shawshank Redemption"
+                        type="text"
+                        v-model="movieQuery"
+                        @input="onSearchInput"
+                        placeholder="Type to search..."
                         class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
+
+                    <ul
+                        v-if="searchResults.length"
+                        class="absolute top-full left-0 z-50 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg mt-1 overflow-y-auto shadow-lg"
+                        style="max-height: 10rem;"
+                    >
+                        <li
+                            v-for="item in searchResults"
+                            :key="item.id"
+                            @click="selectMovie(item)"
+                            class="px-3 py-2 cursor-pointer hover:bg-indigo-500 hover:text-white"
+                        >
+                            {{ item.title }} ({{ item.year }})
+                        </li>
+                    </ul>
                 </div>
 
                 <!-- DURATION -->
-                <div class="flex flex-col">
+                <div class="flex flex-col" v-if="duration !== null">
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Duration (minutes)</label>
                     <input
-                        type="number" v-model.number="duration"
-                        placeholder="e.g., 120"
-                        class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        type="number"
+                        v-model.number="duration"
+                        readonly
+                        class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
                     />
                 </div>
 
@@ -77,6 +104,15 @@
                     <input type="checkbox" v-model="publicRoom" class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" />
                 </div>
 
+                <!-- VIBE -->
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Vibe</label>
+                    <select v-model="vibe" class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="" disabled>Select vibe</option>
+                        <option v-for="v in vibes" :key="v.id" :value="v.label">{{ v.label }}</option>
+                    </select>
+                </div>
+
                 <!-- INVITE FRIENDS -->
                 <!-- <div class="flex flex-col">
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Invite Friends</label>
@@ -108,27 +144,91 @@
 
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { supabase } from '@/lib/supabaseClient'
-import { defineEmits } from 'vue'
-import { fetchSupabaseUserId } from '@/lib/supabaseUser'
+import { ref, watch } from 'vue';
+import { supabase } from '@/lib/supabaseClient';
+import { defineEmits } from 'vue';
+import { fetchSupabaseUserId } from '@/lib/supabaseUser';
 import { useUser } from "@clerk/vue";
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '';
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 const { user } = useUser(); // reactive Clerk user
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close']);
 
 // Form fields
-const roomName = ref('')
-const movieOrShow = ref('')
-const duration = ref<number | null>(null)
-const maxParticipants = ref<number | null>(null)
-const publicRoom = ref(true)
-const scheduledTime = ref('') // ISO string
+const roomName = ref('');
+const movieOrShow = ref('');
+const duration = ref<number | null>(null);
+const publicRoom = ref(true);
+const scheduledTime = ref(''); // ISO string
+const contentType = ref<'movie' | 'tv'>('movie');
+const vibes = [
+    { id: 'happy', label: 'Happy', emoji: '😊' },
+    { id: 'sad', label: 'Sad', emoji: '😢' },
+    { id: 'excited', label: 'Excited', emoji: '🤩' },
+    { id: 'relaxed', label: 'Relaxed', emoji: '😌' },
+    { id: 'angry', label: 'Angry', emoji: '😠' },
+    { id: 'bored', label: 'Bored', emoji: '😐' },
+    { id: 'romantic', label: 'Romantic', emoji: '❤️' },
+    { id: 'chill', label: 'Chill', emoji: '😎' },
+    { id: 'motivated', label: 'Motivated', emoji: '💪' },
+    { id: 'playful', label: 'Playful', emoji: '😜' }
+];
+const vibe = ref('');  // store only mood id
 
-// Close modal
+
+// TMDB search
+const movieQuery = ref('');
+const searchResults = ref<Array<{ id: number; title: string; year: string; runtime?: number }>>([]);
+
+let searchTimeout: number | null = null;
+
 function closeModal() {
     emit('close')
 }
+
+async function onSearchInput() {
+    if (searchTimeout) clearTimeout(searchTimeout)
+    searchTimeout = window.setTimeout(searchContent, 300)
+}
+
+async function searchContent() {
+    const query = movieQuery.value.trim()
+    if (!query) {
+        searchResults.value = []
+        return
+    }
+    const url = `${TMDB_BASE_URL}/search/${contentType.value}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=1`
+    const res = await fetch(url)
+    const data = await res.json()
+    searchResults.value = (data.results || []).map((m: any) => ({
+        id: m.id,
+        title: m.title || m.name || 'Untitled',
+        year: contentType.value === 'movie'
+            ? (m.release_date ? new Date(m.release_date).getFullYear().toString() : 'N/A')
+            : (m.first_air_date ? new Date(m.first_air_date).getFullYear().toString() : 'N/A'),
+        runtime: null
+    }));
+
+}
+
+async function selectMovie(item: any) {
+    movieQuery.value = item.title   // update what’s shown in input
+    movieOrShow.value = item.title  // store for creating room
+    searchResults.value = []
+
+    // Fetch details for runtime/duration
+    const url = `${TMDB_BASE_URL}/${contentType.value}/${item.id}?api_key=${TMDB_API_KEY}`
+    const res = await fetch(url)
+    const data = await res.json()
+
+    if (contentType.value === 'movie') {
+        duration.value = data.runtime || 120
+    } else if (contentType.value === 'tv') {
+        duration.value = data.episode_run_time?.[0] || 45
+    }
+}
+
 
 // Create Room (need to add policy to enable write access)
 async function createRoom() {
@@ -143,24 +243,23 @@ async function createRoom() {
         return
     }
 
-    if (!roomName.value || !movieOrShow.value || !scheduledTime.value) {
+    if (!roomName.value || !movieOrShow.value || !scheduledTime.value || !duration.value) {
         alert('Please fill in all required fields')
         return
     }
 
-    // Convert scheduled time to proper ISO format
     const scheduledIso = new Date(scheduledTime.value).toISOString()
 
     const { data, error } = await supabase
         .from('party_rooms')
         .insert([{
-        room_name: roomName.value,
-        host: hostId,
-        movie_or_show: movieOrShow.value,
-        scheduled_time: scheduledIso,
-        // no_of_participant: maxParticipants.value,
-        public_status: publicRoom.value,
-        //   invited: null
+            room_name: roomName.value,
+            host: hostId,
+            movie_or_show: movieOrShow.value,
+            scheduled_time: scheduledIso,
+            duration: duration.value,
+            public_status: publicRoom.value,
+            vibe: vibe.value,
         }])
         .select()
 
@@ -173,6 +272,15 @@ async function createRoom() {
     }
 }
 
+watch(movieQuery, (newVal) => {
+    if (!newVal.trim()) {
+        duration.value = null  // hide duration if input is empty
+        movieOrShow.value = '' // clear selected movie
+    }
+})
+
+
+
 // Add invited friends from input
 // function addInvitedFriends() {
 //     if (!inviteInput.value.trim()) return
@@ -184,4 +292,11 @@ async function createRoom() {
 
 
 <style scoped>
+ul::-webkit-scrollbar {
+    width: 6px;
+}
+ul::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
 </style>

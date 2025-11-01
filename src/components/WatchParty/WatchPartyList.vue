@@ -68,7 +68,8 @@ async function fetchRooms() {
         host,
         scheduled_time,
         duration,
-        public_status
+        public_status,
+        vibe
     `)
     .eq("public_status", true)
     .order("scheduled_time", { ascending: true });
@@ -87,8 +88,8 @@ async function fetchRooms() {
             datetime: room.scheduled_time,
             duration: room.duration,
             status: getStatus(room.scheduled_time, room.duration),
-            tags: [],
-            mood: [],
+            tags: [], //idk if still want
+            vibe: room.vibe,
         }));
     } else {
         watchRooms.value = [];
