@@ -94,11 +94,11 @@ function formatStatus(status: string) {
 }
 
 function getVibeEmoji(vibeId: string) {
-    const v = vibes.find(v => v.id === vibeId);
+    if (!vibeId) return '';
+    const id = vibeId.toLowerCase();
+    const v = vibes.find(v => v.id === id);
     return v ? v.emoji : '';
 }
-
-
 
 function joinRoom() {
     router.push(`/party/${props.room.roomid}`)

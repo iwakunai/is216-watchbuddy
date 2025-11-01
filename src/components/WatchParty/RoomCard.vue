@@ -75,7 +75,9 @@ const props = defineProps({
 })
 
 function getVibeEmoji(vibeId: string) {
-    const v = vibes.find(v => v.id === vibeId);
+    if (!vibeId) return '';
+    const id = vibeId.toLowerCase();
+    const v = vibes.find(v => v.id === id);
     return v ? v.emoji : '';
 }
 
