@@ -157,7 +157,7 @@ const emit = defineEmits(['close']);
 
 // Form fields
 const roomName = ref('');
-const movieOrShow = ref('');
+const watchTitle = ref('');
 const duration = ref<number | null>(null);
 const publicRoom = ref(true);
 const scheduledTime = ref(''); // ISO string
@@ -214,7 +214,7 @@ async function searchContent() {
 
 async function selectMovie(item: any) {
     movieQuery.value = item.title   // update what’s shown in input
-    movieOrShow.value = item.title  // store for creating room
+    watchTitle.value = item.title  // store for creating room
     searchResults.value = []
 
     // Fetch details for runtime/duration
@@ -230,45 +230,27 @@ async function selectMovie(item: any) {
 }
 
 
-// Create Room (need to add policy to enable write access)
+// Create Room
 async function createRoom() {
     if (!user.value) {
         alert("You must be logged in to create a room");
         return;
     }
 
-    const hostId = await fetchSupabaseUserId(user.value.id)
-    if (!hostId) {
-        alert("Could not find your user ID in Supabase")
-        return
-    }
-
-    const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('username')
-        .eq('id', hostId)
-        .single()
-
-    if (userError || !userData?.username) {
-        alert("Could not retrieve username from Supabase")
-        return;
-    }
-
-    const hostUsername = userData.username
-
-    if (!roomName.value || !movieOrShow.value || !scheduledTime.value || !duration.value) {
+    if (!roomName.value || !watchTitle.value || !scheduledTime.value || !duration.value) {
         alert('Please fill in all required fields');
         return;
     }
 
     const scheduledIso = new Date(scheduledTime.value).toISOString();
 
+    // Use Clerk ID as host_id
     const { data, error } = await supabase
         .from('party_rooms')
         .insert([{
             room_name: roomName.value,
-            host: hostUsername, // <-- store username here
-            movie_or_show: movieOrShow.value,
+            host_id: user.value.id, // Clerk ID
+            title: watchTitle.value,
             scheduled_time: scheduledIso,
             duration: duration.value,
             public_status: publicRoom.value,
@@ -284,15 +266,6 @@ async function createRoom() {
         emit('close');
     }
 }
-
-watch(movieQuery, (newVal) => {
-    if (!newVal.trim()) {
-        duration.value = null  // hide duration if input is empty
-        movieOrShow.value = '' // clear selected movie
-    }
-})
-
-
 
 // Add invited friends from input
 // function addInvitedFriends() {

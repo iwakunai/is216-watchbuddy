@@ -21,8 +21,14 @@
 
         <!-- TIMER -->
         <div class="px-6 py-3 text-center text-gray-300 border-b border-gray-700 flex-shrink-0">
-            {{ currentTime }} / {{ totalDuration }}
+            <template v-if="hasStarted">
+                {{ currentTime }} / {{ totalDuration }}
+            </template>
+            <template v-else>
+                Starting in {{ startCountdown }}
+            </template>
         </div>
+
 
         <!-- MAIN CONTENT -->
         <div class="flex flex-1 overflow-hidden">
@@ -80,23 +86,76 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { supabase } from "@/lib/supabaseClient";
+import { useUser } from "@clerk/vue";
 
+const { user } = useUser();
 const route = useRoute();
 const router = useRouter();
 
-const roomId = route.params.roomid;
+const roomId = route.params.roomid as string;
 
-// Fake room data (later fetch from store or backend)
-const room = ref({
-    name: "OPM EP1",
-    movie: "One-Punch Man",
+// Reactive state
+const room = ref<any>(null);
+const users = ref<any[]>([]);
+const messages = ref<any[]>([]);
+const newMessage = ref("");
+const chatContainer = ref<HTMLElement | null>(null);
+
+// Timer
+const currentTimeSec = ref(0);
+const totalDurationSec = ref(0);
+let timerInterval: number | null = null;
+const timeUntilStartSec = ref(0);
+const hasStarted = ref(false);
+
+// Computed for display
+const startCountdown = computed(() => {
+    let sec = timeUntilStartSec.value;
+    if (sec <= 0) return "00:00";
+
+    const days = Math.floor(sec / 86400);
+    sec %= 86400;
+    const hours = Math.floor(sec / 3600);
+    sec %= 3600;
+    const minutes = Math.floor(sec / 60);
+    const seconds = sec % 60;
+
+    let parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    parts.push(`${seconds}s`);
+
+    return parts.join(" ");
 });
 
-// Total duration in seconds (example: 1h48m = 6480s)
-const totalDurationSec = 6480;
 
-// Current time in seconds (example: 14m23s = 863s)
-const currentTimeSec = ref(0);
+function scheduleTimerStart(scheduledTimeStr: string) {
+    const scheduledTime = new Date(scheduledTimeStr);
+    const now = new Date();
+
+    if (now >= scheduledTime) {
+        // Already started
+        hasStarted.value = true;
+        startTimer();
+    } else {
+        // Show countdown
+        hasStarted.value = false;
+        timeUntilStartSec.value = Math.floor((scheduledTime.getTime() - now.getTime()) / 1000);
+
+        // Update countdown every second
+        const countdownInterval = window.setInterval(() => {
+            if (timeUntilStartSec.value > 0) {
+                timeUntilStartSec.value -= 1;
+            } else {
+                clearInterval(countdownInterval);
+                hasStarted.value = true;
+                startTimer();
+            }
+        }, 1000);
+    }
+}
 
 // Format seconds into HH:MM:SS
 function formatTime(seconds: number) {
@@ -106,78 +165,175 @@ function formatTime(seconds: number) {
     return `${h}:${m}:${s}`;
 }
 
-// Computed reactive times for template
+// Computed reactive times
 const currentTime = computed(() => formatTime(currentTimeSec.value));
-const totalDuration = computed(() => formatTime(totalDurationSec));
+const totalDuration = computed(() => formatTime(totalDurationSec.value));
 
-// Auto-increment timer
-let timerInterval: number;
-
-onMounted(() => {
-    timerInterval = window.setInterval(() => {
-        if (currentTimeSec.value < totalDurationSec) {
-            currentTimeSec.value += 1;
-        } else {
-            clearInterval(timerInterval);
+// Scroll chat to bottom
+function scrollToBottom() {
+    nextTick(() => {
+        if (chatContainer.value) {
+            chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
         }
-    }, 1000);
-});
-
-onBeforeUnmount(() => {
-    clearInterval(timerInterval);
-});
-
-// Users in the room
-const users = ref([
-    { id: 1, name: "yiting", initial: "Y" },
-    { id: 2, name: "zeeys", initial: "Z" },
-    { id: 3, name: "llama", initial: "L" },
-]);
-
-// Chat messages
-const messages = ref([
-    { id: 1, user: users.value[0], text: "This scene is epic!", reactions: [] },
-    { id: 2, user: users.value[1], text: "The animation 🔥🔥🔥", reactions: [] },
-]);
-
-const newMessage = ref("");
+    });
+}
 
 // Navigation
 function goBack() {
     router.back();
-}   
+}
 
 function inviteFriends() {
     alert("Invite link copied!");
 }
 
-function sendMessage() {
-    if (!newMessage.value.trim()) return;
-    messages.value.push({
-        id: Date.now(),
-        user: users.value[0],
-        text: newMessage.value.trim(),
-        reactions: [],
+// Send message
+async function sendMessage() {
+    if (!newMessage.value.trim() || !user.value) return;
+
+    try {
+        const { data: msgData, error: msgError } = await supabase
+            .from("pr_messages")
+            .insert({
+                text: newMessage.value.trim(),
+                room_id: roomId,
+                user_clerk_id: user.value.id
+            })
+            .select()
+            .single();
+
+        if (msgError) throw msgError;
+
+        // Fetch username dynamically from users table
+        const { data: userData, error: userError } = await supabase
+            .from("users")
+            .select("username")
+            .eq("clerk_id", user.value.id)
+            .single();
+
+        if (userError || !userData) throw userError || new Error("User not found");
+
+        messages.value.push({
+            id: msgData.id,
+            text: msgData.text,
+            user: {
+                id: user.value.id,
+                name: userData.username,
+                initial: userData.username[0].toUpperCase()
+            },
+            reactions: []
+        });
+
+        newMessage.value = "";
+        scrollToBottom();
+    } catch (err: any) {
+        console.error("Failed to send message:", err);
+        alert(`Failed to send message: ${err.message || err}`);
+    }
+}
+
+// Start main timer
+function startTimer() {
+    if (timerInterval) return;
+    timerInterval = window.setInterval(() => {
+        if (currentTimeSec.value < totalDurationSec.value) {
+            currentTimeSec.value += 1;
+        } else {
+            clearInterval(timerInterval!);
+        }
+    }, 1000);
+}
+
+// Fetch room info
+async function fetchRoom() {
+    const { data, error } = await supabase
+        .from("party_rooms")
+        .select("*, users: host_id (username)")
+        .eq("id", roomId)
+        .single();
+
+    if (error) {
+        console.error("Failed to fetch room:", error);
+        return;
+    }
+
+    room.value = {
+        name: data.room_name,
+        movie: data.title,
+        duration: data.duration,
+        scheduled_time: data.scheduled_time,
+        host: data.users?.username || "Unknown" // dynamic host name
+    };
+
+    totalDurationSec.value = data.duration * 60;
+    scheduleTimerStart(data.scheduled_time);
+}
+
+// Fetch users in room
+async function fetchUsers() {
+    const { data: messagesData, error } = await supabase
+        .from("pr_messages")
+        .select("user_clerk_id, users(username)")
+        .eq("room_id", roomId);
+
+    if (error) {
+        console.error("Failed to fetch users:", error);
+        return;
+    }
+
+    // Remove duplicates by user_clerk_id
+    const uniqueUsersMap: Record<string, any> = {};
+    messagesData.forEach((m: any) => {
+        if (m.user_clerk_id && !uniqueUsersMap[m.user_clerk_id]) {
+            uniqueUsersMap[m.user_clerk_id] = {
+                id: m.user_clerk_id,
+                name: m.users.username,
+                initial: m.users.username[0].toUpperCase()
+            };
+        }
     });
-    newMessage.value = "";
+
+    users.value = Object.values(uniqueUsersMap);
+}
+
+
+// Fetch messages
+async function fetchMessages() {
+    const { data, error } = await supabase
+        .from("pr_messages")
+        .select("*, users: user_clerk_id (username)")
+        .eq("room_id", roomId)
+        .order("created_at", { ascending: true });
+
+    if (error) {
+        console.error("Failed to fetch messages:", error);
+        return;
+    }
+
+    messages.value = data.map((m: any) => ({
+        id: m.id,
+        text: m.text,
+        user: {
+            id: m.user_clerk_id,
+            name: m.users?.username || "Unknown",
+            initial: m.users?.username?.[0]?.toUpperCase() || "?"
+        },
+        reactions: []
+    }));
+
     scrollToBottom();
 }
 
-function react(msgId: number, emoji: string) {
-    console.log(`Reacted to ${msgId} with ${emoji}`);
-}
+onMounted(async () => {
+    await fetchRoom();
+    await fetchUsers();
+    await fetchMessages();
+});
 
-// Auto-scroll chat
-const chatContainer = ref<HTMLElement | null>(null);
-function scrollToBottom() {
-    nextTick(() => {
-        if (chatContainer.value) {
-        chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-        }
-    });
-}
+onBeforeUnmount(() => {
+    if (timerInterval) clearInterval(timerInterval);
+});
 
-onMounted(scrollToBottom);
 </script>
 
 

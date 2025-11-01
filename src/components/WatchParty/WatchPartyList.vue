@@ -59,44 +59,50 @@ const loading = ref(true);
 async function fetchRooms() {
     loading.value = true;
 
-    const { data, error } = await supabase
-    .from("party_rooms")
-    .select(`
-        id,
-        room_name,
-        movie_or_show,
-        host,
-        scheduled_time,
-        duration,
-        public_status,
-        vibe
-    `)
-    .eq("public_status", true)
-    .order("scheduled_time", { ascending: true });
+    // Fetch rooms
+    const { data: rooms, error: roomError } = await supabase
+        .from("party_rooms")
+        .select("*")
+        .eq("public_status", true)
+        .order("scheduled_time", { ascending: true });
 
-
-    console.log("Supabase fetched data:", data);
-    if (error) {
-        console.error("Error fetching rooms:", error);
-    } else if (data && data.length > 0) {
-        // Map DB results to frontend-friendly structure
-        watchRooms.value = data.map((room) => ({
-            roomid: room.id,
-            name: room.room_name,
-            movie: room.movie_or_show,
-            host: room.host,
-            datetime: room.scheduled_time,
-            duration: room.duration,
-            status: getStatus(room.scheduled_time, room.duration),
-            tags: [], //idk if still want
-            vibe: room.vibe,
-        }));
-    } else {
+    if (roomError) {
+        console.error("Error fetching rooms:", roomError);
         watchRooms.value = [];
+        loading.value = false;
+        return;
     }
+
+    if (!rooms || rooms.length === 0) {
+        watchRooms.value = [];
+        loading.value = false;
+        return;
+    }
+
+    // Fetch all host usernames in one go
+    const hostIds = rooms.map(r => r.host_id);
+    const { data: users } = await supabase
+        .from("users")
+        .select("clerk_id, username")
+        .in("clerk_id", hostIds);
+
+    const userMap = new Map(users?.map(u => [u.clerk_id, u.username]));
+
+    // Map rooms with host username
+    watchRooms.value = rooms.map((room: any) => ({
+        roomid: room.id,
+        name: room.room_name,
+        movie: room.title,
+        host: userMap.get(room.host_id) || "Unknown",
+        datetime: room.scheduled_time,
+        duration: room.duration,
+        status: getStatus(room.scheduled_time, room.duration),
+        vibe: room.vibe,
+    }));
 
     loading.value = false;
 }
+
 
 
 // Determine room status using scheduled_time + duration
