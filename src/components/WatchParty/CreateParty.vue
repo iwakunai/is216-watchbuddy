@@ -233,8 +233,8 @@ async function selectMovie(item: any) {
 // Create Room (need to add policy to enable write access)
 async function createRoom() {
     if (!user.value) {
-        alert("You must be logged in to create a room")
-        return
+        alert("You must be logged in to create a room");
+        return;
     }
 
     const hostId = await fetchSupabaseUserId(user.value.id)
@@ -243,32 +243,45 @@ async function createRoom() {
         return
     }
 
-    if (!roomName.value || !movieOrShow.value || !scheduledTime.value || !duration.value) {
-        alert('Please fill in all required fields')
-        return
+    const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('username')
+        .eq('id', hostId)
+        .single()
+
+    if (userError || !userData?.username) {
+        alert("Could not retrieve username from Supabase")
+        return;
     }
 
-    const scheduledIso = new Date(scheduledTime.value).toISOString()
+    const hostUsername = userData.username
+
+    if (!roomName.value || !movieOrShow.value || !scheduledTime.value || !duration.value) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    const scheduledIso = new Date(scheduledTime.value).toISOString();
 
     const { data, error } = await supabase
         .from('party_rooms')
         .insert([{
             room_name: roomName.value,
-            host: hostId,
+            host: hostUsername, // <-- store username here
             movie_or_show: movieOrShow.value,
             scheduled_time: scheduledIso,
             duration: duration.value,
             public_status: publicRoom.value,
             vibe: vibe.value,
         }])
-        .select()
+        .select();
 
     if (error) {
-        console.error('Error creating room:', error)
-        alert(`Error creating room: ${error.message}`)
+        console.error('Error creating room:', error);
+        alert(`Error creating room: ${error.message}`);
     } else {
-        console.log('Created room', data)
-        emit('close')
+        console.log('Created room', data);
+        emit('close');
     }
 }
 
