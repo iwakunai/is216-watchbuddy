@@ -26,54 +26,116 @@
             <RoomRow v-for="room in filteredRooms" :key="room.roomid" :room="room" />
         </div>
 
+        <!-- LOADING STATE -->
+        <div v-if="loading" class="text-center text-gray-400 mt-10">
+            Loading rooms...
+        </div>
+
         <!-- EMPTY STATE -->
-        <div v-if="filteredRooms.length === 0" class="text-center text-gray-400 mt-10">
+        <div v-else-if="filteredRooms.length === 0" class="text-center text-gray-400 mt-10">
             No rooms found
         </div>
+
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps } from "vue";
-import RoomCard from '@/components/WatchParty/RoomCard.vue';
-// @ts-ignore
-import RoomRow from '@/components/WatchParty/RoomRow.vue';
-import { useUserStore } from "@/stores/user";
+import { ref, computed, defineProps, onMounted } from "vue";
+import { supabase } from "@/lib/supabaseClient";
+import RoomCard from "@/components/WatchParty/RoomCard.vue";
+import RoomRow from "@/components/WatchParty/RoomRow.vue";
 
 const props = defineProps<{
-    view: 'card' | 'list',
-    statusFilter: 'all' | 'waiting' | 'playing' | 'scheduled'
+    view: "card" | "list";
+    statusFilter: "all" | "waiting" | "playing" | "scheduled";
 }>();
 
-
-const watchRooms = ref([
-    { roomid: "001", name: "OPM EP1", movie: "One-Punch Man", host: "yiting", datetime: "2025-10-30T19:30:00+08:00", status: 'waiting', tags: ["Anime", "Fighting"], mood: ['🤩', '🤪','🔥']}, 
-    { roomid: "002",name: "Monster EP3", movie: "Monster: The Ed Gein Story", host: "zeeys", datetime: "2025-10-28T05:30:00+08:00", status: 'playing', tags: ["Movie", "Horror"], mood: ['😱', '👻','🤩']}, 
-    { roomid: "003",name: "Mis Imp", movie: "Mission: Impossible - The Final Reckoning", host: "llama", datetime: "2025-10-24T15:00:00+08:00", status: 'scheduled', tags: ["Adventure", "Fighting"], mood: ['🤩', '😎', '😩']}, 
-]);
-
+// Reactive state
+const watchRooms = ref<any[]>([]);
 const searchQuery = ref("");
-const userStore = useUserStore();
+const loading = ref(true);
 
+// Fetch rooms from Supabase
+async function fetchRooms() {
+    loading.value = true;
+
+    const { data, error } = await supabase
+    .from("party_rooms")
+    .select(`
+        id,
+        room_name,
+        movie_or_show,
+        host,
+        scheduled_time,
+        public_status
+    `)
+    .eq("public_status", true)
+    .order("scheduled_time", { ascending: true });
+
+
+    console.log("✅ Supabase fetched data:", data);
+    if (error) {
+        console.error("Error fetching rooms:", error);
+    } else if (data && data.length > 0) {
+        // Map DB results to frontend-friendly structure
+        watchRooms.value = data.map((room) => ({
+        roomid: room.id,
+        name: room.room_name,
+        movie: room.movie_or_show,
+        host: room.host, // this is still the host UUID (can join with users later)
+        datetime: room.scheduled_time,
+        status: getStatus(room.scheduled_time),
+        tags: [],
+        mood: [],
+        }));
+    } else {
+        watchRooms.value = [];
+    }
+
+    loading.value = false;
+}
+
+// Determine room status from scheduled_time
+function getStatus(scheduledTime: string) {
+    const now = new Date();
+    const start = new Date(scheduledTime);
+    const diff = start.getTime() - now.getTime();
+
+    if (diff > 0) return "scheduled";
+    else if (diff < 0 && diff > -2 * 60 * 60 * 1000) return "playing"; 
+    else return "waiting";
+}
+
+// Fetch when component mounts
+onMounted(fetchRooms);
+
+// Computed: search + filter
 const filteredRooms = computed(() => {
     let rooms = watchRooms.value;
 
-    // search filter
+    // Search by name/movie
     if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase();
         rooms = rooms.filter(
-        room => room.name.toLowerCase().includes(query) || room.movie.toLowerCase().includes(query)
+        (room) =>
+            room.name.toLowerCase().includes(query) ||
+            room.movie.toLowerCase().includes(query)
         );
     }
 
-    // status filter
-    if (props.statusFilter !== 'all') {
-        rooms = rooms.filter(room => room.status === props.statusFilter);
+    // Filter by status
+    if (props.statusFilter !== "all") {
+        rooms = rooms.filter((room) => room.status === props.statusFilter);
     }
 
     return rooms;
 });
 
+// const watchRooms = ref([
+//     { roomid: "001", name: "OPM EP1", movie: "One-Punch Man", host: "yiting", datetime: "2025-10-30T19:30:00+08:00", status: 'waiting', tags: ["Anime", "Fighting"], mood: ['🤩', '🤪','🔥']}, 
+//     { roomid: "002",name: "Monster EP3", movie: "Monster: The Ed Gein Story", host: "zeeys", datetime: "2025-10-28T05:30:00+08:00", status: 'playing', tags: ["Movie", "Horror"], mood: ['😱', '👻','🤩']}, 
+//     { roomid: "003",name: "Mis Imp", movie: "Mission: Impossible - The Final Reckoning", host: "llama", datetime: "2025-10-24T15:00:00+08:00", status: 'scheduled', tags: ["Adventure", "Fighting"], mood: ['🤩', '😎', '😩']}, 
+// ]);
 </script>
 
 <style scoped>

@@ -46,14 +46,14 @@
                 </div>
 
                 <!-- MAX PARTICIPANTS -->
-                <div class="flex flex-col">
+                <!-- <div class="flex flex-col">
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Max Participants</label>
                     <input
                         type="number" v-model.number="maxParticipants"
                         placeholder="10"
                         class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
-                </div>
+                </div> -->
 
                 <!-- SCHEDULE START TIME -->
                 <div class="flex flex-col">
@@ -132,45 +132,45 @@ function closeModal() {
 
 // Create Room (need to add policy to enable write access)
 async function createRoom() {
-  if (!user.value) {
-    alert("You must be logged in to create a room")
-    return
-  }
+    if (!user.value) {
+        alert("You must be logged in to create a room")
+        return
+    }
 
-  const hostId = await fetchSupabaseUserId(user.value.id)
-  if (!hostId) {
-    alert("Could not find your user ID in Supabase")
-    return
-  }
+    const hostId = await fetchSupabaseUserId(user.value.id)
+    if (!hostId) {
+        alert("Could not find your user ID in Supabase")
+        return
+    }
 
-  if (!roomName.value || !movieOrShow.value || !scheduledTime.value || !maxParticipants.value) {
-    alert('Please fill in all required fields')
-    return
-  }
+    if (!roomName.value || !movieOrShow.value || !scheduledTime.value) {
+        alert('Please fill in all required fields')
+        return
+    }
 
-  // Convert scheduled time to proper ISO format
-  const scheduledIso = new Date(scheduledTime.value).toISOString()
+    // Convert scheduled time to proper ISO format
+    const scheduledIso = new Date(scheduledTime.value).toISOString()
 
-  const { data, error } = await supabase
-    .from('party_rooms')
-    .insert([{
-      room_name: roomName.value,
-      host: hostId,
-      movie_or_show: movieOrShow.value,
-      scheduled_time: scheduledIso,
-      no_of_participant: maxParticipants.value,
-      public_status: publicRoom.value,
-    //   invited: null
-    }])
-    .select()
+    const { data, error } = await supabase
+        .from('party_rooms')
+        .insert([{
+        room_name: roomName.value,
+        host: hostId,
+        movie_or_show: movieOrShow.value,
+        scheduled_time: scheduledIso,
+        // no_of_participant: maxParticipants.value,
+        public_status: publicRoom.value,
+        //   invited: null
+        }])
+        .select()
 
-  if (error) {
-    console.error('Error creating room:', error)
-    alert(`Error creating room: ${error.message}`)
-  } else {
-    console.log('Created room', data)
-    emit('close')
-  }
+    if (error) {
+        console.error('Error creating room:', error)
+        alert(`Error creating room: ${error.message}`)
+    } else {
+        console.log('Created room', data)
+        emit('close')
+    }
 }
 
 // Add invited friends from input

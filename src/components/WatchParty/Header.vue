@@ -14,7 +14,7 @@
                 <!-- STATUS FILTER BUTTONS -->
                 <div class="flex gap-3 mt-3">
                     <button
-                        v-for="option in ['all','waiting','playing','scheduled']"
+                        v-for="option in ['all','playing','scheduled']"
                         :key="option"
                         @click="$emit('status-filter', option)"
                         :class="[
@@ -70,8 +70,8 @@
 const emit = defineEmits(['open-create', 'toggle-view', 'status-filter']);
 
 defineProps({
-  view: { type: String, default: 'card' },
-  currentStatus: { type: String, default: 'all' }
+    view: { type: String, default: 'card' },
+    currentStatus: { type: String, default: 'all' }
 });
 
 function handleClick() {
