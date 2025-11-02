@@ -75,7 +75,7 @@
         </button>
       </div>
     </div>
-    <div class="text-left mb-4 px-10 mt-10">
+    <div class="text-left mb-4 mt-10">
       <input
         id="party-search"
         type="text"

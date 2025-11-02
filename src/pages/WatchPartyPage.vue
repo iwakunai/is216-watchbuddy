@@ -1,6 +1,6 @@
 <template>
   <BaseNavBar />
-  <Header
+  <Headers
     :view="currentView"
     :currentStatus="statusFilter"
     @open-create="openCreateParty"

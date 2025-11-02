@@ -63,15 +63,15 @@
             <!-- INPUT FIXED AT BOTTOM -->
             <div class="p-4 border-t border-gray-700 bg-gray-800 flex items-center gap-3 flex-shrink-0">
                 <input
-                v-model="newMessage"
-                @keyup.enter="sendMessage"
-                type="text"
-                placeholder="Type a message..."
-                class="flex-1 bg-gray-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    v-model="newMessage"
+                    @keyup.enter="handleSendMessage"
+                    type="text"
+                    placeholder="Type a message..."
+                    class="flex-1 bg-gray-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <button
-                @click="sendMessage"
-                class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold"
+                    @click="handleSendMessage"
+                    class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold"
                 >
                 Send
                 </button>
@@ -88,6 +88,7 @@ import { ref, onMounted, onBeforeUnmount, computed, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { supabase } from "@/lib/supabaseClient";
 import { useUser } from "@clerk/vue";
+import { sendMessage as sendChatMessage, fetchMessages as fetchChatMessages, subscribeToMessages } from "@/lib/supabaseChat";
 
 const { user } = useUser();
 const route = useRoute();
@@ -196,44 +197,12 @@ function inviteFriends() {
 }
 
 // Send message
-async function sendMessage() {
+async function handleSendMessage() {
     if (!newMessage.value.trim() || !user.value) return;
 
     try {
-        const { data: msgData, error: msgError } = await supabase
-            .from("pr_messages")
-            .insert({
-                text: newMessage.value.trim(),
-                room_id: roomId,
-                user_clerk_id: user.value.id
-            })
-            .select()
-            .single();
-
-        if (msgError) throw msgError;
-
-        // Fetch username dynamically from users table
-        const { data: userData, error: userError } = await supabase
-            .from("users")
-            .select("username")
-            .eq("clerk_id", user.value.id)
-            .single();
-
-        if (userError || !userData) throw userError || new Error("User not found");
-
-        messages.value.push({
-            id: msgData.id,
-            text: msgData.text,
-            user: {
-                id: user.value.id,
-                name: userData.username,
-                initial: userData.username[0].toUpperCase()
-            },
-            reactions: []
-        });
-
-        newMessage.value = "";
-        scrollToBottom();
+        await sendChatMessage(roomId, user.value.id, newMessage.value.trim());
+        newMessage.value = ""; // clear input, real-time subscription will push the message
     } catch (err: any) {
         console.error("Failed to send message:", err);
         alert(`Failed to send message: ${err.message || err}`);
@@ -277,69 +246,33 @@ async function fetchRoom() {
     scheduleTimerStart(data.scheduled_time);
 }
 
-// Fetch users in room
-async function fetchUsers() {
-    const { data: messagesData, error } = await supabase
-        .from("pr_messages")
-        .select("user_clerk_id, users(username)")
-        .eq("room_id", roomId);
+// Real-time messages / presence
+let messageSubscription: any = null;
 
-    if (error) {
-        console.error("Failed to fetch users:", error);
-        return;
-    }
+onMounted(async () => {
+    await fetchRoom();
 
-    // Remove duplicates by user_clerk_id
-    const uniqueUsersMap: Record<string, any> = {};
-    messagesData.forEach((m: any) => {
-        if (m.user_clerk_id && !uniqueUsersMap[m.user_clerk_id]) {
-            uniqueUsersMap[m.user_clerk_id] = {
-                id: m.user_clerk_id,
-                name: m.users.username,
-                initial: m.users.username[0].toUpperCase()
-            };
-        }
-    });
-
-    users.value = Object.values(uniqueUsersMap);
-}
-
-
-// Fetch messages
-async function fetchMessages() {
-    const { data, error } = await supabase
-        .from("pr_messages")
-        .select("*, users: user_clerk_id (username)")
-        .eq("room_id", roomId)
-        .order("created_at", { ascending: true });
-
-    if (error) {
-        console.error("Failed to fetch messages:", error);
-        return;
-    }
-
-    messages.value = data.map((m: any) => ({
+    const msgs = await fetchChatMessages(roomId);
+    messages.value = msgs.map((m: any) => ({
         id: m.id,
         text: m.text,
         user: {
             id: m.user_clerk_id,
             name: m.users?.username || "Unknown",
             initial: m.users?.username?.[0]?.toUpperCase() || "?"
-        },
-        reactions: []
+        }
     }));
-
     scrollToBottom();
-}
 
-onMounted(async () => {
-    await fetchRoom();
-    await fetchUsers();
-    await fetchMessages();
+    messageSubscription = subscribeToMessages(roomId, (msg: any) => {
+        messages.value.push(msg);
+        scrollToBottom();
+    });
 });
 
-onBeforeUnmount(() => {
+onBeforeUnmount(async() => {
     if (timerInterval) clearInterval(timerInterval);
+    if (messageSubscription) supabase.removeChannel(messageSubscription);
 });
 
 </script>
