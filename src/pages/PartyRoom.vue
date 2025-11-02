@@ -134,15 +134,23 @@ const startCountdown = computed(() => {
 function scheduleTimerStart(scheduledTimeStr: string) {
     const scheduledTime = new Date(scheduledTimeStr);
     const now = new Date();
+    const diffSec = Math.floor((now.getTime() - scheduledTime.getTime()) / 1000);
 
-    if (now >= scheduledTime) {
+    if (diffSec >= 0) {
         // Already started
         hasStarted.value = true;
-        startTimer();
+        // Compute elapsed time — if session already started, jump ahead
+        if (diffSec >= totalDurationSec.value) {
+            // The session is already over
+            currentTimeSec.value = totalDurationSec.value;
+        } else {
+            currentTimeSec.value = diffSec;
+            startTimer();
+        }
     } else {
-        // Show countdown
+        // Not started: Show countdown
         hasStarted.value = false;
-        timeUntilStartSec.value = Math.floor((scheduledTime.getTime() - now.getTime()) / 1000);
+        timeUntilStartSec.value = Math.abs(diffSec);
 
         // Update countdown every second
         const countdownInterval = window.setInterval(() => {
@@ -234,7 +242,7 @@ async function sendMessage() {
 
 // Start main timer
 function startTimer() {
-    if (timerInterval) return;
+    if (timerInterval) clearInterval(timerInterval);
     timerInterval = window.setInterval(() => {
         if (currentTimeSec.value < totalDurationSec.value) {
             currentTimeSec.value += 1;
@@ -262,7 +270,7 @@ async function fetchRoom() {
         movie: data.title,
         duration: data.duration,
         scheduled_time: data.scheduled_time,
-        host: data.users?.username || "Unknown" // dynamic host name
+        host: data.users?.username || "Unknown"
     };
 
     totalDurationSec.value = data.duration * 60;
