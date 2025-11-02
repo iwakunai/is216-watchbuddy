@@ -388,7 +388,6 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
-// const OMDB_API_KEY = import.meta.env.VITE_OMDB_API_KEY || "";
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/";
 
@@ -626,23 +625,6 @@ async function fetchAll() {
     credits.value = data.credits || {};
     similarMovies.value = data.similar?.results?.slice(0, 6) || [];
 
-    const imdbId = data?.external_ids?.imdb_id;
-    // if (OMDB_API_KEY && imdbId) {
-    //   try {
-    //     const omb = await fetch(
-    //       `https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_API_KEY}`
-    //     );
-    //     if (omb.ok) {
-    //       const oj = await omb.json();
-    //       imdbRating.value =
-    //         oj?.imdbRating && oj?.imdbRating !== "N/A"
-    //           ? `${oj.imdbRating} / 10`
-    //           : null;
-    //     }
-    //   } catch (e) {
-    //     console.warn("OMDB fetch error", e);
-    //   }
-    // }
   } catch (e: any) {
     error.value = e?.message ?? String(e);
   } finally {

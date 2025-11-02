@@ -310,5 +310,3 @@ onMounted(() => {
   loadMovies();
 });
 </script>
-
-<style scoped></style>
