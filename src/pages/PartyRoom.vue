@@ -89,6 +89,7 @@ import { useRoute, useRouter } from "vue-router";
 import { supabase } from "@/lib/supabaseClient";
 import { useUser } from "@clerk/vue";
 import { sendMessage as sendChatMessage, fetchMessages as fetchChatMessages, subscribeToMessages } from "@/lib/supabaseChat";
+import { joinRoom, leaveRoom, fetchRoomUsers, subscribeRoomUsers } from "@/lib/supabaseRoomUser";
 
 const { user } = useUser();
 const route = useRoute();
@@ -252,6 +253,19 @@ let messageSubscription: any = null;
 onMounted(async () => {
     await fetchRoom();
 
+    // join presence
+    if (user.value && user.value.id && user.value.username) {
+        await joinRoom(roomId, user.value.id, user.value.username);
+    }
+
+    // fetch initial users
+    users.value = await fetchRoomUsers(roomId);
+
+    // subscribe to changes
+    const presenceChannel = subscribeRoomUsers(roomId, (updatedUsers) => {
+        users.value = updatedUsers;
+    });
+
     const msgs = await fetchChatMessages(roomId);
     messages.value = msgs.map((m: any) => ({
         id: m.id,
@@ -268,11 +282,17 @@ onMounted(async () => {
         messages.value.push(msg);
         scrollToBottom();
     });
+    // Store so we can clean up later
+    (window as any).presenceChannel = presenceChannel;
 });
 
 onBeforeUnmount(async() => {
     if (timerInterval) clearInterval(timerInterval);
     if (messageSubscription) supabase.removeChannel(messageSubscription);
+    if ((window as any).presenceChannel) supabase.removeChannel((window as any).presenceChannel);
+    if (user.value && user.value.id) {
+        await leaveRoom(roomId, user.value.id);
+    }
 });
 
 </script>
