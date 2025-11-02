@@ -45,7 +45,7 @@ const routes = [
     meta: { label: "Watch Party", showInNav: true },
   },
   {
-    path: '/party/:roomid',
+    path: '/watchparty/room/:roomid',
     name: 'PartyRoom',
     component: () => import('@/pages/PartyRoom.vue'),
     meta: { label: "Party Room", showInNav: false },

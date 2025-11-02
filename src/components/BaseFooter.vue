@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <footer class="bg-gray-900 text-white mt-12">
     <div class="max-w-7xl mx-auto px-6 py-8">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -71,4 +71,6 @@
 
 <script setup lang="ts"></script>
 
-<style scoped></style>
+<style scoped></style> -->
+<template></template>
+<script lang="ts"></script>

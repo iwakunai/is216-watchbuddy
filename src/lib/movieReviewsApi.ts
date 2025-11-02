@@ -78,7 +78,6 @@ export async function submitReview(
   rating: number,
   comment: string
 ): Promise<Review | null> {
-  console.log(clerkUserId);
 
   if (!clerkUserId) throw new Error("User not authenticated.");
 

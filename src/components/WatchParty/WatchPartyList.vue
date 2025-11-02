@@ -1,163 +1,102 @@
 <template>
-    <!-- SEARCH BAR -->
-    <div class="text-left mb-4 px-10 mt-4"> 
-        <input
-            id="party-search"
-            type="text"
-            placeholder="Search for rooms or movies..."
-            name="party-search"
-            v-model="searchQuery"
-            class="block w-full rounded-md bg-white px-3 py-1.5 mt-8 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-400 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-        />
+  <!-- WATCH LIST -->
+  <div class="my-8 px-10">
+    <!-- WATCH PARTY ROOM CARDS -->
+    <div
+      v-if="view === 'card'"
+      class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+    >
+      <RoomCard v-for="room in filteredRooms" :key="room.roomid" :room="room" />
     </div>
 
-    <!-- WATCH LIST -->
-    <div class="my-8 px-10"> 
-        <!-- WATCH PARTY ROOM CARDS -->
-        <div
-            v-if="view === 'card'"
-            class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
-        >
-            <RoomCard v-for="room in filteredRooms" :key="room.roomid" :room="room" />
-        </div>
-
-        <!-- WATCH PARTY ROOM LIST -->
-        <div v-else class="flex flex-col gap-4">
-            <RoomRow v-for="room in filteredRooms" :key="room.roomid" :room="room" />
-        </div>
-
-        <!-- LOADING STATE -->
-        <div v-if="loading" class="text-center text-gray-400 mt-10">
-            Loading rooms...
-        </div>
-
-        <!-- EMPTY STATE -->
-        <div v-else-if="filteredRooms.length === 0" class="text-center text-gray-400 mt-10">
-            No rooms found
-        </div>
-
+    <!-- WATCH PARTY ROOM LIST -->
+    <div v-else class="flex flex-col gap-4">
+      <RoomRow v-for="room in filteredRooms" :key="room.roomid" :room="room" />
     </div>
+
+    <!-- LOADING STATE -->
+    <div v-if="loading" class="text-center text-gray-400 mt-10">
+      Loading rooms...
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div
+      v-else-if="filteredRooms.length === 0"
+      class="text-center text-gray-400 mt-10"
+    >
+      No rooms found
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps, onMounted } from "vue";
-import { supabase } from "@/lib/supabaseClient";
+import { ref, computed, onMounted } from "vue";
 import RoomCard from "@/components/WatchParty/RoomCard.vue";
 import RoomRow from "@/components/WatchParty/RoomRow.vue";
 
+import type { Room } from "../../composables/room";
+import { useRoomStatus } from "../../composables/room";
+import { fetchPublicRooms } from "@/lib/partyRooms";
+
 const props = defineProps<{
-    view: "card" | "list";
-    statusFilter: "all" | "playing" | "scheduled" | "ended";
+  view: "card" | "list";
+  statusFilter: "all" | "playing" | "scheduled" | "ended";
+  searchQuery: string;
 }>();
 
-// Reactive state
-const watchRooms = ref<any[]>([]);
+const watchRooms = ref<Room[]>([]);
 const searchQuery = ref("");
 const loading = ref(true);
 
-// Fetch rooms from Supabase
-async function fetchRooms() {
-    loading.value = true;
-
-    // Fetch rooms
-    const { data: rooms, error: roomError } = await supabase
-        .from("party_rooms")
-        .select("*")
-        .eq("public_status", true)
-        .order("scheduled_time", { ascending: true });
-
-    if (roomError) {
-        console.error("Error fetching rooms:", roomError);
-        watchRooms.value = [];
-        loading.value = false;
-        return;
-    }
-
-    if (!rooms || rooms.length === 0) {
-        watchRooms.value = [];
-        loading.value = false;
-        return;
-    }
-
-    // Fetch all host usernames in one go
-    const hostIds = rooms.map(r => r.host_id);
-    const { data: users } = await supabase
-        .from("users")
-        .select("clerk_id, username")
-        .in("clerk_id", hostIds);
-
-    const userMap = new Map(users?.map(u => [u.clerk_id, u.username]));
-
-    // Map rooms with host username
-    watchRooms.value = rooms.map((room: any) => ({
-        roomid: room.id,
-        name: room.room_name,
-        movie: room.title,
-        host: userMap.get(room.host_id) || "Unknown",
-        datetime: room.scheduled_time,
-        duration: room.duration,
-        status: getStatus(room.scheduled_time, room.duration),
-        vibe: room.vibe,
-    }));
-
+// Fetch on mount and change
+async function loadRooms() {
+  loading.value = true;
+  try {
+    const rooms = await fetchPublicRooms();
+    watchRooms.value = rooms;
+  } catch (error) {
+    console.error('Error loading rooms:', error);
+    watchRooms.value = [];
+  } finally {
     loading.value = false;
+  }
 }
 
+onMounted(loadRooms);
 
+defineExpose({ loadRooms })
 
-// Determine room status using scheduled_time + duration
-function getStatus(scheduledTime: string, duration?: number | null) {
-    if (!scheduledTime) return "scheduled";
-
-    const now = new Date();
-    const start = new Date(scheduledTime);
-    const end = duration
-        ? new Date(start.getTime() + duration * 1000)
-        : new Date(start.getTime() + 2 * 60 * 60 * 1000); // fallback: 2h
-
-    if (now < start) return "scheduled";
-    if (now >= start && now <= end) return "playing";
-    return "ended";
-}
-
-// Fetch when component mounts
-onMounted(fetchRooms);
-
-// Computed: search + filter
+// Filter and sort rooms based on search and status filter
 const filteredRooms = computed(() => {
-    let rooms = watchRooms.value;
+  let rooms = watchRooms.value;
 
-    // Search by name/movie
-    if (searchQuery.value.trim()) {
-        const query = searchQuery.value.toLowerCase();
-        rooms = rooms.filter(
-            (room) =>
-                room.name.toLowerCase().includes(query) ||
-                room.movie.toLowerCase().includes(query)
-        );
-    }
+  if (props.searchQuery.trim()) {
+    const query = props.searchQuery.toLowerCase();
+    rooms = rooms.filter(
+      (room) =>
+        room.name.toLowerCase().includes(query) ||
+        room.movie.toLowerCase().includes(query)
+    );
+  }
 
-    // Filter by status
-    if (props.statusFilter !== "all") {
-        rooms = rooms.filter((room) => room.status === props.statusFilter);
-    }
-
-    // Move ended rooms to the end
-    rooms.sort((a, b) => {
-        if (a.status === "ended" && b.status !== "ended") return 1;
-        if (a.status !== "ended" && b.status === "ended") return -1;
-        return 0; // otherwise keep original order
+  if (props.statusFilter !== "all") {
+    rooms = rooms.filter((room) => {
+      const { status } = useRoomStatus(room);
+      return status.value === props.statusFilter;
     });
+  }
 
-    return rooms;
+  rooms.sort((a, b) => {
+    const aStatus = useRoomStatus(a).status.value;
+    const bStatus = useRoomStatus(b).status.value;
+
+    if (aStatus === "ended" && bStatus !== "ended") return 1;
+    if (aStatus !== "ended" && bStatus === "ended") return -1;
+    return 0;
+  });
+
+  return rooms;
 });
 
-// const watchRooms = ref([
-//     { roomid: "001", name: "OPM EP1", movie: "One-Punch Man", host: "yiting", datetime: "2025-10-30T19:30:00+08:00", status: 'waiting', tags: ["Anime", "Fighting"], mood: ['🤩', '🤪','🔥']}, 
-//     { roomid: "002",name: "Monster EP3", movie: "Monster: The Ed Gein Story", host: "zeeys", datetime: "2025-10-28T05:30:00+08:00", status: 'playing', tags: ["Movie", "Horror"], mood: ['😱', '👻','🤩']}, 
-//     { roomid: "003",name: "Mis Imp", movie: "Mission: Impossible - The Final Reckoning", host: "llama", datetime: "2025-10-24T15:00:00+08:00", status: 'scheduled', tags: ["Adventure", "Fighting"], mood: ['🤩', '😎', '😩']}, 
-// ]);
-</script>
 
-<style scoped>
-</style>
+</script>
