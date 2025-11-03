@@ -1,4 +1,3 @@
-<!-- ==================== MovieDetailPage.vue (UPDATED WITH NAVIGATION) ==================== -->
 <template>
   <BaseNavBar />
   <div
@@ -116,7 +115,7 @@
             </div>
           </div>
 
-          <!-- Overview Section -->
+          <!-- Col 3 -->
           <div class="grid md:grid-cols-3 gap-6">
             <div class="md:col-span-3">
               <!-- Vibe -->
@@ -173,6 +172,7 @@
 
           <!-- Production Info Section -->
           <div class="mt-4 grid md:grid-cols-2 gap-6">
+            <!-- Production Info column -->
             <div>
               <h5 class="font-semibold text-lg mb-2">Production Info</h5>
               <div
@@ -213,6 +213,7 @@
               </div>
             </div>
 
+            <!-- Box Office column -->
             <div>
               <h5 class="font-semibold text-lg mb-2">Box Office</h5>
               <div
@@ -231,6 +232,40 @@
                     movie.revenue ? "$" + movie.revenue.toLocaleString() : "-"
                   }}</span>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trailer Section - NEW! -->
+        <div v-if="trailerKey" class="mt-12 col-span-3">
+          <h2
+            class="text-2xl font-bold mb-6 bg-gradient-to-r from-white to-[#cfd8ff] text-transparent bg-clip-text"
+          >
+            Trailer
+          </h2>
+          <div class="relative group cursor-pointer" @click="openTrailer">
+            <div class="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-gradient-to-b from-white/5 to-black/20">
+              <img
+                :src="`https://img.youtube.com/vi/${trailerKey}/maxresdefault.jpg`"
+                :alt="`${movie.title} Trailer`"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <!-- Dark overlay -->
+              <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300"></div>
+              
+              <!-- Play button -->
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-20 h-20 rounded-full bg-[#6b6bff] group-hover:bg-[#8b8bff] transition-all duration-300 flex items-center justify-center shadow-xl group-hover:scale-110">
+                  <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Trailer label -->
+              <div class="absolute bottom-4 left-4 px-3 py-1.5 rounded-lg bg-black/70 backdrop-blur-sm border border-white/10">
+                <span class="text-white font-semibold text-sm">▶ Watch Trailer</span>
               </div>
             </div>
           </div>
@@ -418,6 +453,7 @@ const movie = ref<Movie>({} as Movie);
 const credits = ref<any>({} as any);
 const imdbRating = ref<string | null>(null);
 const similarMovies = ref<any[]>([]);
+const trailerKey = ref<string | null>(null);
 
 const movieId = ref<string | null>(String(route.params.id || ""));
 
@@ -489,6 +525,22 @@ const certificationDisplay = computed(() => {
   );
 });
 
+const topCast = computed<CastMember[]>(() =>
+  credits.value?.cast ? credits.value.cast.slice(0, 5) : []
+);
+
+const allCast = computed(() => {
+  const cast =
+    credits.value?.cast?.slice(0, 15).map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      role: c.character || "Actor",
+      profile_path: c.profile_path,
+    })) || [];
+
+  return [...cast];
+});
+
 const directors = computed(() => {
   const crew = credits.value?.crew || [];
   return crew.filter((c: any) => c.job === "Director");
@@ -506,16 +558,24 @@ const writers = computed(() => {
   return uniqueWriters;
 });
 
-const allCast = computed(() => {
-  const cast =
-    credits.value?.cast?.slice(0, 15).map((c: any) => ({
-      id: c.id,
-      name: c.name,
-      role: c.character || "Actor",
-      profile_path: c.profile_path,
-    })) || [];
+const directorsDisplay = computed(() => {
+  const crew = credits.value?.crew || [];
+  const directors = crew
+    .filter((c: any) => c.job === "Director")
+    .map((d: any) => d.name);
+  return [...new Set(directors)].join(", ");
+});
 
-  return [...cast];
+const writersDisplay = computed(() => {
+  const crew = credits.value?.crew || [];
+  const writers = crew
+    .filter(
+      (c: any) =>
+        ["Writer", "Screenplay", "Author", "Screenplay By"].includes(c.job) ||
+        c.department === "Writing"
+    )
+    .map((w: any) => w.name);
+  return [...new Set(writers)].join(", ");
 });
 
 function inferVibe(movieObj: any, keywordsList: any[]): string {
@@ -582,6 +642,12 @@ function navigateToPerson(id: number) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function openTrailer() {
+  if (trailerKey.value) {
+    window.open(`https://www.youtube.com/watch?v=${trailerKey.value}`, '_blank');
+  }
+}
+
 async function fetchAll() {
   loading.value = true;
   error.value = null;
@@ -589,6 +655,7 @@ async function fetchAll() {
   credits.value = {};
   imdbRating.value = null;
   similarMovies.value = [];
+  trailerKey.value = null;
 
   if (!TMDB_API_KEY) {
     error.value =
@@ -598,7 +665,7 @@ async function fetchAll() {
   }
 
   try {
-    const url = `${TMDB_BASE}/movie/${movieId.value}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates,external_ids,keywords,similar`;
+    const url = `${TMDB_BASE}/movie/${movieId.value}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates,external_ids,keywords,similar,videos`;
     const res = await fetch(url);
     if (!res.ok)
       throw new Error(`TMDB fetch failed: ${res.status} ${res.statusText}`);
@@ -607,6 +674,16 @@ async function fetchAll() {
     movie.value = data;
     credits.value = data.credits || {};
     similarMovies.value = data.similar?.results?.slice(0, 6) || [];
+
+    // Extract trailer from videos
+    if (data.videos?.results?.length > 0) {
+      const trailer = data.videos.results.find(
+        (v: any) => v.type === "Trailer" && v.site === "YouTube"
+      );
+      if (trailer) {
+        trailerKey.value = trailer.key;
+      }
+    }
   } catch (e: any) {
     error.value = e?.message ?? String(e);
   } finally {
