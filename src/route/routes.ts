@@ -56,6 +56,11 @@ const routes = [
     meta: { label: "Profile", showInNav: false },
   },
   {
+  path: '/person/:id',
+  name: 'PersonDetails',
+  component: () => import('@/pages/PersonDetails.vue')
+  },
+  {
     path: "/profile/edit",
     name: "profile-edit",
     component: EditProfilePage,

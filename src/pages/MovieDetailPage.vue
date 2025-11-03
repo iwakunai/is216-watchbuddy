@@ -1,3 +1,4 @@
+<!-- ==================== MovieDetailPage.vue (UPDATED WITH NAVIGATION) ==================== -->
 <template>
   <BaseNavBar />
   <div
@@ -44,7 +45,6 @@
             :alt="movie.title"
             class="w-full h-auto object-cover block"
           />
-          <!-- TODO: Else to display blank poster instead of text -->
           <div
             v-else
             class="w-full aspect-[2/3] flex items-center justify-center bg-gray-800 text-gray-400"
@@ -90,7 +90,7 @@
           </div>
         </div>
 
-        <!-- Col 2? -->
+        <!-- Col 2 -->
         <div class="col-span-3 md:col-span-2 gap-[2rem]">
           <!-- Details -->
           <div class="flex flex-col items-center gap-[4rem] h-min">
@@ -116,7 +116,7 @@
             </div>
           </div>
 
-          <!-- Col 3 -->
+          <!-- Overview Section -->
           <div class="grid md:grid-cols-3 gap-6">
             <div class="md:col-span-3">
               <!-- Vibe -->
@@ -139,13 +139,31 @@
                   <div>
                     <div class="text-sm text-[#98a1b3]">Director</div>
                     <div class="mt-1 font-semibold text-white">
-                      {{ directorsDisplay || "-" }}
+                      <span
+                        v-for="(director, idx) in directors"
+                        :key="director.id"
+                        @click="navigateToPerson(director.id)"
+                        class="cursor-pointer hover:text-[#6b6bff] transition-colors"
+                      >
+                        {{ director.name
+                        }}<span v-if="idx < directors.length - 1">, </span>
+                      </span>
+                      <span v-if="directors.length === 0">-</span>
                     </div>
                   </div>
                   <div>
                     <div class="text-sm text-[#98a1b3]">Writer(s)</div>
                     <div class="mt-1 font-semibold text-white">
-                      {{ writersDisplay || "-" }}
+                      <span
+                        v-for="(writer, idx) in writers"
+                        :key="writer.id"
+                        @click="navigateToPerson(writer.id)"
+                        class="cursor-pointer hover:text-[#6b6bff] transition-colors"
+                      >
+                        {{ writer.name
+                        }}<span v-if="idx < writers.length - 1">, </span>
+                      </span>
+                      <span v-if="writers.length === 0">-</span>
                     </div>
                   </div>
                 </div>
@@ -155,7 +173,6 @@
 
           <!-- Production Info Section -->
           <div class="mt-4 grid md:grid-cols-2 gap-6">
-            <!-- Production Info column -->
             <div>
               <h5 class="font-semibold text-lg mb-2">Production Info</h5>
               <div
@@ -196,7 +213,6 @@
               </div>
             </div>
 
-            <!-- Box Office column -->
             <div>
               <h5 class="font-semibold text-lg mb-2">Box Office</h5>
               <div
@@ -220,7 +236,6 @@
           </div>
         </div>
 
-        <!-- TODO: Add show more button, only show top 5 and rest of cast in new page -->
         <!-- Full Cast & Crew Section -->
         <div v-if="allCast.length > 0" class="mt-12 col-span-3">
           <h2
@@ -235,7 +250,8 @@
             <div
               v-for="person in allCast"
               :key="person.id"
-              class="p-3 rounded-xl bg-gradient-to-b from-white/5 to-black/20 border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-[#6b6bff]/20"
+              @click="navigateToPerson(person.id)"
+              class="p-3 rounded-xl bg-gradient-to-b from-white/5 to-black/20 border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-[#6b6bff]/20 cursor-pointer"
             >
               <div class="flex items-center gap-4">
                 <div
@@ -312,7 +328,6 @@
           </div>
         </div>
 
-        <!-- TODO: change to carousel -->
         <!-- Similar Movie Section -->
         <div v-if="similarMovies.length > 0" class="col-span-3 mt-12 mb-8">
           <h2
@@ -384,9 +399,12 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import BaseNavBar from "@/components/NavBar/BaseNavBar.vue";
+import MovieReviews from "@/components/Reviews/MovieReviews.vue";
 
 const route = useRoute();
+const router = useRouter();
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/";
@@ -471,9 +489,22 @@ const certificationDisplay = computed(() => {
   );
 });
 
-const topCast = computed<CastMember[]>(() =>
-  credits.value?.cast ? credits.value.cast.slice(0, 5) : []
-);
+const directors = computed(() => {
+  const crew = credits.value?.crew || [];
+  return crew.filter((c: any) => c.job === "Director");
+});
+
+const writers = computed(() => {
+  const crew = credits.value?.crew || [];
+  const writerJobs = ["Writer", "Screenplay", "Author", "Screenplay By"];
+  const writersList = crew.filter(
+    (c: any) => writerJobs.includes(c.job) || c.department === "Writing"
+  );
+  const uniqueWriters = Array.from(
+    new Map(writersList.map((w: any) => [w.name, w])).values()
+  );
+  return uniqueWriters;
+});
 
 const allCast = computed(() => {
   const cast =
@@ -484,48 +515,7 @@ const allCast = computed(() => {
       profile_path: c.profile_path,
     })) || [];
 
-  // const crew =
-  //   credits.value?.crew
-  //     ?.filter((c: any) =>
-  //       [
-  //         "Director",
-  //         "Producer",
-  //         "Screenplay",
-  //         "Writer",
-  //         "Director of Photography",
-  //         "Editor",
-  //       ].includes(c.job)
-  //     )
-  //     .slice(0, 10)
-  //     .map((c: any) => ({
-  //       id: c.id,
-  //       name: c.name,
-  //       role: c.job,
-  //       profile_path: c.profile_path,
-  //     })) || [];
-
-  // return [...crew, ...cast];
   return [...cast];
-});
-
-const directorsDisplay = computed(() => {
-  const crew = credits.value?.crew || [];
-  const directors = crew
-    .filter((c: any) => c.job === "Director")
-    .map((d: any) => d.name);
-  return [...new Set(directors)].join(", ");
-});
-
-const writersDisplay = computed(() => {
-  const crew = credits.value?.crew || [];
-  const writers = crew
-    .filter(
-      (c: any) =>
-        ["Writer", "Screenplay", "Author", "Screenplay By"].includes(c.job) ||
-        c.department === "Writing"
-    )
-    .map((w: any) => w.name);
-  return [...new Set(writers)].join(", ");
 });
 
 function inferVibe(movieObj: any, keywordsList: any[]): string {
@@ -581,22 +571,15 @@ function formatVoteCount(count: number): string {
   return count.toString();
 }
 
-// TODO: remove?
-function getReviewTone(): string {
-  const rating = movie.value?.vote_average || 0;
-  if (rating >= 8)
-    return "exceptional performances, compelling storytelling, and masterful direction";
-  if (rating >= 7)
-    return "strong performances, engaging plot, and solid execution";
-  if (rating >= 6) return "interesting concept and decent performances";
-  if (rating >= 5) return "ambitious attempt with mixed results";
-  return "unique vision despite some challenges";
-}
-
 function navigateToMovie(id: number) {
   window.scrollTo({ top: 0, behavior: "smooth" });
   movieId.value = String(id);
   fetchAll();
+}
+
+function navigateToPerson(id: number) {
+  router.push(`/person/${id}`);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 async function fetchAll() {
@@ -624,7 +607,6 @@ async function fetchAll() {
     movie.value = data;
     credits.value = data.credits || {};
     similarMovies.value = data.similar?.results?.slice(0, 6) || [];
-
   } catch (e: any) {
     error.value = e?.message ?? String(e);
   } finally {
