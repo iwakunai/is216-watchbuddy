@@ -446,12 +446,6 @@ onMounted(() => {
   border: 1px solid rgba(255,255,255,0.03);
 }
 
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
 
 .scrollbar-hide::-webkit-scrollbar { 
   display: none; 
