@@ -1,373 +1,730 @@
-<template>
-  <div class="min-h-screen bg-gray-50 text-black">
-    <BaseNavBar />
-    
-    <!-- Profile Header -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">PROFILE</h1>
-        <!-- <RouterLink to="/profile/edit" class="bg-blue-600 hover:bg-blue-700  px-3 py-1.5 rounded-md text-sm font-medium transition-colors text-white">
-          Edit profile
-        </RouterLink> -->
-      </div>
-
-      <!-- Profile Summary -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-        <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-          <!-- Profile Picture -->
-          <div class="flex-shrink-0">
-            <img :src="profile.avatarDataUrl || defaultAvatar" alt="pfp" class="w-24 h-24 rounded-full object-cover bg-gray-300" />
-          </div>
-
-          <!-- Username -->
-          <div class="flex-1 text-center md:text-left">
-            <h2 class="text-2xl font-semibold text-black mb-4">{{ profile.username || 'Username' }}</h2>
-          </div>
-
-          <!-- Statistics Circles -->
-          <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
-            <!-- Average Movie Score -->
-            <div class="text-center">
-              <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <span class="text-green-600 font-bold text-lg">{{ averageMovieScore }}%</span>
-              </div>
-              <p class="text-sm text-gray-600">Average Movie Score</p>
-            </div>
-
-            <!-- Average TV Score -->
-            <div class="text-center">
-              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <span class="text-blue-600 font-bold text-lg">{{ averageTvScore }}%</span>
-              </div>
-              <p class="text-sm text-gray-600">Average TV Score</p>
-            </div>
-
-            <!-- Average Mood -->
-            <div class="text-center">
-              <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <span class="text-yellow-600 text-2xl">{{ averageMoodEmoji }}</span>
-              </div>
-              <p class="text-sm text-gray-600">Average Mood</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="border-b border-gray-200 mb-6">
-        <nav class="-mb-px flex space-x-8">
-          <button 
-            v-for="tab in tabs" 
-            :key="tab.id"
-            @click="activeTab = tab.id"
-            :class="[
-              'py-2 px-1 border-b-2 font-medium text-sm transition-colors',
-              activeTab === tab.id 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            ]"
-          >
-            {{ tab.name }}
-          </button>
-        </nav>
-      </div>
-
-      <!-- Tab Content -->
-      <div v-if="activeTab === 'overview'" class="space-y-6">
-        <!-- Top Row -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Most Watched Genres -->
-          <div class="bg-white rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Most Watched Genres</h3>
-            <div class="space-y-2">
-              <div class="flex justify-between items-center">
-                <span class="text-gray-600">Action</span>
-                <span class="text-sm text-gray-500">25 movies</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-gray-600">Comedy</span>
-                <span class="text-sm text-gray-500">18 movies</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-gray-600">Drama</span>
-                <span class="text-sm text-gray-500">15 movies</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Most Watched Moods -->
-          <div class="bg-white rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Most Watched Moods</h3>
-            <div class="space-y-2">
-              <div class="flex justify-between items-center">
-                <span class="text-gray-600">😊 Happy</span>
-                <span class="text-sm text-gray-500">22 movies</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-gray-600">😢 Sad</span>
-                <span class="text-sm text-gray-500">12 movies</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-gray-600">😱 Thrilled</span>
-                <span class="text-sm text-gray-500">8 movies</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bottom Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Favourites -->
-          <div class="bg-white rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Favourites</h3>
-            <div class="space-y-3">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-16 bg-gray-200 rounded"></div>
-                <div>
-                  <p class="font-medium text-gray-900">Inception</p>
-                  <p class="text-sm text-gray-500">2010</p>
-                </div>
-              </div>
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-16 bg-gray-200 rounded"></div>
-                <div>
-                  <p class="font-medium text-gray-900">Parasite</p>
-                  <p class="text-sm text-gray-500">2019</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Friends -->
-          <div class="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="text-lg font-semibold text-gray-900">Friends</h3>
-              <span class="text-sm text-gray-500">12 friends</span>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
-              <div v-for="i in 8" :key="i" class="text-center">
-                <div class="w-12 h-12 bg-gray-300 rounded-full mx-auto mb-2"></div>
-                <p class="text-xs text-gray-600">Friend {{ i }}</p>
-              </div>
-            </div>
-            <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition-colors">
-              + Add Friends
-            </button>
-          </div>
-        </div>
-
-        <!-- Badges -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Badges</h3>
-          <p class="text-sm text-gray-600 mb-4">
-            Badges for completed watch parties and/or challenges (e.g. watch 4 Marvel movies in a row or watch a movie with > 10 friends)
-          </p>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <div v-for="i in 6" :key="i" class="text-center">
-              <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <span class="text-yellow-600 text-2xl">🏆</span>
-              </div>
-              <p class="text-xs text-gray-600">Badge {{ i }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Lists Tab -->
-      <div v-if="activeTab === 'lists'" class="space-y-6">
-        <div class="bg-white rounded-lg shadow-sm p-6">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-2xl font-semibold text-gray-900">My Lists</h3>
-            <button
-              class="bg-blue-600 hover:bg-blue-700  px-3 py-1.5 rounded-md text-sm font-medium transition-colors text-white"
-              @click="isCreateListOpen = true"
-            >
-              Create List
-            </button>
-          </div>
-          <p class="text-gray-600">You haven't created any lists.</p>
-        </div>
-
-        <!-- Create List Modal -->
-        <div
-          v-if="isCreateListOpen"
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
-          @click.self="isCreateListOpen = false"
-        >
-          <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg">
-            <div class="flex items-center justify-between px-6 py-4 border-b">
-              <h4 class="text-lg font-semibold text-gray-900">Create New List: Step 1</h4>
-              <button class="text-gray-500 hover:text-gray-700" @click="isCreateListOpen = false">✕</button>
-            </div>
-            <div class="p-6 space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input v-model="createListForm.name" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="My awesome list" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea v-model="createListForm.description" rows="3" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Describe your list"></textarea>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Public List?</label>
-                  <select v-model="createListForm.public" class="w-full border rounded-lg px-3 py-2">
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Show Comments</label>
-                  <select v-model="createListForm.comments" class="w-full border rounded-lg px-3 py-2">
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-                <div class="md:col-span-2">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-                  <select v-model="createListForm.sortBy" class="w-full border rounded-lg px-3 py-2">
-                    <option value="original-asc">Original Ascending</option>
-                    <option value="original-desc">Original Descending</option>
-                    <option value="date-added">Date Added</option>
-                    <option value="rating">Rating</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="px-6 py-4 border-t flex justify-end gap-3">
-              <button class="px-3 py-1.5 rounded-md border text-sm" @click="isCreateListOpen = false">Cancel</button>
-              <button class="px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm" @click="submitCreateList()">Continue</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- My Ratings Tab -->
-      <div v-if="activeTab === 'ratings'" class="space-y-6">
-        <div class="bg-white rounded-lg shadow-sm p-6">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h3 class="text-2xl font-semibold text-gray-900">My Ratings</h3>
-              <div class="mt-1 text-sm text-gray-600 flex items-center gap-4">
-                <button class="px-2 py-1 rounded border" :class="ratingsView==='movies' ? 'bg-gray-100' : ''" @click="ratingsView='movies'">Movies {{ ratingsCounts.movies }}</button>
-                <button class="px-2 py-1 rounded border" :class="ratingsView==='tv' ? 'bg-gray-100' : ''" @click="ratingsView='tv'">TV {{ ratingsCounts.tv }}</button>
-              </div>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-600">Filter by:</span>
-                <select v-model="ratingsFilters.filterBy" class="border rounded-lg px-3 py-2 text-sm">
-                  <option value="mood">Mood</option>
-                  <option value="genre">Genre</option>
-                  <option value="date">Date Added</option>
-                </select>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-600">Order:</span>
-                <select v-model="ratingsFilters.order" class="border rounded-lg px-3 py-2 text-sm">
-                  <option value="desc">Descending</option>
-                  <option value="asc">Ascending</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="mt-6 text-gray-700" v-if="ratingsView==='movies' && ratingsCounts.movies===0">You haven't rated any movies.</div>
-          <div class="mt-6 text-gray-700" v-else-if="ratingsView==='tv' && ratingsCounts.tv===0">You haven't rated any TV shows.</div>
-        </div>
-      </div>
-
-      <!-- My Watchlists Tab -->
-      <div v-if="activeTab === 'watchlists'" class="space-y-6">
-        <div class="bg-white rounded-lg shadow-sm p-6">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h3 class="text-2xl font-semibold text-gray-900">My Watchlist</h3>
-              <div class="mt-1 text-sm text-gray-600 flex items-center gap-4">
-                <button class="px-2 py-1 rounded border" :class="watchlistView==='movies' ? 'bg-gray-100' : ''" @click="watchlistView='movies'">Movies {{ watchlistCounts.movies }}</button>
-                <button class="px-2 py-1 rounded border" :class="watchlistView==='tv' ? 'bg-gray-100' : ''" @click="watchlistView='tv'">TV {{ watchlistCounts.tv }}</button>
-              </div>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-600">Filter by:</span>
-                <select v-model="watchlistFilters.filterBy" class="border rounded-lg px-3 py-2 text-sm">
-                  <option value="mood">Mood</option>
-                  <option value="genre">Genre</option>
-                  <option value="date">Date Added</option>
-                </select>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-600">Order:</span>
-                <select v-model="watchlistFilters.order" class="border rounded-lg px-3 py-2 text-sm">
-                  <option value="desc">Descending</option>
-                  <option value="asc">Ascending</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="mt-6 text-gray-700" v-if="watchlistView==='movies' && watchlistCounts.movies===0">You haven't added any movies to your watchlist</div>
-          <div class="mt-6 text-gray-700" v-else-if="watchlistView==='tv' && watchlistCounts.tv===0">You haven't added any TV shows to your watchlist</div>
-        </div>
-      </div>
-    </div>
-
-    <BaseFooter />
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from "vue";
+import { useUser } from '@clerk/vue';
+import { tabs, type TabId } from "@/types/tabs";
 
-const activeTab = ref('overview')
+import type {
+  Profile,
+  GenreCount,
+  MoodCount,
+  FavouriteItem,
+  Friend,
+  FriendRequest,
+  Badge,
+  BadgeGroups,
+  RatingItem,
+  ReviewItem,
+  ListFull,
+  MovieItem,
+  WatchItem,
+  HistoryItem,
+  ActivityItem,
+} from "@/types/profile";
 
-const tabs = [
-  { id: 'overview', name: 'Overview' },
-  { id: 'lists', name: 'Lists' },
-  { id: 'ratings', name: 'My Ratings' },
-  { id: 'watchlists', name: 'My Watchlists' }
-]
+import {
+  setUserContext,
+  getUserProfile,
+  createUserProfile,
+  getWatchlist,
+  getWatchHistory,
+  getUserLists,
+  getListItems,
+  getFriends,
+  getFriendRequests,
+  getUserBadges,
+  getUserActivity,
+  removeFromWatchlist as removeFromWatchlistDb,
+  addToWatchHistory,
+  updateList,
+  deleteList as deleteListDb,
+  addItemToList,
+  removeItemFromList,
+  sendFriendRequest,
+  acceptFriendRequest as acceptRequestDb,
+  rejectFriendRequest as rejectRequestDb,
+  removeFriend as removeFriendDb,
+  addActivity,
+} from '@/lib/supabaseProfile';
 
-// Lists modal state and form
-const isCreateListOpen = ref(false)
-const createListForm = ref({
-  name: '',
-  description: '',
-  public: 'yes',
-  comments: 'yes',
-  sortBy: 'original-asc'
-})
-const submitCreateList = () => {
-  // Placeholder submit; integrate with backend later
-  isCreateListOpen.value = false
+const activeTab = ref<TabId>('overview')
+const setTab = (id: TabId) => { activeTab.value = id }
+
+// Auth state
+const { user, isLoaded } = useUser()
+const isLoading = ref(true)
+const error = ref<string | null>(null)
+
+const profile = ref<Profile>({
+  username: "MovieLover123",
+  defaultAvatar: "/avatar.png",
+});
+const joinDate = ref("Jan 2025");
+
+const averageMovieScore = ref(85);
+const averageTvScore = ref(78);
+const averageMoodEmoji = ref("😊");
+
+const totalMoviesWatched = ref(42);
+const totalShowsWatched = ref(18);
+const totalBadgesEarned = ref(8);
+
+const topGenres = ref<GenreCount[]>([]);
+
+const topMoods = ref<MoodCount[]>([]);
+
+const favourites = ref<FavouriteItem[]>([]);
+
+const friends = ref<Friend[]>([]);
+
+const friendRequests = ref<FriendRequest[]>([]);
+
+const featuredBadges = ref<Badge[]>([
+  { id: 'first-watch', name: 'First Watch', description: 'Watched your first movie', icon: '🎬', earned: true },
+  { id: 'social-butterfly', name: 'Social Butterfly', description: 'Added 5 friends', icon: '🦋', earned: true },
+  { id: 'binge-watcher', name: 'Binge Watcher', description: 'Watched 10 movies in a week', icon: '📺', earned: false },
+  { id: 'critic', name: 'Critic', description: 'Wrote 10 reviews', icon: '✍️', earned: true },
+  { id: 'party-host', name: 'Party Host', description: 'Hosted a watch party', icon: '🎉', earned: false },
+  { id: 'completionist', name: 'Completionist', description: 'Watched 100 movies', icon: '🏆', earned: false },
+]);
+
+const badgesByCategory = ref<BadgeGroups>({
+  moodMastery: [
+    { id: 'mood-happy', name: 'Happy Viewer', description: 'Watch 10 movies while happy', icon: '😊', earned: true },
+    { id: 'mood-sad', name: 'Emotional Explorer', description: 'Watch 10 movies while sad', icon: '😢', earned: false },
+    { id: 'mood-excited', name: 'Thrill Seeker', description: 'Watch 10 thrillers', icon: '🤩', earned: true },
+  ],
+  genreExplorer: [
+    { id: 'genre-action', name: 'Action Hero', description: 'Watch 20 action movies', icon: '💥', earned: true },
+    { id: 'genre-comedy', name: 'Comedy Fan', description: 'Watch 20 comedies', icon: '😂', earned: false },
+    { id: 'genre-drama', name: 'Drama Enthusiast', description: 'Watch 20 dramas', icon: '🎭', earned: false },
+  ],
+  socialButterfly: [
+    { id: 'social-friend', name: 'Friendly', description: 'Add 5 friends', icon: '👥', earned: true },
+    { id: 'social-party', name: 'Party Animal', description: 'Join 10 watch parties', icon: '🎊', earned: false },
+    { id: 'social-host', name: 'Super Host', description: 'Host 5 watch parties', icon: '🌟', earned: false },
+  ],
+});
+
+// Lists state
+const userLists = ref<ListFull[]>([]);
+const selectedList = ref<ListFull | null>(null);
+
+function openList(list: ListFull) {
+  selectedList.value = list;
+}
+function closeList() {
+  selectedList.value = null;
 }
 
-// Ratings and Watchlist states
-const ratingsCounts = ref({ movies: 0, tv: 0 })
-const ratingsFilters = ref({ filterBy: 'mood', order: 'desc' })
+async function updateListSettings<K extends keyof ListFull>(
+  key: K,
+  value: ListFull[K]
+) {
+  if (!selectedList.value || !user.value) return;
+  
+  try {
+    const updates: any = {};
+    
+    // Map ListFull properties to database columns
+    if (key === 'public') {
+      updates.is_public = value === 'yes';
+    } else if (key === 'comments') {
+      updates.allow_comments = value === 'yes';
+    } else if (key === 'sortBy') {
+      updates.sort_by = value;
+    } else if (key === 'name') {
+      updates.name = value;
+    } else if (key === 'description') {
+      updates.description = value;
+    }
+    
+    await updateList(selectedList.value.id, updates);
+    selectedList.value = { ...selectedList.value, [key]: value };
+    
+    // Update in list
+    const listIndex = userLists.value.findIndex(l => l.id === selectedList.value!.id);
+    if (listIndex !== -1) {
+      userLists.value[listIndex] = { ...selectedList.value };
+    }
+  } catch (err) {
+    console.error('Error updating list:', err);
+    error.value = 'Failed to update list';
+  }
+}
 
-const watchlistCounts = ref({ movies: 0, tv: 0 })
-const watchlistFilters = ref({ filterBy: 'mood', order: 'desc' })
+async function deleteList(id: string) {
+  if (!user.value) return;
+  
+  try {
+    await deleteListDb(id);
+    userLists.value = userLists.value.filter((l) => l.id !== id);
+    if (selectedList.value?.id === id) selectedList.value = null;
+    
+    await addActivity({
+      user_id: user.value.id,
+      activity_type: 'list',
+      title: 'Deleted a list',
+      icon: '🗑️'
+    });
+    
+    await loadActivity();
+  } catch (err) {
+    console.error('Error deleting list:', err);
+    error.value = 'Failed to delete list';
+  }
+}
 
-// Toggle views for Ratings and Watchlist
-const ratingsView = ref<'movies' | 'tv'>('movies')
-const watchlistView = ref<'movies' | 'tv'>('movies')
+async function addMovieToList(movie: MovieItem) {
+  if (!selectedList.value || !user.value) return;
+  
+  const exists = selectedList.value.movies?.some((m) => m.id === movie.id);
+  if (exists) {
+    error.value = 'This item is already in the list';
+    setTimeout(() => error.value = null, 3000);
+    return;
+  }
+  
+  try {
+    // Add to Supabase
+    await addItemToList({
+      list_id: selectedList.value.id,
+      tmdb_id: Number(movie.id),
+      title: movie.title,
+      media_type: movie.type as 'movie' | 'tv',
+      poster_path: movie.poster,
+      release_year: movie.year,
+      position: selectedList.value.movies?.length || 0
+    });
+    
+    // Update local state
+    const movies = [...(selectedList.value.movies ?? []), { ...movie }];
+    selectedList.value = { ...selectedList.value, movies };
+    
+    // Update in list
+    const listIndex = userLists.value.findIndex(l => l.id === selectedList.value!.id);
+    if (listIndex !== -1) {
+      userLists.value[listIndex] = { 
+        ...selectedList.value,
+        itemCount: movies.length
+      };
+    }
+    
+    // Add activity
+    await addActivity({
+      user_id: user.value.id,
+      activity_type: 'list',
+      title: `Added "${movie.title}" to list`,
+      description: `Added to "${selectedList.value.name}"`,
+      icon: '➕'
+    });
+    
+  } catch (err) {
+    console.error('Error adding movie to list:', err);
+    error.value = 'Failed to add movie to list';
+    setTimeout(() => error.value = null, 3000);
+  }
+}
 
-// Load profile from localStorage
-const defaultAvatar = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><rect width="100%" height="100%" fill="%23e5e7eb"/></svg>'
-const profile = ref<{ username?: string; avatarDataUrl?: string }>({})
-onMounted(() => {
-  const saved = localStorage.getItem('wb_profile')
-  if (saved) profile.value = JSON.parse(saved)
-})
+async function removeMovieFromList(movieId: string | number) {
+  if (!selectedList.value || !user.value) return;
+  
+  const movie = selectedList.value.movies?.find(m => m.id === movieId);
+  if (!movie) return;
+  
+  try {
+    await removeItemFromList(selectedList.value.id, Number(movieId), movie.type as 'movie' | 'tv');
+    
+    const movies = (selectedList.value.movies ?? []).filter(
+      (m) => m.id !== movieId
+    );
+    selectedList.value = { ...selectedList.value, movies };
+    
+    // Update in list
+    const listIndex = userLists.value.findIndex(l => l.id === selectedList.value!.id);
+    if (listIndex !== -1) {
+      userLists.value[listIndex] = { ...selectedList.value };
+    }
+  } catch (err) {
+    console.error('Error removing movie from list:', err);
+    error.value = 'Failed to remove movie from list';
+  }
+}
 
-// Averages derived from ratings (placeholder; integrate real data later)
-const averageMovieScore = computed(() => 0)
-const averageTvScore = computed(() => 0)
-const averageMoodEmoji = computed(() => '😊')
+// Watchlist state
+const watchlistItems = ref<WatchItem[]>([]);
 
-// Edit profile moved to dedicated page
+async function removeFromWatchlist(id: string | number) {
+  if (!user.value) return;
+  
+  const item = watchlistItems.value.find(i => i.id === id);
+  if (!item) return;
+  
+  try {
+    await removeFromWatchlistDb(user.value.id, Number(id), item.type as 'movie' | 'tv');
+    watchlistItems.value = watchlistItems.value.filter(i => i.id !== id);
+  } catch (err) {
+    console.error('Error removing from watchlist:', err);
+    error.value = 'Failed to remove from watchlist';
+  }
+}
+
+function openWatchlistItem(id: string | number) {
+  console.log('Open watchlist item:', id);
+  // TODO: Navigate to movie/TV detail page
+}
+
+// History state
+const historyItems = ref<HistoryItem[]>([]);
+
+function openHistoryItem(id: string | number) {
+  console.log('Open history item:', id);
+  // TODO: Navigate to movie/TV detail page
+}
+
+// Activity state
+const activityItems = ref<ActivityItem[]>([]);
+
+function openActivityItem(id: string | number) {
+  console.log('Open activity item:', id);
+  // TODO: Handle activity item click
+}
+
+// Friends handlers
+async function openFriendProfile(id: string) {
+  console.log('Open friend profile:', id);
+  // TODO: Navigate to friend's profile
+}
+
+async function removeFriend(id: string) {
+  if (!user.value) return;
+  
+  try {
+    await removeFriendDb(user.value.id, id);
+    friends.value = friends.value.filter(f => f.id !== id);
+  } catch (err) {
+    console.error('Error removing friend:', err);
+    error.value = 'Failed to remove friend';
+  }
+}
+
+async function acceptFriendRequest(id: string) {
+  if (!user.value) return;
+  
+  const request = friendRequests.value.find(r => r.id === id);
+  if (!request) return;
+  
+  try {
+    await acceptRequestDb(id);
+    
+    // Move from requests to friends
+    friends.value.push({
+      id: request.id,
+      name: request.name,
+      avatar: request.avatar,
+      status: 'offline'
+    });
+    friendRequests.value = friendRequests.value.filter(r => r.id !== id);
+    
+    // Add activity
+    await addActivity({
+      user_id: user.value.id,
+      activity_type: 'friend',
+      title: `Became friends with ${request.name}`,
+      icon: '👥'
+    });
+    
+    // Refresh activity feed
+    await loadActivity();
+  } catch (err) {
+    console.error('Error accepting friend request:', err);
+    error.value = 'Failed to accept friend request';
+  }
+}
+
+async function rejectFriendRequest(id: string) {
+  if (!user.value) return;
+  
+  try {
+    await rejectRequestDb(id);
+    friendRequests.value = friendRequests.value.filter(r => r.id !== id);
+  } catch (err) {
+    console.error('Error rejecting friend request:', err);
+    error.value = 'Failed to reject friend request';
+  }
+}
+
+function addFriend() {
+  console.log('Add friend clicked');
+  // TODO: Open friend search/add modal
+}
+
+const showAllBadges = ref(false);
+
+// Load data functions
+async function loadProfile() {
+  if (!user.value) return;
+  
+  try {
+    const profileData = await getUserProfile(user.value.id);
+    profile.value = {
+      username: profileData.username,
+      defaultAvatar: profileData.avatar_url || '/avatar.png',
+    };
+    joinDate.value = new Date(profileData.joined_at!).toLocaleDateString('en-US', {
+      month: 'short',
+      year: 'numeric'
+    });
+  } catch (err: any) {
+    console.error('Error loading profile:', err);
+    
+    // Profile doesn't exist, create it
+    if (err.message?.includes('No rows') || err.code === 'PGRST116') {
+      try {
+        await createUserProfile({
+          user_id: user.value.id,
+          username: user.value.username || user.value.firstName || 'User',
+          avatar_url: user.value.imageUrl || '',
+          bio: ''
+        });
+        await loadProfile(); // Reload after creation
+      } catch (createErr) {
+        console.error('Error creating profile:', createErr);
+        throw createErr;
+      }
+    } else {
+      throw err;
+    }
+  }
+}
+
+async function loadWatchlist() {
+  if (!user.value) return;
+  
+  try {
+    const data = await getWatchlist(user.value.id);
+    watchlistItems.value = data.map(item => ({
+      id: String(item.tmdb_id),
+      title: item.title,
+      poster: item.poster_path || '',
+      year: item.release_year || 0,
+      type: item.media_type,
+      addedAt: new Date(item.added_at!).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      })
+    }));
+  } catch (err) {
+    console.error('Error loading watchlist:', err);
+  }
+}
+
+async function loadHistory() {
+  if (!user.value) return;
+  
+  try {
+    const data = await getWatchHistory(user.value.id);
+    historyItems.value = data.map(item => ({
+      id: String(item.tmdb_id),
+      title: item.title,
+      poster: item.poster_path || '',
+      year: item.release_year || 0,
+      type: item.media_type,
+      watchedAt: new Date(item.watched_at!).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      }),
+      rating: item.rating
+    }));
+    
+    // Calculate stats from history
+    const movies = historyItems.value.filter(h => h.type === 'movie');
+    const shows = historyItems.value.filter(h => h.type === 'tv');
+    
+    totalMoviesWatched.value = movies.length;
+    totalShowsWatched.value = shows.length;
+    
+    const movieRatings = movies.filter(m => m.rating).map(m => m.rating!);
+    const showRatings = shows.filter(s => s.rating).map(s => s.rating!);
+    
+    if (movieRatings.length > 0) {
+      averageMovieScore.value = Math.round((movieRatings.reduce((a, b) => a + b, 0) / movieRatings.length) * 20);
+    }
+    if (showRatings.length > 0) {
+      averageTvScore.value = Math.round((showRatings.reduce((a, b) => a + b, 0) / showRatings.length) * 20);
+    }
+  } catch (err) {
+    console.error('Error loading history:', err);
+  }
+}
+
+async function loadLists() {
+  if (!user.value) return;
+  
+  try {
+    const listsData = await getUserLists(user.value.id);
+    userLists.value = await Promise.all(
+      listsData.map(async (list) => {
+        const items = await getListItems(list.id!);
+        return {
+          id: list.id!,
+          name: list.name,
+          description: list.description || '',
+          public: list.is_public ? 'yes' : 'no',
+          sortBy: list.sort_by,
+          itemCount: items.length,
+          comments: list.allow_comments ? 'yes' : 'no',
+          movies: items.map(item => ({
+            id: String(item.tmdb_id),
+            title: item.title,
+            type: item.media_type,
+            year: item.release_year || 0,
+            poster: item.poster_path || ''
+          }))
+        };
+      })
+    );
+  } catch (err) {
+    console.error('Error loading lists:', err);
+  }
+}
+
+async function loadFriends() {
+  if (!user.value) return;
+  
+  try {
+    const friendsData = await getFriends(user.value.id);
+    friends.value = friendsData.map((f: any) => ({
+      id: f.friend.user_id,
+      name: f.friend.username,
+      avatar: f.friend.avatar_url || undefined,
+      status: 'offline' as const // TODO: Implement real-time status
+    }));
+  } catch (err) {
+    console.error('Error loading friends:', err);
+  }
+}
+
+async function loadFriendRequests() {
+  if (!user.value) return;
+  
+  try {
+    const requestsData = await getFriendRequests(user.value.id);
+    friendRequests.value = requestsData.map((r: any) => ({
+      id: r.id,
+      name: r.requester.username,
+      avatar: r.requester.avatar_url || undefined,
+      requestedAt: new Date(r.created_at).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      })
+    }));
+  } catch (err) {
+    console.error('Error loading friend requests:', err);
+  }
+}
+
+async function loadBadges() {
+  if (!user.value) return;
+  
+  try {
+    const badgesData = await getUserBadges(user.value.id);
+    const earnedBadgeIds = badgesData.map((ub: any) => ub.badge.id);
+    totalBadgesEarned.value = earnedBadgeIds.length;
+    
+    // Update featured badges earned status
+    featuredBadges.value = featuredBadges.value.map(badge => ({
+      ...badge,
+      earned: earnedBadgeIds.includes(badge.id)
+    }));
+    
+    // Update badges by category
+    badgesByCategory.value = {
+      moodMastery: badgesByCategory.value.moodMastery.map(badge => ({
+        ...badge,
+        earned: earnedBadgeIds.includes(badge.id)
+      })),
+      genreExplorer: badgesByCategory.value.genreExplorer.map(badge => ({
+        ...badge,
+        earned: earnedBadgeIds.includes(badge.id)
+      })),
+      socialButterfly: badgesByCategory.value.socialButterfly.map(badge => ({
+        ...badge,
+        earned: earnedBadgeIds.includes(badge.id)
+      }))
+    };
+  } catch (err) {
+    console.error('Error loading badges:', err);
+  }
+}
+
+async function loadActivity() {
+  if (!user.value) return;
+  
+  try {
+    const data = await getUserActivity(user.value.id, 20);
+    activityItems.value = data.map(act => ({
+      id: act.id!,
+      type: act.activity_type,
+      title: act.title,
+      description: act.description || '',
+      icon: act.icon || '',
+      at: new Date(act.created_at!).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      })
+    }));
+  } catch (err) {
+    console.error('Error loading activity:', err);
+  }
+}
+
+// Initialize data on mount
+onMounted(async () => {
+  if (!isLoaded.value || !user.value) {
+    // Wait for user to load
+    watch([isLoaded, user], async ([loaded, currentUser]) => {
+      if (loaded && currentUser) {
+        await initializeData();
+      }
+    });
+  } else {
+    await initializeData();
+  }
+});
+
+async function initializeData() {
+  if (!user.value) return;
+  
+  isLoading.value = true;
+  error.value = null;
+  
+  try {
+    // Set user context for RLS
+    await setUserContext(user.value.id);
+    
+    // Load all data in parallel
+    await Promise.all([
+      loadProfile(),
+      loadWatchlist(),
+      loadHistory(),
+      loadLists(),
+      loadFriends(),
+      loadFriendRequests(),
+      loadBadges(),
+      loadActivity()
+    ]);
+  } catch (err) {
+    console.error('Error initializing data:', err);
+    error.value = 'Failed to load profile data';
+  } finally {
+    isLoading.value = false;
+  }
+}
 </script>
 
-<style scoped>
-/* Additional custom styles if needed */
-</style>
+<template>
+  <BaseNavBar />
+  <div
+    class="min-h-screen bg-white/5 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100"
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex items-center justify-center min-h-[60vh]">
+        <div class="text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100"></div>
+          <p class="mt-4 text-gray-600 dark:text-gray-400">Loading profile...</p>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+          <p class="text-red-800 dark:text-red-200">{{ error }}</p>
+        </div>
+      </div>
+
+      <!-- Profile Content -->
+      <template v-else>
+        <ProfileSummary
+          :profile="profile"
+          :join-date="joinDate"
+          :average-movie-score="averageMovieScore"
+          :average-tv-score="averageTvScore"
+          :average-mood-emoji="averageMoodEmoji"
+          :total-movies-watched="totalMoviesWatched"
+          :total-shows-watched="totalShowsWatched"
+          :total-badges-earned="totalBadgesEarned"
+        />
+
+        <NavTabs :tabs="tabs" :active-tab="activeTab" @change="setTab" />
+
+        <div v-if="activeTab === 'overview'" class="space-y-5">
+          <OverviewPanel
+            :top-genres="topGenres"
+            :top-moods="topMoods"
+            :favourites="favourites"
+            :friends="friends"
+            :featured-badges="featuredBadges"
+            :badges-by-category="badgesByCategory"
+            v-model:show-all-badges="showAllBadges"
+          />
+        </div>
+
+        <div v-else-if="activeTab === 'lists'">
+          <ListsPanel
+            :user-lists="userLists"
+            :selected-list="selectedList"
+            @open="openList"
+            @close="closeList"
+            @update-setting="updateListSettings"
+            @delete-list="deleteList"
+            @add-movie="addMovieToList"
+            @remove-movie="removeMovieFromList"
+          />
+        </div>
+
+        <div v-else-if="activeTab === 'ratings'">
+          <RatingsPanel />
+        </div>
+
+        <div v-else-if="activeTab === 'watchlist'">
+          <WatchList 
+            :items="watchlistItems"
+            @remove="removeFromWatchlist"
+            @open="openWatchlistItem"
+          />
+        </div>
+
+        <div v-else-if="activeTab === 'friends'">
+          <FriendsPanel
+            :friends="friends"
+            :friend-requests="friendRequests"
+            @open-profile="openFriendProfile"
+            @remove-friend="removeFriend"
+            @accept-request="acceptFriendRequest"
+            @reject-request="rejectFriendRequest"
+            @add-friend="addFriend"
+          />
+        </div>
+
+        <div v-else-if="activeTab === 'history'">
+          <WatchHistory
+            :items="historyItems"
+            @open="openHistoryItem"
+          />
+        </div>
+
+        <div v-else-if="activeTab === 'activity'">
+          <ActivityPanel
+            :items="activityItems"
+            @open="openActivityItem"
+          />
+        </div>
+      </template>
+    </div>
+  </div>
+</template>

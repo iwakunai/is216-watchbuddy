@@ -11,6 +11,7 @@ import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
 import MovieDetailPage from "@/pages/MovieDetailPage.vue";
+import RecommendPage from "@/pages/RecommendPage.vue";
 
 const routes = [
   {
@@ -36,6 +37,12 @@ const routes = [
     name: "tv",
     component: TvPage,
     meta: { label: "TV Shows", showInNav: true },
+  },
+  {
+    path: "/recommend",
+    name: "recommend",
+    component: RecommendPage,
+    meta: { label: "Recommend", showInNav: true },
   },
   {
     path: "/watchparty",
