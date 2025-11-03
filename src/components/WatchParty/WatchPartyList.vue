@@ -52,7 +52,6 @@ async function loadRooms() {
     const rooms = await fetchPublicRooms();
     watchRooms.value = rooms;
   } catch (error) {
-    console.error('Error loading rooms:', error);
     watchRooms.value = [];
   } finally {
     loading.value = false;
