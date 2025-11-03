@@ -27,3 +27,4 @@ dist-ssr
 .env
 .env.*
 src/types/components.d.ts
+tsconfig.tsbuildinfo

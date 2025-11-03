@@ -140,7 +140,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import BaseNavBar from '@/components/NavBar/BaseNavBar.vue';
 
 type MovieItem = {
   id: number;

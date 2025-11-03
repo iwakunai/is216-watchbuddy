@@ -76,8 +76,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import BaseNavBar from '@/components/NavBar/BaseNavBar.vue'
-import BaseFooter from '@/components/BaseFooter.vue'
 
 const initial = {
   firstName: '',

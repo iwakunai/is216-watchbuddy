@@ -1,17 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import { fetchSupabaseUserId } from "@/lib/supabaseUser";
+import type { Review } from '../composables/review';
 
-interface Review {
-  id: string;
-  movieId: number;
-  userId: string | null;
-  userName: string;
-  userAvatar: string | null;
-  rating: number;
-  comment: string;
-  createdAt: string;
-  source: "user" | "tmdb";
-}
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
 
@@ -28,7 +18,7 @@ export async function fetchReviews(movieId: number): Promise<Review[]> {
       return [];
     }
 
-    const userReviews = (data || []).map((r: any) => ({
+    const userReviews: Review[] = (data || []).map((r: any) => ({
       id: r.review_uuid,
       movieId: r.movie_id,
       userId: r.user_id,
@@ -79,7 +69,7 @@ export async function submitReview(
   comment: string
 ): Promise<Review | null> {
 
-  if (!clerkUserId) throw new Error("User not authenticated.");
+  if (!clerkUserId) throw new Error("Login to submit a review!");
 
   const userId = await fetchSupabaseUserId(clerkUserId);
   if (!userId) throw new Error("User record not found.");

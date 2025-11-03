@@ -85,7 +85,6 @@
 
   <!-- Review Form -->
   <div
-    v-if="!userHasReviewed"
     class="max-h-[400px] mt-5 overflow-y-auto p-4 space-y-4 bg-[#111827]/40 rounded-2xl border border-[#2a2f3b]"
   >
     <h3 class="text-lg font-semibold mb-4 text-white">Write a Review</h3>
@@ -140,7 +139,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useUserStore } from "@/stores/user";
 import { fetchReviews, submitReview } from "@/lib/movieReviewsApi";
 import { useAuth } from "@clerk/vue";
 
@@ -165,7 +163,6 @@ const props = defineProps<{ movieId: number }>();
 const reviews = ref<Review[]>([]);
 const loading = ref(true);
 const submitting = ref(false);
-const userStore = useUserStore();
 const showFull = ref<Record<string, boolean>>({});
 
 const formData = ref({
@@ -173,14 +170,10 @@ const formData = ref({
   comment: "",
 });
 
-const userHasReviewed = computed(() => {
-  if (!userStore.userInfo?.id) return false;
-  return reviews.value.some((r) => r.userId === String(userStore.userInfo.id));
-});
 
 // Methods
 function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString("en-US", {
+  return new Date(dateString).toLocaleDateString("en-SG", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -203,11 +196,6 @@ async function loadReviews() {
 }
 
 async function onSubmitReview() {
-  console.log(userId.value);
-  if (!userStore.userInfo?.id) {
-    alert("Please log in to submit a review");
-    return;
-  }
   submitting.value = true;
   try {
     const newReview = await submitReview(

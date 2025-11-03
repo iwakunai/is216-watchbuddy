@@ -75,6 +75,7 @@
         </button>
       </div>
     </div>
+    <!-- Search Bar -->
     <div class="text-left mb-4 mt-10">
       <input
         id="party-search"

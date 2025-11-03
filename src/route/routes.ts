@@ -11,7 +11,6 @@ import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
 import MovieDetailPage from "@/pages/MovieDetailPage.vue";
-import LoginPage from "@/components/NavBar/UserManagement.vue";
 
 const routes = [
   {
@@ -62,12 +61,6 @@ const routes = [
     component: EditProfilePage,
     meta: { label: "", showInNav: false },
   },
-  // {
-  //   path: "/:pathMatch(.*)*",
-  //   redirect: "/",
-  //   meta: { label: "", showInNav: false },
-  // },
-  
 ];
 
 export const router = createRouter({

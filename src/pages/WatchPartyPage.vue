@@ -1,6 +1,6 @@
 <template>
   <BaseNavBar />
-  <Headers
+  <Header
     :view="currentView"
     :currentStatus="statusFilter"
     @open-create="openCreateParty"
@@ -26,11 +26,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import BaseNavBar from "@/components/NavBar/BaseNavBar.vue";
-import Headers from "@/components/WatchParty/Header.vue";
-import WatchPartyList from "@/components/WatchParty/WatchPartyList.vue";
-import CreateParty from "@/components/WatchParty/CreateParty.vue";
-import BaseFooter from "@/components/BaseFooter.vue";
 
 const showCreateParty = ref(false);
 const currentView = ref<"card" | "list">("card");

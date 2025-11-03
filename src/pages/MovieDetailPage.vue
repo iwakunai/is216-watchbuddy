@@ -385,8 +385,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import BaseNavBar from "@/components/NavBar/BaseNavBar.vue";
-import MovieReviews from "@/components/Reviews/MovieReviews.vue";
 
 const route = useRoute();
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";

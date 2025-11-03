@@ -31,9 +31,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import RoomCard from "@/components/WatchParty/RoomCard.vue";
-import RoomRow from "@/components/WatchParty/RoomRow.vue";
-
 import type { Room } from "../../composables/room";
 import { useRoomStatus } from "../../composables/room";
 import { fetchPublicRooms } from "@/lib/partyRooms";
