@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import BaseNavBar from '@/components/NavBar/BaseNavBar.vue';
+import { onMounted, onUnmounted } from 'vue';
+import { fetchInitialTime, startSubscription, stopSubscription } from '@/lib/currentTimeApi';
 
+onMounted(() => {
+  fetchInitialTime();
+  startSubscription();
+});
+
+onUnmounted(() => {
+  stopSubscription();
+});
 </script>
 
 <template>
-
-  
   <RouterView />
   
 </template>
-
-<style scoped>
-
-</style>

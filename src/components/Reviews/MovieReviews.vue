@@ -90,21 +90,6 @@
   >
     <h3 class="text-lg font-semibold mb-4 text-white">Write a Review</h3>
     <form @submit.prevent="onSubmitReview" class="space-y-4">
-      <!-- <div>
-        <label class="block mb-2 text-sm text-[#98a1b3]" for="rating"
-          >Rating (0-10)</label
-        >
-        <input
-          v-model.number="formData.rating"
-          id="rating"
-          type="number"
-          min="0"
-          max="10"
-          required
-          class="w-full px-4 py-2 rounded-lg bg-white/4 border border-white/6 text-white placeholder-gray-500 focus:outline-none focus:border-[#6b6bff]"
-          placeholder="Enter rating"
-        />
-      </div> -->
       <div class="flex justify-center space-x-1 select-none">
         <template v-for="star in 10" :key="star">
           <svg
@@ -188,7 +173,6 @@ const formData = ref({
   comment: "",
 });
 
-// Computed
 const userHasReviewed = computed(() => {
   if (!userStore.userInfo?.id) return false;
   return reviews.value.some((r) => r.userId === String(userStore.userInfo.id));
@@ -236,7 +220,7 @@ async function onSubmitReview() {
       reviews.value.unshift(newReview);
       formData.value = { rating: 0, comment: "" };
     }
-  } catch (error) {
+  } catch (error: any) {
     alert(error.message || "Failed to submit review. Please try again.");
   }
   submitting.value = false;

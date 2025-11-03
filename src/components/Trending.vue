@@ -14,6 +14,7 @@
 </template>
 
 <script setup lang="ts">
+import { fetchTrending } from "@/lib/tmdbFetch";
 import MovieCard from "./MovieCard.vue";
 import { ref } from "vue";
 
@@ -28,21 +29,7 @@ const options = {
   }
 };
 
-async function fetchMovie(): Promise<[]> {
-    try{
-        const res = await fetch('https://api.themoviedb.org/3/trending/all/week?language=en-US', options);
-        if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        const data = await res.json();
-        return data.results;
-    }catch(err){
-        console.error("Error fetching movies: ", err);
-        return [];
-    }
-}
-
-fetchMovie().then(data => {
+fetchTrending().then(data => {
     console.log("Fetched Movies: ", data);
     movies.value = data;
 })

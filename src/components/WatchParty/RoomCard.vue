@@ -1,70 +1,77 @@
 <template>
-    
-    <div class="bg-white/5 p-4 rounded-lg text-center shadow-md">
+  <div
+    class="bg-white/5 p-4 rounded-lg text-center shadow-md flex flex-col justify-between"
+  >
+    <div class="flex justify-between items-start mb-3">
+      <!-- MOVIE INFORMATION -->
+      <div class="movie-info flex-1">
+        <h3
+          class="font-semibold text-lg text-left break-words whitespace-normal"
+        >
+          {{ props.room.name }}
+        </h3>
+        <p class="text-left font-semibold break-words whitespace-normal">
+          {{ props.room.movie }}
+        </p>
+        <p class="text-left break-words whitespace-normal">
+          Datetime: {{ formattedDatetime }}
+        </p>
+        <p class="text-left break-words whitespace-normal">
+          Hosted by: {{ props.room.host }}
+        </p>
+      </div>
 
-        <!-- MOVIE INFORMATION -->
-        <div class="movie-info mr-10 truncate">
-            <p class="font-semibold text-lg text-left line-clamp-2">{{ room.name }}</p>
-            <p class="text-left">Name: {{ room.movie }}</p>
-            <p class="text-left">Date Time: {{ formattedRD }} SGT</p>
-            <p class="text-left">Participants: {{ room.joined }}</p>
-        </div>
+      <!-- ROOM STATUS + VIBE? -->
+      <div class="flex flex-col items-end gap-1">
+        <!-- STATUS -->
+        <span
+          :class="[
+            'text-xs font-semibold px-2 py-1 rounded-md whitespace-nowrap',
+            status === 'playing'
+              ? 'bg-green-600/80 text-white'
+              : status === 'scheduled'
+              ? 'bg-gray-500/70 text-white'
+              : 'bg-red-600/80 text-white',
+          ]"
+        >
+          {{ formatStatus(status) }}
+        </span>
 
-        <!-- MOVIE TAGS -->
-        <div class="text-left">
-            <p class="inline-block px-3 py-1 mt-3 mr-2 rounded-full text-sm bg-white/10 border border-white/20 text-gray-200"
-            v-for="tag in room.tags">
-                {{ tag }}
-            </p>
-        </div>
-
-        <!-- LAST COLUMN -->
-        <div class="flex items-center justify-between mt-2 mb-2">
-            <!-- MOVIE MOOD -->
-            <div class="flex -space-x-5.5 text-3xl">
-                <span v-for="emoji in room.mood">{{ emoji }}</span>
-            </div>
-            <!-- BUTTON [ JOIN | WAIT ] *need change this part to prompt enter party room* -->
-            <button @click="handleClick" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm  dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">
-                {{ buttonLabel }}
-            </button>
-            <!-- <button v-if="roomStatus == false" @click="handleJoin(room.roomid)" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm  dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">Join</button> -->
-        </div>
+        <!-- VIBE -->
+        <span
+          v-if="props.room.vibeId"
+          class="text-xl"
+          :title="props.room.vibeId"
+        >
+          {{ getVibeEmoji(props.room.vibeId) }}
+        </span>
+      </div>
     </div>
+
+    <!-- JOIN PARTY BUTTON -->
+    <button
+      class="w-full px-3 py-1 border rounded-lg mt-auto hover:bg-white/10"
+      @click="joinRoom"
+    >
+      Join Room
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { format } from "date-fns";
-import { useUserStore, type Room } from "@/stores/user";
+import { useRouter } from "vue-router";
+import type { Room } from "../../composables/room";
+import { useRoomStatus } from "../../composables/room";
 
-const userStore = useUserStore();
+const props = defineProps<{ room: Room }>();
 
-const props = defineProps<{room : Room}>();
+const router = useRouter();
 
-const currentTime = ref(new Date());
-const roomDate = computed(()=> new Date(props.room.datetime));
-const formattedRD = computed(()=> format(roomDate.value, 'd MMM h.mma'));
-const roomStatus = computed(()=> currentTime.value >= roomDate.value);
-
-// Check if user already joined
-const isJoined = computed(() =>
-    userStore.userInfo.joinedParties.some(p => p.roomid === props.room.roomid)
+const { status, formatStatus, formattedDatetime, getVibeEmoji } = useRoomStatus(
+  props.room
 );
 
-// Button label
-const buttonLabel = computed(() => {
-    if (isJoined.value) {
-        return roomStatus.value ? "Joined" : "Waiting";
-    } else {
-        return roomStatus.value ? "Join" : "Wait";
-    }
-});
-
-function handleClick() {
-    userStore.toggleJoin(props.room);
+function joinRoom() {
+  router.push(`/watchparty/room/${props.room.roomid}`);
 }
 </script>
-
-<style scoped>
-</style>

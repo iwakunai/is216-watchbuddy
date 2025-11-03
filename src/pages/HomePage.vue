@@ -4,8 +4,11 @@
     <!-- <BaseSearchBar /> -->
     <Trending />
     <HomeMood />
-    <WatchPartyList />
-    <Leaderboard />
+    <WatchPartyList 
+    view="card"
+    status-filter="playing"
+    search-query=""/>
+    <!-- <Leaderboard /> -->
     <!-- <BaseFooter /> -->
 </template>
 
