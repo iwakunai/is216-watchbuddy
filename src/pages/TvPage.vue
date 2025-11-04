@@ -1,20 +1,8 @@
-<!-- ==================== TvPage.vue ==================== -->
 <template>
   <BaseNavBar />
   <div
     class="min-h-screen relative overflow-hidden"
     style="
-      background: radial-gradient(
-          1200px 400px at 10% 10%,
-          rgba(255, 255, 255, 0.02),
-          transparent 8%
-        ),
-        radial-gradient(
-          800px 300px at 90% 80%,
-          rgba(107, 107, 255, 0.02),
-          transparent 6%
-        ),
-        linear-gradient(180deg, #07080a 0%, #0b1220 50%, #05060a 100%);
     "
   >
     <div class="relative overflow-hidden hero-panel border-b border-white/10">
@@ -153,7 +141,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import BaseNavBar from '@/components/NavBar/BaseNavBar.vue';
 
 type TVShow = {
   id: number;
@@ -165,11 +152,11 @@ type TVShow = {
 };
 
 const categories = [
-  { id: 'trending', label: '🔥 Trending', endpoint: 'trending/tv/week' },
-  { id: 'popular', label: '⭐ Popular', endpoint: 'tv/popular' },
-  { id: 'top_rated', label: '🏆 Top Rated', endpoint: 'tv/top_rated' },
-  { id: 'airing_today', label: '📺 Airing Today', endpoint: 'tv/airing_today' },
-  { id: 'on_the_air', label: '🎬 On The Air', endpoint: 'tv/on_the_air' },
+  { id: 'trending', label: 'Trending', endpoint: 'trending/tv/week' },
+  { id: 'popular', label: 'Popular', endpoint: 'tv/popular' },
+  { id: 'top_rated', label: 'Top Rated', endpoint: 'tv/top_rated' },
+  { id: 'airing_today', label: 'Airing Today', endpoint: 'tv/airing_today' },
+  { id: 'on_the_air', label: 'On The Air', endpoint: 'tv/on_the_air' },
 ];
 
 const activeCategory = ref('trending');

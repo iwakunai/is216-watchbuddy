@@ -3,17 +3,6 @@
   <div
     class="min-h-screen relative overflow-hidden"
     style="
-      background: radial-gradient(
-          1200px 400px at 10% 10%,
-          rgba(255, 255, 255, 0.02),
-          transparent 8%
-        ),
-        radial-gradient(
-          800px 300px at 90% 80%,
-          rgba(107, 107, 255, 0.02),
-          transparent 6%
-        ),
-        linear-gradient(180deg, #07080a 0%, #0b1220 50%, #05060a 100%);
     "
   >
     <div class="mx-auto p-4 text-[#eaf0ff]">
@@ -435,8 +424,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import BaseNavBar from "@/components/NavBar/BaseNavBar.vue";
-import MovieReviews from "@/components/Reviews/MovieReviews.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -546,7 +533,7 @@ const directors = computed(() => {
   return crew.filter((c: any) => c.job === "Director");
 });
 
-const writers = computed(() => {
+const writers : any = computed(() => {
   const crew = credits.value?.crew || [];
   const writerJobs = ["Writer", "Screenplay", "Author", "Screenplay By"];
   const writersList = crew.filter(
