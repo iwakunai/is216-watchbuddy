@@ -66,7 +66,10 @@ export async function submitReview(
   movieId: number,
   clerkUserId: string | null = null,
   rating: number,
-  comment: string
+  comment: string,
+  movieTitle?: string,
+  posterPath?: string,
+  releaseYear?: number
 ): Promise<Review | null> {
 
   if (!clerkUserId) throw new Error("Login to submit a review!");
@@ -74,16 +77,22 @@ export async function submitReview(
   const userId = await fetchSupabaseUserId(clerkUserId);
   if (!userId) throw new Error("User record not found.");
 
+  // Build insert object with only required fields first
+  const insertData: any = {
+    movie_id: movieId,
+    user_id: userId,
+    movie_user_rating: rating,
+    movie_user_review: comment,
+  };
+
+  // Add optional fields only if columns exist (try-catch will handle if they don't)
+  if (movieTitle) insertData.movie_title = movieTitle;
+  if (posterPath) insertData.movie_poster_path = posterPath;
+  if (releaseYear) insertData.movie_year = releaseYear;
+
   const { data, error } = await supabase
     .from("movie_reviews")
-    .insert([
-      {
-        movie_id: movieId,
-        user_id: userId,
-        movie_user_rating: rating,
-        movie_user_review: comment,
-      },
-    ])
+    .insert([insertData])
     .select()
     .single();
 

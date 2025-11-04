@@ -158,7 +158,16 @@ interface Review {
 
 const hoverRating = ref(0);
 
-const props = defineProps<{ movieId: number }>();
+const props = withDefaults(defineProps<{ 
+  movieId: number;
+  movieTitle?: string;
+  posterPath?: string;
+  releaseYear?: number;
+}>(), {
+  movieTitle: '',
+  posterPath: '',
+  releaseYear: 0
+});
 
 const reviews = ref<Review[]>([]);
 const loading = ref(true);
@@ -202,8 +211,12 @@ async function onSubmitReview() {
       props.movieId,
       userId.value,
       formData.value.rating,
-      formData.value.comment
+      formData.value.comment,
+      props.movieTitle,
+      props.posterPath,
+      props.releaseYear
     );
+    
     if (newReview) {
       reviews.value.unshift(newReview);
       formData.value = { rating: 0, comment: "" };
