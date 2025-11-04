@@ -3,17 +3,6 @@
   <div
     class="min-h-screen relative overflow-hidden"
     style="
-      background: radial-gradient(
-          1200px 400px at 10% 10%,
-          rgba(255, 255, 255, 0.02),
-          transparent 8%
-        ),
-        radial-gradient(
-          800px 300px at 90% 80%,
-          rgba(107, 107, 255, 0.02),
-          transparent 6%
-        ),
-        linear-gradient(180deg, #07080a 0%, #0b1220 50%, #05060a 100%);
     "
   >
     <div class="mx-auto p-4 text-[#eaf0ff]">
@@ -44,7 +33,6 @@
             :alt="movie.title"
             class="w-full h-auto object-cover block"
           />
-          <!-- TODO: Else to display blank poster instead of text -->
           <div
             v-else
             class="w-full aspect-[2/3] flex items-center justify-center bg-gray-800 text-gray-400"
@@ -90,7 +78,7 @@
           </div>
         </div>
 
-        <!-- Col 2? -->
+        <!-- Col 2 -->
         <div class="col-span-3 md:col-span-2 gap-[2rem]">
           <!-- Details -->
           <div class="flex flex-col items-center gap-[4rem] h-min">
@@ -139,13 +127,31 @@
                   <div>
                     <div class="text-sm text-[#98a1b3]">Director</div>
                     <div class="mt-1 font-semibold text-white">
-                      {{ directorsDisplay || "-" }}
+                      <span
+                        v-for="(director, idx) in directors"
+                        :key="director.id"
+                        @click="navigateToPerson(director.id)"
+                        class="cursor-pointer hover:text-[#6b6bff] transition-colors"
+                      >
+                        {{ director.name
+                        }}<span v-if="idx < directors.length - 1">, </span>
+                      </span>
+                      <span v-if="directors.length === 0">-</span>
                     </div>
                   </div>
                   <div>
                     <div class="text-sm text-[#98a1b3]">Writer(s)</div>
                     <div class="mt-1 font-semibold text-white">
-                      {{ writersDisplay || "-" }}
+                      <span
+                        v-for="(writer, idx) in writers"
+                        :key="writer.id"
+                        @click="navigateToPerson(writer.id)"
+                        class="cursor-pointer hover:text-[#6b6bff] transition-colors"
+                      >
+                        {{ writer.name
+                        }}<span v-if="idx < writers.length - 1">, </span>
+                      </span>
+                      <span v-if="writers.length === 0">-</span>
                     </div>
                   </div>
                 </div>
@@ -220,7 +226,40 @@
           </div>
         </div>
 
-        <!-- TODO: Add show more button, only show top 5 and rest of cast in new page -->
+        <!-- Trailer Section - NEW! -->
+        <div v-if="trailerKey" class="mt-12 col-span-3">
+          <h2
+            class="text-2xl font-bold mb-6 bg-gradient-to-r from-white to-[#cfd8ff] text-transparent bg-clip-text"
+          >
+            Trailer
+          </h2>
+          <div class="relative group cursor-pointer" @click="openTrailer">
+            <div class="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-gradient-to-b from-white/5 to-black/20">
+              <img
+                :src="`https://img.youtube.com/vi/${trailerKey}/maxresdefault.jpg`"
+                :alt="`${movie.title} Trailer`"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <!-- Dark overlay -->
+              <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300"></div>
+              
+              <!-- Play button -->
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-20 h-20 rounded-full bg-[#6b6bff] group-hover:bg-[#8b8bff] transition-all duration-300 flex items-center justify-center shadow-xl group-hover:scale-110">
+                  <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Trailer label -->
+              <div class="absolute bottom-4 left-4 px-3 py-1.5 rounded-lg bg-black/70 backdrop-blur-sm border border-white/10">
+                <span class="text-white font-semibold text-sm">▶ Watch Trailer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Full Cast & Crew Section -->
         <div v-if="allCast.length > 0" class="mt-12 col-span-3">
           <h2
@@ -235,7 +274,8 @@
             <div
               v-for="person in allCast"
               :key="person.id"
-              class="p-3 rounded-xl bg-gradient-to-b from-white/5 to-black/20 border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-[#6b6bff]/20"
+              @click="navigateToPerson(person.id)"
+              class="p-3 rounded-xl bg-gradient-to-b from-white/5 to-black/20 border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-[#6b6bff]/20 cursor-pointer"
             >
               <div class="flex items-center gap-4">
                 <div
@@ -312,7 +352,6 @@
           </div>
         </div>
 
-        <!-- TODO: change to carousel -->
         <!-- Similar Movie Section -->
         <div v-if="similarMovies.length > 0" class="col-span-3 mt-12 mb-8">
           <h2
@@ -384,11 +423,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
+const router = useRouter();
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
-// const OMDB_API_KEY = import.meta.env.VITE_OMDB_API_KEY || "";
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/";
 
@@ -401,6 +440,7 @@ const movie = ref<Movie>({} as Movie);
 const credits = ref<any>({} as any);
 const imdbRating = ref<string | null>(null);
 const similarMovies = ref<any[]>([]);
+const trailerKey = ref<string | null>(null);
 
 const movieId = ref<string | null>(String(route.params.id || ""));
 
@@ -485,28 +525,24 @@ const allCast = computed(() => {
       profile_path: c.profile_path,
     })) || [];
 
-  // const crew =
-  //   credits.value?.crew
-  //     ?.filter((c: any) =>
-  //       [
-  //         "Director",
-  //         "Producer",
-  //         "Screenplay",
-  //         "Writer",
-  //         "Director of Photography",
-  //         "Editor",
-  //       ].includes(c.job)
-  //     )
-  //     .slice(0, 10)
-  //     .map((c: any) => ({
-  //       id: c.id,
-  //       name: c.name,
-  //       role: c.job,
-  //       profile_path: c.profile_path,
-  //     })) || [];
-
-  // return [...crew, ...cast];
   return [...cast];
+});
+
+const directors = computed(() => {
+  const crew = credits.value?.crew || [];
+  return crew.filter((c: any) => c.job === "Director");
+});
+
+const writers : any = computed(() => {
+  const crew = credits.value?.crew || [];
+  const writerJobs = ["Writer", "Screenplay", "Author", "Screenplay By"];
+  const writersList = crew.filter(
+    (c: any) => writerJobs.includes(c.job) || c.department === "Writing"
+  );
+  const uniqueWriters = Array.from(
+    new Map(writersList.map((w: any) => [w.name, w])).values()
+  );
+  return uniqueWriters;
 });
 
 const directorsDisplay = computed(() => {
@@ -582,22 +618,21 @@ function formatVoteCount(count: number): string {
   return count.toString();
 }
 
-// TODO: remove?
-function getReviewTone(): string {
-  const rating = movie.value?.vote_average || 0;
-  if (rating >= 8)
-    return "exceptional performances, compelling storytelling, and masterful direction";
-  if (rating >= 7)
-    return "strong performances, engaging plot, and solid execution";
-  if (rating >= 6) return "interesting concept and decent performances";
-  if (rating >= 5) return "ambitious attempt with mixed results";
-  return "unique vision despite some challenges";
-}
-
 function navigateToMovie(id: number) {
   window.scrollTo({ top: 0, behavior: "smooth" });
   movieId.value = String(id);
   fetchAll();
+}
+
+function navigateToPerson(id: number) {
+  router.push(`/person/${id}`);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function openTrailer() {
+  if (trailerKey.value) {
+    window.open(`https://www.youtube.com/watch?v=${trailerKey.value}`, '_blank');
+  }
 }
 
 async function fetchAll() {
@@ -607,6 +642,7 @@ async function fetchAll() {
   credits.value = {};
   imdbRating.value = null;
   similarMovies.value = [];
+  trailerKey.value = null;
 
   if (!TMDB_API_KEY) {
     error.value =
@@ -616,7 +652,7 @@ async function fetchAll() {
   }
 
   try {
-    const url = `${TMDB_BASE}/movie/${movieId.value}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates,external_ids,keywords,similar`;
+    const url = `${TMDB_BASE}/movie/${movieId.value}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates,external_ids,keywords,similar,videos`;
     const res = await fetch(url);
     if (!res.ok)
       throw new Error(`TMDB fetch failed: ${res.status} ${res.statusText}`);
@@ -626,23 +662,15 @@ async function fetchAll() {
     credits.value = data.credits || {};
     similarMovies.value = data.similar?.results?.slice(0, 6) || [];
 
-    const imdbId = data?.external_ids?.imdb_id;
-    // if (OMDB_API_KEY && imdbId) {
-    //   try {
-    //     const omb = await fetch(
-    //       `https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_API_KEY}`
-    //     );
-    //     if (omb.ok) {
-    //       const oj = await omb.json();
-    //       imdbRating.value =
-    //         oj?.imdbRating && oj?.imdbRating !== "N/A"
-    //           ? `${oj.imdbRating} / 10`
-    //           : null;
-    //     }
-    //   } catch (e) {
-    //     console.warn("OMDB fetch error", e);
-    //   }
-    // }
+    // Extract trailer from videos
+    if (data.videos?.results?.length > 0) {
+      const trailer = data.videos.results.find(
+        (v: any) => v.type === "Trailer" && v.site === "YouTube"
+      );
+      if (trailer) {
+        trailerKey.value = trailer.key;
+      }
+    }
   } catch (e: any) {
     error.value = e?.message ?? String(e);
   } finally {

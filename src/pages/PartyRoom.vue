@@ -205,7 +205,6 @@ async function handleSendMessage() {
         await sendChatMessage(roomId, user.value.id, newMessage.value.trim());
         newMessage.value = ""; // clear input, real-time subscription will push the message
     } catch (err: any) {
-        console.error("Failed to send message:", err);
         alert(`Failed to send message: ${err.message || err}`);
     }
 }
@@ -231,7 +230,6 @@ async function fetchRoom() {
         .single();
 
     if (error) {
-        console.error("Failed to fetch room:", error);
         return;
     }
 

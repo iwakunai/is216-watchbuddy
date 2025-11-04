@@ -11,6 +11,7 @@ import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
 import MovieDetailPage from "@/pages/MovieDetailPage.vue";
+import RecommendPage from "@/pages/RecommendPage.vue";
 
 const routes = [
   {
@@ -38,6 +39,18 @@ const routes = [
     meta: { label: "TV Shows", showInNav: true },
   },
   {
+    path: "/tv/:id",
+    name: "TVShowDetail",
+    component: () => import('@/pages/TvDetailPage.vue'),
+    meta: { label: "TV Show Detail", showInNav: false },
+  },
+  {
+    path: "/recommend",
+    name: "recommend",
+    component: RecommendPage,
+    meta: { label: "Recommend", showInNav: true },
+  },
+  {
     path: "/watchparty",
     name: "watchparty",
     component: WatchPartyPage,
@@ -54,6 +67,12 @@ const routes = [
     name: "profile",
     component: ProfileView,
     meta: { label: "Profile", showInNav: false },
+  },
+  {
+    path: '/person/:id',
+    name: 'PersonDetails',
+    component: () => import('@/pages/PersonDetails.vue'),
+    meta: { label: "Person Details", showInNav: false },
   },
   {
     path: "/profile/edit",

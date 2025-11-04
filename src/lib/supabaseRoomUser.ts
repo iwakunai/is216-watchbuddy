@@ -18,7 +18,6 @@ export async function joinRoom(roomId: string, userId: string, username: string)
         .select();
 
     if (error) {
-        console.error("joinRoom error:", error);
         throw error;
     }
     return data?.[0];
@@ -33,7 +32,6 @@ export async function leaveRoom(roomId: string, userId: string) {
         .eq("user_id", userId);
 
     if (error) {
-        console.error("leaveRoom error:", error);
         throw error;
     }
 }
@@ -46,7 +44,6 @@ export async function fetchRoomUsers(roomId: string) {
         .eq("room_id", roomId);
 
     if (error) {
-        console.error("fetchRoomUsers error:", error);
         throw error;
     }
 
@@ -87,8 +84,7 @@ export function subscribeRoomUsers(roomId: string, callback: (users: any[]) => v
         table: 'party_room_user',
       },
       async (payload) => {
-        console.log('DELETE payload:', payload); // <---- ADD THIS LOG
-        if (payload.old?.room_id === roomId) {
+        if (!payload.old?.room_id || payload.old.room_id === roomId) {
           const users = await fetchRoomUsers(roomId);
           callback(users);
         }
