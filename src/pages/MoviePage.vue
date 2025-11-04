@@ -21,8 +21,8 @@
             :class="[
               'px-7 py-3.5 rounded-full font-semibold text-base whitespace-nowrap transition-all duration-200 border-2',
               activeCategory === cat.id
-                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/30 scale-105'
-                : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500',
+                ? 'active-tab'
+                : 'inactive-tab',
             ]"
           >
             {{ cat.label }}
@@ -312,6 +312,25 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.active-tab {
+  background: linear-gradient(90deg, #6b6bff, #8b5cf6);
+  border-color: #6b6bff;
+  color: white;
+  box-shadow: 0 8px 24px rgba(107,107,255,0.25);
+  transform: scale(1.05);
+}
+
+.inactive-tab {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.1);
+  color: #98a1b3;
+}
+
+.inactive-tab:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

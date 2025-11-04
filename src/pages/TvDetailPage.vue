@@ -41,18 +41,18 @@
           </div>
 
           <!-- Info Section -->
-          <div class="mt-2 p-3 text text-[#98a1b3]">
-            <div>
-              <strong>Original Title:</strong> {{ show.original_name || "-" }}
+          <div class="mt-2 p-3 text-[#98a1b3]">
+            <div class="text-base">
+              <strong class="text-white">Original Title:</strong> {{ show.original_name || "-" }}
             </div>
-            <div v-if="show.tagline" class="mt-2 italic text-sm text-[#a6b0c6]">
+            <div v-if="show.tagline" class="mt-2 italic text-base text-[#a6b0c6]">
               "{{ show.tagline }}"
             </div>
-            <div class="mt-2 text-[#a6b0c6]">
-              <strong>Genre(s):</strong> {{ genresDisplay }}
+            <div class="mt-2 text-base text-[#a6b0c6]">
+              <strong class="text-white">Genre(s):</strong> {{ genresDisplay }}
             </div>
-            <div class="mt-2 text-[#a6b0c6]">
-              <strong>Status:</strong> {{ show.status || "-" }}
+            <div class="mt-2 text-base text-[#a6b0c6]">
+              <strong class="text-white">Status:</strong> {{ show.status || "-" }}
             </div>
           </div>
         </div>
@@ -80,16 +80,16 @@
           <!-- Overview Section -->
           <div class="grid md:grid-cols-3 gap-6 mt-6">
             <div class="md:col-span-3">
-              <div class="p-4 rounded-lg border border-white/10 bg-gradient-to-b from-white/5 to-black/20">
-                <h3 class="font-semibold text-lg mb-2">Overview</h3>
-                <p class="text-[#d7dde8] leading-relaxed">
+              <div class="p-5 rounded-lg border border-white/10 bg-gradient-to-b from-white/5 to-black/20">
+                <h3 class="font-bold text-xl mb-3 text-white">Overview</h3>
+                <p class="text-[#d7dde8] leading-relaxed text-base">
                   {{ show.overview || "No overview available." }}
                 </p>
 
                 <div class="mt-4 grid gap-2 sm:grid-cols-2">
                   <div>
-                    <div class="text-sm text-[#98a1b3]">Created By</div>
-                    <div class="mt-1 font-semibold text-white">
+                    <div class="text-base text-[#98a1b3]">Created By</div>
+                    <div class="mt-1 font-semibold text-white text-base">
                       <span
                         v-for="(creator, idx) in show.created_by"
                         :key="creator.id"
@@ -102,8 +102,8 @@
                     </div>
                   </div>
                   <div>
-                    <div class="text-sm text-[#98a1b3]">Network</div>
-                    <div class="mt-1 font-semibold text-white">
+                    <div class="text-base text-[#98a1b3]">Network</div>
+                    <div class="mt-1 font-semibold text-white text-base">
                       {{ networkDisplay || "-" }}
                     </div>
                   </div>
@@ -115,8 +115,8 @@
           <!-- Production Info -->
           <div class="mt-4 grid md:grid-cols-2 gap-6">
             <div>
-              <h5 class="font-semibold text-lg mb-2">Show Info</h5>
-              <div class="grid gap-2 text-sm text-[#98a1b3]">
+              <h5 class="font-bold text-xl mb-3 text-white">Show Info</h5>
+              <div class="grid gap-3 text-base text-[#98a1b3]">
                 <div class="grid grid-cols-2">
                   <div class="font-semibold text-white text-left">Type:</div>
                   <span class="text-left">{{ show.type || "-" }}</span>
@@ -134,31 +134,65 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Trailer Section -->
-        <div v-if="trailerKey" class="mt-12 col-span-3">
-          <h2 class="text-2xl font-bold mb-6 bg-gradient-to-r from-white to-[#cfd8ff] text-transparent bg-clip-text">
-            Trailer
-          </h2>
-          <div class="relative group cursor-pointer" @click="openTrailer">
-            <div class="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-gradient-to-b from-white/5 to-black/20">
-              <img
-                :src="`https://img.youtube.com/vi/${trailerKey}/maxresdefault.jpg`"
-                :alt="`${show.name} Trailer`"
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300"></div>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-20 h-20 rounded-full bg-[#6b6bff] group-hover:bg-[#8b8bff] transition-all duration-300 flex items-center justify-center shadow-xl group-hover:scale-110">
-                  <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
+          <!-- Trailer Section - Compact below Show Info -->
+          <div v-if="trailerKey" class="mt-6">
+            <h5 class="font-bold text-xl mb-3 text-white">Trailer</h5>
+            <div class="relative group cursor-pointer px-12" @click="showTrailerModal = true">
+              <div class="relative aspect-video rounded-lg overflow-hidden border border-white/10 bg-gradient-to-b from-white/5 to-black/20">
+                <img
+                  :src="`https://img.youtube.com/vi/${trailerKey}/hqdefault.jpg`"
+                  :alt="`${show.name} Trailer`"
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <!-- Dark overlay -->
+                <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300"></div>
+                
+                <!-- Play button -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-16 h-16 rounded-full bg-[#6b6bff] group-hover:bg-[#8b8bff] transition-all duration-300 flex items-center justify-center shadow-xl group-hover:scale-110">
+                    <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Trailer label -->
+                <div class="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-sm border border-white/10">
+                  <span class="text-white font-semibold text-xs">▶ Watch Trailer</span>
                 </div>
               </div>
-              <div class="absolute bottom-4 left-4 px-3 py-1.5 rounded-lg bg-black/70 backdrop-blur-sm border border-white/10">
-                <span class="text-white font-semibold text-sm">▶ Watch Trailer</span>
-              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trailer Modal -->
+        <div
+          v-if="showTrailerModal"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          @click="showTrailerModal = false"
+        >
+          <div class="relative w-full max-w-5xl" @click.stop>
+            <!-- Close button -->
+            <button
+              @click="showTrailerModal = false"
+              class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <!-- Video iframe -->
+            <div class="relative aspect-video rounded-lg overflow-hidden shadow-2xl">
+              <iframe
+                v-if="showTrailerModal"
+                :src="`https://www.youtube.com/embed/${trailerKey}?autoplay=1`"
+                class="w-full h-full"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
             </div>
           </div>
         </div>
@@ -256,6 +290,7 @@ const show = ref<any>({});
 const credits = ref<any>({});
 const similarShows = ref<any[]>([]);
 const trailerKey = ref<string | null>(null);
+const showTrailerModal = ref(false);
 
 const showId = ref<string | null>(String(route.params.id || ""));
 
@@ -327,12 +362,6 @@ function navigateToPerson(id: number) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function openTrailer() {
-  if (trailerKey.value) {
-    window.open(`https://www.youtube.com/watch?v=${trailerKey.value}`, '_blank');
-  }
-}
-
 async function fetchAll() {
   loading.value = true;
   error.value = null;
@@ -340,6 +369,7 @@ async function fetchAll() {
   credits.value = {};
   similarShows.value = [];
   trailerKey.value = null;
+  showTrailerModal.value = false;
 
   if (!TMDB_API_KEY) {
     error.value = "TMDB API key not configured. Set VITE_TMDB_API_KEY in your .env file";
