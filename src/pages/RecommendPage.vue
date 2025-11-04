@@ -420,7 +420,7 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
         </div>
 
         <!-- Shuffle Section -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-lg p-8 border border-purple-700/50 shadow-2xl">
+        <div class="relative overflow-hidden bg-purple-900 rounded-lg p-8 border border-purple-700/50 shadow-2xl">
           <!-- Decorative Grid Icon -->
           <div class="absolute right-8 top-1/2 -translate-y-1/2 opacity-20">
             <svg class="w-32 h-32 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -627,24 +627,13 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
   animation: fade-in 0.3s ease-out;
 }
 
-.app-bg {
-  background: radial-gradient(1200px 400px at 10% 10%, rgba(255,255,255,0.02), transparent 8%),
-              radial-gradient(800px 300px at 90% 80%, rgba(107,107,255,0.02), transparent 6%),
-              linear-gradient(180deg, #07080a 0%, #0b1220 50%, #05060a 100%);
-  position: relative;
-  overflow: hidden;
-}
+
 
 .app-bg::before {
   content: "";
   position: absolute;
   inset: 0;
   opacity: 0.03;
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(255,255,255,0.03) 0 1px,
-    rgba(0,0,0,0) 1px 4px
-  );
   pointer-events: none;
 }
 </style>
