@@ -348,7 +348,12 @@
                 </div>
               </div>
             </div>
-            <MovieReviews :movie-id="movie.id" />
+            <MovieReviews 
+              :movie-id="movie.id" 
+              :movie-title="movie.title"
+              :poster-path="movie.poster_path"
+              :release-year="movie.release_date ? new Date(movie.release_date).getFullYear() : 0"
+            />
           </div>
         </div>
 
