@@ -2,27 +2,27 @@
   <BaseNavBar />
   <div class="min-h-screen relative overflow-hidden">
     <div class="relative overflow-hidden border-b border-gray-800">
-      <div class="mx-auto px-4 py-14">
-        <h1 class="text-4xl sm:text-5xl font-extrabold mb-3 leading-tight">
+      <div class="max-w-[1600px] mx-auto px-6 py-14">
+        <h1 class="text-5xl sm:text-6xl font-extrabold mb-4 leading-tight">
           <span class="text-white font-extrabold"> Discover Movies </span>
         </h1>
-        <p class="text-lg text-gray-400">
+        <p class="text-xl text-gray-400 mb-8">
           Explore trending, latest, upcoming, and top-rated films — handpicked &
           comfy to browse.
         </p>
 
         <!-- Category Tabs -->
-        <div class="items-center justify-center gap-2 mt-6 scrollbar-hide">
+        <div class="flex justify-center items-center gap-3 mt-6 flex-wrap">
           <button
             class="tv-category-button"
             v-for="cat in categories"
             :key="cat.id"
             @click="activeCategory = cat.id"
             :class="[
-              'px-5 py-2.5 rounded-full font-medium text-sm whitespace-nowrap transition-all duration-200 border border-gray-700',
+              'px-7 py-3.5 rounded-full font-semibold text-base whitespace-nowrap transition-all duration-200 border-2',
               activeCategory === cat.id
-                ? 'text-white shadow-md translate-y-[-0.5rem]'
-                : 'bg-gray-700 text-gray-300',
+                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/30 scale-105'
+                : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500',
             ]"
           >
             {{ cat.label }}
@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <main class="mx-auto p-4">
+    <main class="max-w-[1600px] mx-auto px-6 py-4">
       <!-- Loading State -->
       <div
         v-if="loading"
@@ -94,7 +94,7 @@
       <!-- Movies Grid -->
       <div
         v-else
-        class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
+        class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5"
       >
         <router-link
           v-for="movie in movies"
@@ -131,28 +131,28 @@
 
             <div
               v-if="movie.rating"
-              class="absolute top-2 right-2 bg-black bg-opacity-75 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-gray-700 text-yellow-400"
+              class="absolute top-2 right-2 bg-black bg-opacity-75 px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-700 text-yellow-400"
             >
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                 />
               </svg>
-              <span class="text-xs font-semibold text-white">{{
+              <span class="text-sm font-bold text-white">{{
                 movie.rating
               }}</span>
             </div>
           </div>
-          <div class="p-3">
+          <div class="p-4">
             <h3
-              class="font-semibold text-sm line-clamp-2 group-hover:text-blue-500 transition-colors"
+              class="font-bold text-base line-clamp-2 group-hover:text-blue-500 transition-colors leading-snug"
               :title="movie.title"
             >
               {{ movie.title }}
             </h3>
-            <div class="flex items-center justify-between mt-2 text-xs">
-              <span class="text-gray-400">{{ movie.year }}</span>
-              <span v-if="movie.voteCount" class="text-gray-500"
+            <div class="flex items-center justify-between mt-3 text-sm">
+              <span class="text-gray-300 font-medium">{{ movie.year }}</span>
+              <span v-if="movie.voteCount" class="text-gray-400 font-medium"
                 >{{ formatVotes(movie.voteCount) }} votes</span
               >
             </div>
@@ -213,10 +213,10 @@ type MovieItem = {
 };
 
 const categories = [
-  { id: "trending", label: "🔥 Trending", endpoint: "trending/movie/week" },
-  { id: "latest", label: "🆕 Latest", endpoint: "movie/now_playing" },
-  { id: "upcoming", label: "📅 Upcoming", endpoint: "movie/upcoming" },
-  { id: "top_rated", label: "⭐ Top Rated", endpoint: "movie/top_rated" },
+  { id: "trending", label: " Trending", endpoint: "trending/movie/week" },
+  { id: "latest", label: " Latest", endpoint: "movie/now_playing" },
+  { id: "upcoming", label: " Upcoming", endpoint: "movie/upcoming" },
+  { id: "top_rated", label: " Top Rated", endpoint: "movie/top_rated" },
 ];
 
 const activeCategory = ref("trending");
@@ -310,3 +310,14 @@ onMounted(() => {
   loadMovies();
 });
 </script>
+
+<style scoped>
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>
