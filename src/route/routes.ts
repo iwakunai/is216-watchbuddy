@@ -11,7 +11,6 @@ import WatchPartyPage from "@/pages/WatchPartyPage.vue";
 import MovieDetailPage from "@/pages/MovieDetailPage.vue";
 import RecommendPage from "@/pages/RecommendPage.vue";
 import ProfilePage from "@/pages/ProfilePage.vue";
-import OldProfilePage from "@/pages/oldProfilePage.vue";
 import AchievementsPage from "@/pages/AchievementsPage.vue";
 
 const routes = [
@@ -86,12 +85,6 @@ const routes = [
     name: "achievements",
     component: AchievementsPage,
     meta: { label: "Achievements", showInNav: false },
-  },
-  {
-    path: "/oldprofile",
-    name: "oldprofile",
-    component: OldProfilePage,
-    meta: { label: "Profile", showInNav: false },
   },
 ];
 
