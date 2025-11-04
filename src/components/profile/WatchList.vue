@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import type { WatchItem } from '@/types/profile'
 
 const props = defineProps<{
@@ -9,57 +10,227 @@ const emit = defineEmits<{
   (e: 'remove', id: string | number): void
   (e: 'open', id: string | number): void
 }>()
+
+type MediaType = 'movies' | 'tv'
+type WatchStatus = 'completed' | 'watching' | 'plan-to-watch'
+
+const activeMediaTab = ref<MediaType>('movies')
+const activeStatusTab = ref<WatchStatus>('watching')
+const filterBy = ref<'mood' | 'genre' | 'date'>('date')
+const orderAscending = ref(false)
+
+const movieCount = computed(() => props.items.filter(item => item.type === 'movie').length)
+const tvCount = computed(() => props.items.filter(item => item.type === 'tv').length)
+
+const filteredItems = computed(() => {
+  return props.items.filter(item => {
+    const matchesMediaType = activeMediaTab.value === 'movies' 
+      ? item.type === 'movie' 
+      : item.type === 'tv'
+    // For now, all items are shown under the active status tab
+    // You can add status filtering when your data has status property
+    return matchesMediaType
+  })
+})
+
+const statusCounts = computed(() => {
+  const filtered = props.items.filter(item => 
+    activeMediaTab.value === 'movies' ? item.type === 'movie' : item.type === 'tv'
+  )
+  return {
+    completed: 0, // Update these when you have status data
+    watching: filtered.length,
+    planToWatch: 0
+  }
+})
 </script>
 
 <template>
-  <div class="bg-white/5 dark:bg-gray-900/30 rounded-lg shadow-sm p-5 border border-gray-200 dark:border-gray-700">
-    <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
-      <span class="w-1 h-6 bg-green-600 rounded-full mr-3"></span>
-      My Watchlist
-    </h3>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <!-- Header with Title and Controls -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center gap-4">
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          My Watchlist
+        </h3>
+        <div class="flex items-center gap-3 text-sm">
+          <button
+            @click="activeMediaTab = 'movies'; activeStatusTab = 'watching'"
+            :class="[
+              'px-4 py-1.5 rounded-md font-medium transition-colors',
+              activeMediaTab === 'movies'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+            ]"
+          >
+            Movies {{ movieCount }}
+          </button>
+          <button
+            @click="activeMediaTab = 'tv'; activeStatusTab = 'watching'"
+            :class="[
+              'px-4 py-1.5 rounded-md font-medium transition-colors',
+              activeMediaTab === 'tv'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+            ]"
+          >
+            TV {{ tvCount }}
+          </button>
+        </div>
+      </div>
 
-    <div v-if="items.length === 0" class="text-center py-12">
-      <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-      </svg>
-      <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Your watchlist is empty</p>
-      <p class="text-sm text-gray-400">Add movies or shows to watch later</p>
+      <div class="flex items-center gap-3">
+        <!-- Filter Dropdown -->
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-600 dark:text-gray-400">Filter by:</label>
+          <select 
+            v-model="filterBy"
+            class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          >
+            <option value="mood">Mood</option>
+            <option value="genre">Genre</option>
+            <option value="date">Date Added</option>
+          </select>
+        </div>
+
+        <!-- Order Toggle -->
+        <button
+          @click="orderAscending = !orderAscending"
+          class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+          :title="orderAscending ? 'Ascending' : 'Descending'"
+        >
+          <span>Order</span>
+          <svg 
+            class="w-5 h-5 transition-transform" 
+            :class="{ 'rotate-180': !orderAscending }"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      <div v-for="it in items" :key="it.id" class="group">
-        <div class="relative aspect-[2/3] bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 rounded-xl overflow-hidden shadow-lg ring-2 ring-transparent group-hover:ring-blue-500 dark:group-hover:ring-blue-400 transition-all cursor-pointer transform group-hover:scale-105"
-             @click="emit('open', it.id)">
-          <img v-if="it.poster" :src="it.poster" :alt="it.title" class="w-full h-full object-cover" />
-          
-          <!-- Bookmark Badge -->
-          <div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
-            ✓
+    <!-- Status Tabs (Completed, Currently Watching, Plan to Watch) -->
+    <div class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center gap-1 px-6">
+        <button
+          @click="activeStatusTab = 'completed'"
+          :class="[
+            'px-6 py-3 text-sm font-medium uppercase tracking-wide transition-colors relative',
+            activeStatusTab === 'completed'
+              ? 'text-gray-900 dark:text-gray-100'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+          ]"
+        >
+          Completed
+          <div 
+            v-if="activeStatusTab === 'completed'"
+            class="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"
+          ></div>
+        </button>
+        <button
+          @click="activeStatusTab = 'watching'"
+          :class="[
+            'px-6 py-3 text-sm font-medium uppercase tracking-wide transition-colors relative',
+            activeStatusTab === 'watching'
+              ? 'text-gray-900 dark:text-gray-100'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+          ]"
+        >
+          Currently Watching
+          <div 
+            v-if="activeStatusTab === 'watching'"
+            class="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"
+          ></div>
+        </button>
+        <button
+          @click="activeStatusTab = 'plan-to-watch'"
+          :class="[
+            'px-6 py-3 text-sm font-medium uppercase tracking-wide transition-colors relative',
+            activeStatusTab === 'plan-to-watch'
+              ? 'text-gray-900 dark:text-gray-100'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+          ]"
+        >
+          Plan to Watch
+          <div 
+            v-if="activeStatusTab === 'plan-to-watch'"
+            class="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"
+          ></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="p-6">
+      <!-- Empty State -->
+      <div v-if="filteredItems.length === 0" class="text-center py-12">
+        <p class="text-gray-600 dark:text-gray-300 text-lg">
+          You haven't added any {{ activeMediaTab === 'movies' ? 'movies' : 'TV shows' }} to your watchlist
+        </p>
+      </div>
+
+      <!-- List View (MyAnimeList style) -->
+      <div v-else class="space-y-3">
+        <div 
+          v-for="(item, index) in filteredItems" 
+          :key="item.id"
+          class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-all cursor-pointer group"
+          @click="emit('open', item.id)"
+        >
+          <!-- Index Number -->
+          <div class="flex-shrink-0 w-8 text-center">
+            <span class="text-lg font-bold text-gray-400 dark:text-gray-500">{{ index + 1 }}</span>
           </div>
-          
-          <!-- Hover Overlay -->
-          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div class="absolute bottom-0 left-0 right-0 p-3">
-              <button class="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-lg flex items-center justify-center gap-2"
-                      @click.stop="emit('remove', it.id)">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                Remove
-              </button>
+
+          <!-- Poster -->
+          <div class="flex-shrink-0">
+            <div class="w-16 h-24 bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 rounded-lg overflow-hidden shadow-md">
+              <img v-if="item.poster" :src="item.poster" :alt="item.title" class="w-full h-full object-cover" />
             </div>
           </div>
-        </div>
-        
-        <!-- Info Below Poster -->
-        <div class="mt-2 px-1">
-          <p class="font-bold text-gray-900 dark:text-gray-100 text-sm line-clamp-2 mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" :title="it.title">
-            {{ it.title }}
-          </p>
-          <div class="flex items-center gap-2 text-xs">
-            <span class="text-gray-500 dark:text-gray-400">{{ it.type === 'movie' ? '🎬' : '📺' }} {{ it.type }}</span>
-            <span v-if="it.year" class="text-gray-400">•</span>
-            <span v-if="it.year" class="text-gray-500 dark:text-gray-400">{{ it.year }}</span>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
+                    {{ item.type === 'movie' ? 'Movie' : 'TV' }}
+                  </span>
+                  <h4 class="font-bold text-gray-900 dark:text-gray-100 text-base group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                    {{ item.title }}
+                  </h4>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                  <span v-if="item.year">{{ item.year }}</span>
+                  <span v-if="item.year">•</span>
+                  <span>Edit - More</span>
+                </div>
+              </div>
+
+              <!-- Progress/Status Info (placeholder for future implementation) -->
+              <div class="flex-shrink-0 text-right">
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                  <div class="font-medium">Progress:</div>
+                  <div class="text-gray-500 dark:text-gray-500">-</div>
+                </div>
+              </div>
+
+              <!-- Remove Button -->
+              <button
+                @click.stop="emit('remove', item.id)"
+                class="flex-shrink-0 p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                title="Remove from watchlist"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>

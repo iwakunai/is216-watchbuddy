@@ -44,3 +44,4 @@ function navigateToMovie(rating: RatingItem) {
     </div>
   </div>
 </template>
+  
