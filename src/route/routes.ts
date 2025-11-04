@@ -39,6 +39,12 @@ const routes = [
     meta: { label: "TV Shows", showInNav: true },
   },
   {
+    path: "/tv/:id",
+    name: "TVShowDetail",
+    component: () => import('@/pages/TvDetailPage.vue'),
+    meta: { label: "TV Show Detail", showInNav: false },
+  },
+  {
     path: "/recommend",
     name: "recommend",
     component: RecommendPage,
@@ -61,6 +67,12 @@ const routes = [
     name: "profile",
     component: ProfileView,
     meta: { label: "Profile", showInNav: false },
+  },
+  {
+    path: '/person/:id',
+    name: 'PersonDetails',
+    component: () => import('@/pages/PersonDetails.vue'),
+    meta: { label: "Person Details", showInNav: false },
   },
   {
     path: "/profile/edit",
