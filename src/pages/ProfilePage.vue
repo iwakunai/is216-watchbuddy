@@ -41,6 +41,8 @@ import {
 } from '@/lib/supabaseProfile';
 
 import { getUserWatchlist, removeFromWatchlist as removeFromWatchlistDb, updateWatchlistStatus } from '@/lib/supabaseWatchlist';
+import { getUserMovieReviews, getUserTvReviews } from '@/lib/supabaseRatingsReviews';
+import { fetchSupabaseUserId } from '@/lib/supabaseUser';
 
 const router = useRouter();
 
@@ -433,16 +435,6 @@ async function loadHistory() {
     
     totalMoviesWatched.value = movies.length;
     totalShowsWatched.value = shows.length;
-    
-    const movieRatings = movies.filter(m => m.rating).map(m => m.rating!);
-    const showRatings = shows.filter(s => s.rating).map(s => s.rating!);
-    
-    if (movieRatings.length > 0) {
-      averageMovieScore.value = Math.round((movieRatings.reduce((a, b) => a + b, 0) / movieRatings.length) * 20);
-    }
-    if (showRatings.length > 0) {
-      averageTvScore.value = Math.round((showRatings.reduce((a, b) => a + b, 0) / showRatings.length) * 20);
-    }
   } catch (err) {
     // console.error('Error loading history:', err);
   }
@@ -514,6 +506,63 @@ async function loadFriendRequests() {
   }
 }
 
+async function loadRatingsAndCalculateAverages() {
+  if (!user.value) return;
+  
+  try {
+    // Fetch Supabase user ID
+    const supabaseUserId = await fetchSupabaseUserId(user.value.id);
+    if (!supabaseUserId) return;
+    
+    // Fetch movie and TV reviews
+    const [movieReviews, tvReviews] = await Promise.all([
+      getUserMovieReviews(supabaseUserId),
+      getUserTvReviews(supabaseUserId)
+    ]);
+    
+    // Calculate average movie score (convert 5-star to percentage)
+    const movieRatings = movieReviews
+      .map(r => r.rating)
+      .filter(r => r > 0);
+    
+    if (movieRatings.length > 0) {
+      const avgMovieRating = movieRatings.reduce((a, b) => a + b, 0) / movieRatings.length;
+      averageMovieScore.value = Math.round((avgMovieRating / 5) * 100);
+    } else {
+      averageMovieScore.value = 0;
+    }
+    
+    // Calculate average TV score (convert 5-star to percentage)
+    const tvRatings = tvReviews
+      .map(r => r.rating)
+      .filter(r => r > 0);
+    
+    if (tvRatings.length > 0) {
+      const avgTvRating = tvRatings.reduce((a, b) => a + b, 0) / tvRatings.length;
+      averageTvScore.value = Math.round((avgTvRating / 5) * 100);
+    } else {
+      averageTvScore.value = 0;
+    }
+    
+    // Calculate average mood emoji based on overall ratings
+    const allRatings = [...movieRatings, ...tvRatings];
+    if (allRatings.length > 0) {
+      const avgRating = allRatings.reduce((a, b) => a + b, 0) / allRatings.length;
+      // Map average rating to emoji
+      if (avgRating >= 4.5) averageMoodEmoji.value = '😍';
+      else if (avgRating >= 4) averageMoodEmoji.value = '😊';
+      else if (avgRating >= 3.5) averageMoodEmoji.value = '🙂';
+      else if (avgRating >= 3) averageMoodEmoji.value = '😐';
+      else if (avgRating >= 2) averageMoodEmoji.value = '😕';
+      else averageMoodEmoji.value = '😞';
+    } else {
+      averageMoodEmoji.value = '😊';
+    }
+  } catch (err) {
+    // console.error('Error loading ratings:', err);
+  }
+}
+
 async function loadActivity() {
   if (!user.value) return;
   
@@ -567,6 +616,7 @@ async function initializeData() {
       loadLists(),
       loadFriends(),
       loadFriendRequests(),
+      loadRatingsAndCalculateAverages(),
       loadActivity()
     ]);
   } catch (err) {
@@ -607,9 +657,6 @@ async function initializeData() {
         <ProfileSummary
           :profile="profile"
           :join-date="joinDate"
-          :average-movie-score="averageMovieScore"
-          :average-tv-score="averageTvScore"
-          :average-mood-emoji="averageMoodEmoji"
           :total-movies-watched="totalMoviesWatched"
           :total-shows-watched="totalShowsWatched"
         />
