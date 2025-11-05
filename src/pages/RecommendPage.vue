@@ -2,10 +2,15 @@
 import { ref, watch, h } from 'vue'
 import { useUser } from '@clerk/vue'
 import { useRouter } from 'vue-router'
+import { AIRecommenderService } from '../services/ai-recommender-service'
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || ''
+const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY || ''
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'
+
+// Initialize AI service
+const aiService = ANTHROPIC_API_KEY ? new AIRecommenderService(ANTHROPIC_API_KEY) : null
 
 // Auth
 const { user, isLoaded } = useUser()
@@ -20,6 +25,8 @@ const selectedGenres = ref<string[]>([])
 const recommendations = ref<any[]>([])
 const shuffleResult = ref<any | null>(null)
 const isLoading = ref(false)
+const aiInsight = ref<string>('')
+const useAI = ref(true) // Toggle for AI enhancement
 
 // Moods Configuration
 const moods = [
@@ -73,18 +80,6 @@ const moodGenreMap: Record<Mood, number[]> = {
   motivated: [18, 99, 28, 10752]
 }
 
-// Expanded keywords
-const moodKeywords: Record<Mood, string[]> = {
-  happy: ['feel-good', 'uplifting', 'comedy', 'celebration', 'friendship', 'fun', 'lighthearted', 'cheerful', 'joyful', 'optimistic', 'laugh', 'funny', 'humor', 'delight', 'happy'],
-  sad: ['tragedy', 'loss', 'melancholy', 'tearjerker', 'heartbreaking', 'sorrowful', 'grief', 'death', 'separation', 'sad', 'cry', 'tears', 'pain'],
-  excited: ['adrenaline', 'intense', 'suspenseful', 'action-packed', 'thrilling', 'fast-paced', 'explosive', 'edge-of-seat', 'high-stakes', 'chase', 'battle', 'fight', 'danger', 'exciting'],
-  relaxed: ['peaceful', 'slow-burn', 'contemplative', 'slice-of-life', 'calm', 'tranquil', 'meditative', 'gentle', 'soothing', 'quiet', 'mellow', 'serene', 'cozy'],
-  scared: ['horror', 'terrifying', 'creepy', 'supernatural', 'haunted', 'frightening', 'disturbing', 'nightmare', 'monster', 'ghost', 'evil', 'killer', 'dark', 'scary'],
-  romantic: ['love', 'romance', 'relationship', 'passion', 'heart', 'dating', 'couples', 'affection', 'soulmate', 'love-story', 'kiss', 'lovers', 'wedding'],
-  curious: ['mystery', 'investigation', 'discovery', 'exploration', 'unknown', 'puzzle', 'enigma', 'science', 'knowledge', 'learning', 'secret', 'detective', 'truth'],
-  motivated: ['inspiration', 'triumph', 'perseverance', 'success', 'determination', 'achievement', 'hero', 'overcome', 'champion', 'victory', 'dream', 'ambition', 'courage']
-}
-
 // Mood Icons
 const getMoodIcon = (mood: string) => {
   const icons: Record<string, any> = {
@@ -119,60 +114,6 @@ const getMoodIcon = (mood: string) => {
   return icons[mood] || icons.happy
 }
 
-// Return score instead of just mood (so we can rank by accuracy)
-const analyzeMoodFromOverview = (overview: string, genres: number[]): { mood: Mood | null, score: number } => {
-  if (!overview) {
-    // If no overview, use genres only
-    const genreScores: Record<Mood, number> = {
-      happy: 0, sad: 0, excited: 0, relaxed: 0, 
-      scared: 0, romantic: 0, curious: 0, motivated: 0
-    }
-    
-    Object.entries(moodGenreMap).forEach(([mood, genreIds]) => {
-      const genreMatches = genres.filter(g => genreIds.includes(g)).length
-      genreScores[mood as Mood] += genreMatches * 0.5
-    })
-    
-    const sortedMoods : any = Object.entries(genreScores)
-      .sort(([, a], [, b]) => b - a)
-      .filter(([, score]) => score > 0)
-    
-    return sortedMoods.length > 0 
-      ? { mood: sortedMoods[0][0] as Mood, score: sortedMoods[0][1] }
-      : { mood: null, score: 0 }
-  }
-  
-  const lowerOverview = overview.toLowerCase()
-  const moodScores: Record<Mood, number> = {
-    happy: 0, sad: 0, excited: 0, relaxed: 0, 
-    scared: 0, romantic: 0, curious: 0, motivated: 0
-  }
-  
-  // Check keywords in overview
-  Object.entries(moodKeywords).forEach(([mood, keywords]) => {
-    keywords.forEach(keyword => {
-      if (lowerOverview.includes(keyword)) {
-        moodScores[mood as Mood] += 1
-      }
-    })
-  })
-  
-  // Genre weight
-  Object.entries(moodGenreMap).forEach(([mood, genreIds]) => {
-    const genreMatches = genres.filter(g => genreIds.includes(g)).length
-    moodScores[mood as Mood] += genreMatches * 0.5
-  })
-  
-  // Find mood with highest score
-  const sortedMoods : any = Object.entries(moodScores)
-    .sort(([, a], [, b]) => b - a)
-    .filter(([, score]) => score > 0)
-  
-  return sortedMoods.length > 0 
-    ? { mood: sortedMoods[0][0] as Mood, score: sortedMoods[0][1] }
-    : { mood: null, score: 0 }
-}
-
 // Functions
 const toggleGenre = (genre: string) => {
   const index = selectedGenres.value.indexOf(genre)
@@ -195,18 +136,20 @@ const getGenreIds = (): number[] => {
   return []
 }
 
-// Fetch more pages and sort by accuracy
+// Enhanced fetch with AI ranking
 const fetchRecommendations = async () => {
   if (!TMDB_API_KEY) return
 
   isLoading.value = true
+  aiInsight.value = ''
+  
   try {
     const genreIds = getGenreIds()
     const genreQuery = genreIds.length > 0 ? `&with_genres=${genreIds.join(',')}` : ''
     
-    // Fetch 2 pages instead of 1 for better selection
+    // Fetch 3 pages for better AI analysis
     const allResults: any[] = []
-    for (let page = 1; page <= 2; page++) {
+    for (let page = 1; page <= 3; page++) {
       const response = await fetch(
         `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&include_adult=false&page=${page}${genreQuery}`
       )
@@ -217,49 +160,74 @@ const fetchRecommendations = async () => {
       }
     }
     
-    let filteredResults = allResults
-    
-    if (selectedMood.value && !selectedGenres.value.length) {
-      //Analyze and SORT by score
-      const moviesWithMood = allResults.map((item: any) => {
-        const analysis = analyzeMoodFromOverview(item.overview || '', item.genre_ids || [])
-        return {
-          ...item,
-          detectedMood: analysis.mood,
-          moodScore: analysis.score
-        }
-      })
-      
-      // Sort: Exact mood matches first (by score), then others
-      filteredResults = moviesWithMood.sort((a: any, b: any) => {
-        const aIsMatch = a.detectedMood === selectedMood.value
-        const bIsMatch = b.detectedMood === selectedMood.value
+    // Use AI to rank movies if available and enabled
+    if (aiService && useAI.value && selectedMood.value) {
+      try {
+        const aiResponse = await aiService.getRankedRecommendations({
+          mood: selectedMood.value,
+          genres: selectedGenres.value,
+          movies: allResults.slice(0, 20) // Send top 20 to AI for analysis
+        })
         
-        // Exact matches go first
-        if (aIsMatch && !bIsMatch) return -1
-        if (!aIsMatch && bIsMatch) return 1
+        // Sort movies by AI scores
+        const movieMap = new Map(allResults.map(m => [m.id, m]))
+        const rankedMovies = aiResponse.rankedMovies
+          .map(ranked => {
+            const movie = movieMap.get(ranked.id)
+            return movie ? {
+              ...movie,
+              aiScore: ranked.score,
+              aiReasoning: ranked.reasoning
+            } : null
+          })
+          .filter(Boolean)
+          .sort((a: any, b: any) => b.aiScore - a.aiScore)
         
-        // Within same category, sort by score
-        if (aIsMatch && bIsMatch) {
-          return b.moodScore - a.moodScore
-        }
+        aiInsight.value = aiResponse.personalizedInsight
         
-        // Non-matches sorted by rating
-        return b.vote_average - a.vote_average
-      })
+        // Format for display
+        recommendations.value = rankedMovies.slice(0, 9).map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          description: item.overview,
+          thumbnailUrl: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : null,
+          releaseYear: item.release_date ? new Date(item.release_date).getFullYear() : null,
+          duration: null,
+          genres: item.genre_ids?.map((id: number) => 
+            Object.entries(genreIdMap).find(([_, gid]) => gid === id)?.[0]
+          ).filter(Boolean).join(', '),
+          aiScore: item.aiScore,
+          aiReasoning: item.aiReasoning
+        }))
+      } catch (aiError) {
+        console.error('AI ranking failed, using fallback:', aiError)
+        // Fallback to basic sorting
+        recommendations.value = allResults.slice(0, 9).map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          description: item.overview,
+          thumbnailUrl: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : null,
+          releaseYear: item.release_date ? new Date(item.release_date).getFullYear() : null,
+          duration: null,
+          genres: item.genre_ids?.map((id: number) => 
+            Object.entries(genreIdMap).find(([_, gid]) => gid === id)?.[0]
+          ).filter(Boolean).join(', ')
+        }))
+      }
+    } else {
+      // Standard sorting without AI
+      recommendations.value = allResults.slice(0, 9).map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        description: item.overview,
+        thumbnailUrl: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : null,
+        releaseYear: item.release_date ? new Date(item.release_date).getFullYear() : null,
+        duration: null,
+        genres: item.genre_ids?.map((id: number) => 
+          Object.entries(genreIdMap).find(([_, gid]) => gid === id)?.[0]
+        ).filter(Boolean).join(', ')
+      }))
     }
-    
-    recommendations.value = filteredResults.slice(0, 9).map((item: any) => ({
-      id: item.id,
-      title: item.title,
-      description: item.overview,
-      thumbnailUrl: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : null,
-      releaseYear: item.release_date ? new Date(item.release_date).getFullYear() : null,
-      duration: null,
-      genres: item.genre_ids?.map((id: number) => 
-        Object.entries(genreIdMap).find(([_, gid]) => gid === id)?.[0]
-      ).filter(Boolean).join(', ')
-    }))
   } catch (err) {
     // console.error('Error fetching recommendations:', err)
   } finally {
@@ -281,34 +249,7 @@ const handleShuffle = async () => {
     
     if (response.ok) {
       const data = await response.json()
-      let selectedMovie = null
-      
-      if (selectedMood.value && !selectedGenres.value.length) {
-        const moviesWithMood = data.results.map((item: any) => {
-          const analysis = analyzeMoodFromOverview(item.overview || '', item.genre_ids || [])
-          return {
-            ...item,
-            detectedMood: analysis.mood,
-            moodScore: analysis.score
-          }
-        })
-        
-        // Prioritize higher scores
-        const moodMatches = moviesWithMood
-          .filter((item: any) => item.detectedMood === selectedMood.value)
-          .sort((a: any, b: any) => b.moodScore - a.moodScore)
-        
-        if (moodMatches.length > 0) {
-          // Pick from top 5 matches randomly
-          const topMatches = moodMatches.slice(0, 5)
-          selectedMovie = topMatches[Math.floor(Math.random() * topMatches.length)]
-        }
-      }
-      
-      // Fall back to random if no mood match
-      if (!selectedMovie) {
-        selectedMovie = data.results[Math.floor(Math.random() * data.results.length)]
-      }
+      const selectedMovie = data.results[Math.floor(Math.random() * data.results.length)]
       
       // Fetch movie details for runtime
       const detailsResponse = await fetch(
@@ -337,7 +278,7 @@ const navigateToMovie = (id: number) => {
 }
 
 // Watch for changes and fetch recommendations
-watch([selectedMood, selectedGenres], () => {
+watch([selectedMood, selectedGenres, useAI], () => {
   if (user.value) {
     fetchRecommendations()
   }
@@ -351,8 +292,6 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
 })
 </script>
 
-
-
 <template>
   <BaseNavBar />
   <div class="min-h-screen app-bg dark:bg-gray-1000 text-gray-900 dark:text-gray-100">
@@ -360,16 +299,27 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
       <div class="max-w-6xl mx-auto space-y-8">
         
         <!-- Header -->
-        <div class="py-6 text-center space-y-14">
+        <div class="py-6 text-center space-y-4">
           <h1 class="text-4xl sm:text-5xl font-extrabold mb-3 leading-tight flex items-center justify-center gap-3">
             <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
-            Get Recommendations
+            Get AI-Powered Recommendations
           </h1>
           <p class="text-lg text-gray-400">
-            Tell us your mood and preferences, we'll find the perfect movie for you
+            Tell us your mood and preferences, our AI will find the perfect movie for you
           </p>
+          
+          <!-- AI Toggle -->
+          <div v-if="aiService" class="flex items-center justify-center gap-3 pt-2">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" v-model="useAI" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <span class="ml-3 text-sm font-medium text-gray-300">
+                🤖 AI-Enhanced Recommendations
+              </span>
+            </label>
+          </div>
         </div>
 
         <!-- Mood Selection -->
@@ -419,9 +369,32 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
           </div>
         </div>
 
+        <!-- AI Insight Banner -->
+        <transition
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="opacity-0 -translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-2"
+        >
+          <div v-if="aiInsight" class="bg-gradient-to-r from-blue-900/40 to-purple-900/40 rounded-lg p-6 border border-blue-700/50 shadow-xl">
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold text-blue-300 mb-1">AI Insight</h3>
+                <p class="text-gray-300 leading-relaxed">{{ aiInsight }}</p>
+              </div>
+            </div>
+          </div>
+        </transition>
+
         <!-- Shuffle Section -->
         <div class="relative overflow-hidden bg-purple-900 rounded-lg p-8 border border-purple-700/50 shadow-2xl">
-          <!-- Decorative Grid Icon -->
           <div class="absolute right-8 top-1/2 -translate-y-1/2 opacity-20">
             <svg class="w-32 h-32 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/>
@@ -431,9 +404,7 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
             </svg>
           </div>
           
-          <!-- Content in One Row -->
           <div class="relative z-10 flex items-center justify-between gap-8">
-            <!-- Left: Text Content -->
             <div class="flex-1 max-w-xl">
               <h2 class="text-xl font-bold mb-2">Find a Random Movie</h2>
               <p class="text-purple-200 text-base mb-0 leading-relaxed">
@@ -441,7 +412,6 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
               </p>
             </div>
             
-            <!-- Right: Button -->
             <button
               @click="handleShuffle"
               class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 text-base shadow-xl shadow-purple-900/50 hover:scale-105 hover:shadow-2xl hover:shadow-purple-900/70 flex-shrink-0"
@@ -475,7 +445,6 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
               @click="navigateToMovie(shuffleResult.id)"
               class="flex gap-5 cursor-pointer group"
             >
-              <!-- Movie Poster -->
               <div class="w-28 h-40 flex-shrink-0 rounded-lg overflow-hidden bg-slate-900 shadow-lg ring-2 ring-purple-500/30 group-hover:ring-purple-400/50 transition-all">
                 <img
                   v-if="shuffleResult.thumbnailUrl"
@@ -491,7 +460,6 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
                 </div>
               </div>
               
-              <!-- Movie Details -->
               <div class="flex-1 min-w-0 space-y-2">
                 <h4 class="text-xl font-bold line-clamp-2 group-hover:text-purple-400 transition-colors">
                   {{ shuffleResult.title }}
@@ -500,7 +468,6 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
                   {{ shuffleResult.description }}
                 </p>
                 
-                <!-- Meta Info -->
                 <div class="flex items-center gap-3 text-xs text-gray-500">
                   <div v-if="shuffleResult.releaseYear" class="flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -514,15 +481,8 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
                     </svg>
                     <span class="font-medium">{{ shuffleResult.duration }}m</span>
                   </div>
-                  <div v-if="shuffleResult.rating" class="flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    <span class="font-medium text-yellow-500">{{ shuffleResult.rating.toFixed(1) }}</span>
-                  </div>
                 </div>
                 
-                <!-- Genre Tags -->
                 <div v-if="shuffleResult.genres" class="flex flex-wrap gap-1.5 pt-1">
                   <span
                     v-for="(genre, idx) in shuffleResult.genres.split(',')"
@@ -557,14 +517,19 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
           </div>
 
           <!-- Recommendations Grid -->
-          <div v-else-if="recommendations.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-18">
+          <div v-else-if="recommendations.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div
               v-for="item in recommendations"
               :key="item.id"
               @click="navigateToMovie(item.id)"
-              class="bg-slate-800/60 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden cursor-pointer group hover:shadow-2xl hover:border-blue-500/50 transition-all duration-300 border border-slate-700/50 hover:scale-105 w-80 h-125 p-3 m-2"
+              class="bg-slate-800/60 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden cursor-pointer group hover:shadow-2xl hover:border-blue-500/50 transition-all duration-300 border border-slate-700/50 hover:scale-105"
             >
-              <div class="aspect-video relative overflow-hidden bg-slate-900 w-full h-80">
+              <div class="aspect-video relative overflow-hidden bg-slate-900">
+                <!-- AI Score Badge -->
+                <div v-if="item.aiScore" class="absolute top-2 right-2 z-10 bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-white shadow-lg">
+                  🤖 {{ Math.round(item.aiScore) }}%
+                </div>
+                
                 <img
                   v-if="item.thumbnailUrl"
                   :src="item.thumbnailUrl"
@@ -579,7 +544,15 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
                 </div>
               </div>
               <div class="p-6">
-                <h3 class="font-bold text-lg mb-2 line-clamp-1 text-white group-hover:text-blue-400 transition-colors">{{ item.title }}</h3>
+                <h3 class="font-bold text-lg mb-2 line-clamp-1 text-white group-hover:text-blue-400 transition-colors">
+                  {{ item.title }}
+                </h3>
+                
+                <!-- AI Reasoning -->
+                <p v-if="item.aiReasoning" class="text-xs text-blue-400 mb-2 italic line-clamp-2">
+                  💡 {{ item.aiReasoning }}
+                </p>
+                
                 <p class="text-sm text-gray-400 line-clamp-2 mb-4 leading-relaxed">
                   {{ item.description }}
                 </p>
@@ -626,8 +599,6 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
-
-
 
 .app-bg::before {
   content: "";
