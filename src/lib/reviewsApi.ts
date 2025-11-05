@@ -6,7 +6,6 @@ import type { Review } from '@/composables/review';
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
 
 // Movies Section
-
 export async function fetchMovieReviews(movieId: number): Promise<Review[]> {
   try {
     const { data, error } = await supabase
@@ -113,7 +112,6 @@ export async function submitMovieReview(
 }
 
 // TV Section
-
 export async function fetchTvReviews(tvId: number): Promise<Review[]> {
   try {
     const { data, error } = await supabase

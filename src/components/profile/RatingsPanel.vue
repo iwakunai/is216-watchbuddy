@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useUser } from '@clerk/vue'
-import { getUserReviews, type CombinedReview } from '@/lib/supabaseRatingsReviews'
+import { getUserReviews } from '@/lib/supabaseRatingsReviews'
 import { useRouter } from 'vue-router'
+import type { CombinedReview } from '@/composables/review'
 
 const { user } = useUser()
 const router = useRouter()
@@ -26,7 +27,7 @@ async function loadReviews() {
   try {
     allReviews.value = await getUserReviews(user.value.id, 'all')
   } catch (err) {
-    console.error('Error loading reviews:', err)
+    // console.error('Error loading reviews:', err)
     error.value = 'Failed to load reviews'
   } finally {
     loading.value = false

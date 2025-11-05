@@ -142,6 +142,7 @@ import { ref, computed, onMounted } from "vue";
 import { fetchMovieReviews, submitMovieReview } from "@/lib/reviewsApi";
 import { useAuth } from "@clerk/vue";
 import type { Review } from '@/composables/review';
+import { formatDate } from "@/composables/showDetails";
 
 
 const { userId } = useAuth();
@@ -170,15 +171,6 @@ const formData = ref({
   comment: "",
 });
 
-
-// Methods
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString("en-SG", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 function toggleExpand(id: string) {
   showFull.value[id] = !showFull.value[id];

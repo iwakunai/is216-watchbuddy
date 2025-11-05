@@ -1,7 +1,6 @@
 import { supabase } from '@/lib/supabaseClient'
-import type { ReviewItem } from '@/types/profile'
 import { fetchSupabaseUserId } from '@/lib/supabaseUser'
-import { getMovieDetails } from '@/lib/tmdbFetch'
+import { getMovieDetails, getTVShowDetails } from '@/lib/tmdbFetch'
 import type { CombinedReview } from '@/composables/review';
 
 
@@ -48,49 +47,45 @@ export async function getUserMovieReviews(userId: string): Promise<CombinedRevie
   }
 }
 
-/**
- * Fetch all TV reviews for a specific user (from tv_reviews table)
- * @param userId - The Supabase user UUID
- * @returns Array of review items
- */
-async function getUserTvReviews(userId: string): Promise<CombinedReview[]> {
+export async function getUserTvReviews(userId: string): Promise<CombinedReview[]> {
   try {
+    // Retrieve user reviews
     const { data, error } = await supabase
       .from('tv_reviews')
       .select('*')
       .eq('user_id', userId)
-      .order('tv_review_created_at', { ascending: false })
+      .order('tv_review_created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching TV reviews:', error)
-      throw error
-    }
+    if (error) throw error;
 
-    return (data || []).map((review: any) => ({
-      id: review.review_uuid,
-      tmdb_id: review.tv_id,
-      // Handle case where tv_title column doesn't exist
-      title: review.tv_title || `TV Show ${review.tv_id}`,
-      media_type: 'tv' as const,
-      // Handle case where tv_year column doesn't exist
-      year: review.tv_year || 0,
-      // Handle case where tv_poster_path column doesn't exist
-      poster_path: review.tv_poster_path || null,
-      poster: review.tv_poster_path 
-        ? `https://image.tmdb.org/t/p/w200${review.tv_poster_path}`
-        : undefined,
-      rating: review.tv_user_rating || 0,
-      review_text: review.tv_user_review || '',
-      created_at: review.tv_review_created_at,
-      reviewedDate: new Date(review.tv_review_created_at).toLocaleDateString('en-SG', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
+    return await Promise.all(
+      (data || []).map(async (review: any) => {
+        const tv = await getTVShowDetails(review.tv_id);
+        return {
+          id: review.review_uuid,
+          tmdb_id: review.tv_id,
+          title: tv?.title || `TV ${review.tv_id}`,
+          media_type: "tv",
+          year: tv?.year || 0,
+          poster_path: tv?.poster || null,
+          poster: tv?.poster || undefined,
+          rating: review.tv_user_rating || 0,
+          review_text: review.tv_user_review || '',
+          created_at: review.tv_review_created_at,
+          reviewedDate: new Date(review.tv_review_created_at).toLocaleDateString('en-SG', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          }),
+          overview: tv?.overview || '',
+          vote_average: tv?.rating || 0,
+          // runtime: tv?.runtime || 0,
+          genres: tv?.genres || []
+        };
       })
-    }))
+    );
   } catch (err) {
-    console.error('Unexpected error fetching TV reviews:', err)
-    return []
+    return [];
   }
 }
 
