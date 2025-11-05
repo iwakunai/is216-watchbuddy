@@ -5,13 +5,13 @@ import {
 } from "vue-router";
 
 import HomePage from "@/pages/HomePage.vue";
-import ProfileView from "@/pages/ProfilePage.vue";
-import EditProfilePage from "@/pages/EditProfilePage.vue";
 import MoviePage from "@/pages/MoviePage.vue";
 import TvPage from "@/pages/TvPage.vue";
 import WatchPartyPage from "@/pages/WatchPartyPage.vue";
 import MovieDetailPage from "@/pages/MovieDetailPage.vue";
 import RecommendPage from "@/pages/RecommendPage.vue";
+import ProfilePage from "@/pages/ProfilePage.vue";
+import AchievementsPage from "@/pages/AchievementsPage.vue";
 
 const routes = [
   {
@@ -63,9 +63,15 @@ const routes = [
     meta: { label: "Party Room", showInNav: false },
   },
   {
+    path: "/achievements",
+    name: "achievements",
+    component: AchievementsPage,
+    meta: { label: "Achievements", showInNav: true },
+  },
+  {
     path: "/profile",
     name: "profile",
-    component: ProfileView,
+    component: ProfilePage,
     meta: { label: "Profile", showInNav: false },
   },
   {
@@ -75,10 +81,10 @@ const routes = [
     meta: { label: "Person Details", showInNav: false },
   },
   {
-    path: "/profile/edit",
-    name: "profile-edit",
-    component: EditProfilePage,
-    meta: { label: "", showInNav: false },
+    path: "/achievements",
+    name: "achievements",
+    component: AchievementsPage,
+    meta: { label: "Achievements", showInNav: false },
   },
 ];
 

@@ -133,7 +133,7 @@ const analyzeMoodFromOverview = (overview: string, genres: number[]): { mood: Mo
       genreScores[mood as Mood] += genreMatches * 0.5
     })
     
-    const sortedMoods = Object.entries(genreScores)
+    const sortedMoods : any = Object.entries(genreScores)
       .sort(([, a], [, b]) => b - a)
       .filter(([, score]) => score > 0)
     
@@ -164,7 +164,7 @@ const analyzeMoodFromOverview = (overview: string, genres: number[]): { mood: Mo
   })
   
   // Find mood with highest score
-  const sortedMoods = Object.entries(moodScores)
+  const sortedMoods : any = Object.entries(moodScores)
     .sort(([, a], [, b]) => b - a)
     .filter(([, score]) => score > 0)
   
@@ -261,7 +261,7 @@ const fetchRecommendations = async () => {
       ).filter(Boolean).join(', ')
     }))
   } catch (err) {
-    console.error('Error fetching recommendations:', err)
+    // console.error('Error fetching recommendations:', err)
   } finally {
     isLoading.value = false
   }
@@ -328,7 +328,7 @@ const handleShuffle = async () => {
       }
     }
   } catch (err) {
-    console.error('Error shuffling:', err)
+    // console.error('Error shuffling:', err)
   }
 }
 
