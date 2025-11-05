@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
+import { useRouter } from 'vue-router';
 import { useUser } from '@clerk/vue';
 import { tabs, type TabId } from "@/types/tabs";
 
@@ -10,8 +11,6 @@ import type {
   FavouriteItem,
   Friend,
   FriendRequest,
-  Badge,
-  BadgeGroups,
   RatingItem,
   ReviewItem,
   ListFull,
@@ -23,15 +22,12 @@ import type {
 
 import {
   setUserContext,
-  getWatchlist,
   getWatchHistory,
   getUserLists,
   getListItems,
   getFriends,
   getFriendRequests,
-  getUserBadges,
   getUserActivity,
-  removeFromWatchlist as removeFromWatchlistDb,
   addToWatchHistory,
   updateList,
   deleteList as deleteListDb,
@@ -44,8 +40,23 @@ import {
   addActivity,
 } from '@/lib/supabaseProfile';
 
-const activeTab = ref<TabId>('overview')
-const setTab = (id: TabId) => { activeTab.value = id }
+import { getUserWatchlist, removeFromWatchlist as removeFromWatchlistDb, updateWatchlistStatus } from '@/lib/supabaseWatchlist';
+import { getUserMovieReviews, getUserTvReviews } from '@/lib/supabaseRatingsReviews';
+import { fetchSupabaseUserId } from '@/lib/supabaseUser';
+
+const router = useRouter();
+
+// Initialize activeTab from query parameter or default to 'overview'
+const tabFromQuery = router.currentRoute.value.query.tab as TabId;
+const activeTab = ref<TabId>(
+  (tabFromQuery && tabs.some(t => t.id === tabFromQuery)) ? tabFromQuery : 'overview'
+)
+
+const setTab = (id: TabId) => { 
+  activeTab.value = id;
+  // Update URL query parameter without page reload
+  router.replace({ query: { tab: id } });
+}
 
 // Auth state
 const { user, isLoaded } = useUser()
@@ -64,7 +75,6 @@ const averageMoodEmoji = ref("😊");
 
 const totalMoviesWatched = ref(42);
 const totalShowsWatched = ref(18);
-const totalBadgesEarned = ref(8);
 
 const topGenres = ref<GenreCount[]>([]);
 
@@ -75,33 +85,6 @@ const favourites = ref<FavouriteItem[]>([]);
 const friends = ref<Friend[]>([]);
 
 const friendRequests = ref<FriendRequest[]>([]);
-
-const featuredBadges = ref<Badge[]>([
-  { id: 'first-watch', name: 'First Watch', description: 'Watched your first movie', icon: '🎬', earned: true },
-  { id: 'social-butterfly', name: 'Social Butterfly', description: 'Added 5 friends', icon: '🦋', earned: true },
-  { id: 'binge-watcher', name: 'Binge Watcher', description: 'Watched 10 movies in a week', icon: '📺', earned: false },
-  { id: 'critic', name: 'Critic', description: 'Wrote 10 reviews', icon: '✍️', earned: true },
-  { id: 'party-host', name: 'Party Host', description: 'Hosted a watch party', icon: '🎉', earned: false },
-  { id: 'completionist', name: 'Completionist', description: 'Watched 100 movies', icon: '🏆', earned: false },
-]);
-
-const badgesByCategory = ref<BadgeGroups>({
-  moodMastery: [
-    { id: 'mood-happy', name: 'Happy Viewer', description: 'Watch 10 movies while happy', icon: '😊', earned: true },
-    { id: 'mood-sad', name: 'Emotional Explorer', description: 'Watch 10 movies while sad', icon: '😢', earned: false },
-    { id: 'mood-excited', name: 'Thrill Seeker', description: 'Watch 10 thrillers', icon: '🤩', earned: true },
-  ],
-  genreExplorer: [
-    { id: 'genre-action', name: 'Action Hero', description: 'Watch 20 action movies', icon: '💥', earned: true },
-    { id: 'genre-comedy', name: 'Comedy Fan', description: 'Watch 20 comedies', icon: '😂', earned: false },
-    { id: 'genre-drama', name: 'Drama Enthusiast', description: 'Watch 20 dramas', icon: '🎭', earned: false },
-  ],
-  socialButterfly: [
-    { id: 'social-friend', name: 'Friendly', description: 'Add 5 friends', icon: '👥', earned: true },
-    { id: 'social-party', name: 'Party Animal', description: 'Join 10 watch parties', icon: '🎊', earned: false },
-    { id: 'social-host', name: 'Super Host', description: 'Host 5 watch parties', icon: '🌟', earned: false },
-  ],
-});
 
 // Lists state
 const userLists = ref<ListFull[]>([]);
@@ -266,9 +249,34 @@ async function removeFromWatchlist(id: string | number) {
   }
 }
 
+async function changeWatchlistStatus(
+  id: string | number, 
+  newStatus: 'completed' | 'watching' | 'plan-to-watch',
+  mediaType: 'movie' | 'tv'
+) {
+  if (!user.value) return;
+  
+  try {
+    await updateWatchlistStatus(user.value.id, Number(id), mediaType, newStatus);
+    
+    // Update the local item's status
+    const item = watchlistItems.value.find(i => i.id === id);
+    if (item) {
+      item.status = newStatus;
+    }
+  } catch (err) {
+    // console.error('Error updating watchlist status:', err);
+    error.value = 'Failed to update status';
+  }
+}
+
 function openWatchlistItem(id: string | number) {
-  // console.log('Open watchlist item:', id);
-  // TODO: Navigate to movie/TV detail page
+  const item = watchlistItems.value.find(i => i.id === id);
+  if (!item) return;
+  
+  // Navigate to movie or TV detail page
+  const path = item.type === 'movie' ? '/movie' : '/tv';
+  router.push(`${path}/${id}`);
 }
 
 // History state
@@ -356,8 +364,6 @@ function addFriend() {
   // TODO: Open friend search/add modal
 }
 
-const showAllBadges = ref(false);
-
 // Load data functions
 async function loadProfile() {
   if (!user.value) return;
@@ -386,13 +392,14 @@ async function loadWatchlist() {
   if (!user.value) return;
   
   try {
-    const data = await getWatchlist(user.value.id);
+    const data = await getUserWatchlist(user.value.id);
     watchlistItems.value = data.map(item => ({
       id: String(item.tmdb_id),
       title: item.title,
-      poster: item.poster_path || '',
-      year: item.release_year || 0,
+      poster: item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : '',
+      year: item.year || 0,
       type: item.media_type,
+      status: item.status,
       addedAt: new Date(item.added_at!).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -428,16 +435,6 @@ async function loadHistory() {
     
     totalMoviesWatched.value = movies.length;
     totalShowsWatched.value = shows.length;
-    
-    const movieRatings = movies.filter(m => m.rating).map(m => m.rating!);
-    const showRatings = shows.filter(s => s.rating).map(s => s.rating!);
-    
-    if (movieRatings.length > 0) {
-      averageMovieScore.value = Math.round((movieRatings.reduce((a, b) => a + b, 0) / movieRatings.length) * 20);
-    }
-    if (showRatings.length > 0) {
-      averageTvScore.value = Math.round((showRatings.reduce((a, b) => a + b, 0) / showRatings.length) * 20);
-    }
   } catch (err) {
     // console.error('Error loading history:', err);
   }
@@ -509,37 +506,60 @@ async function loadFriendRequests() {
   }
 }
 
-async function loadBadges() {
+async function loadRatingsAndCalculateAverages() {
   if (!user.value) return;
   
   try {
-    const badgesData = await getUserBadges(user.value.id);
-    const earnedBadgeIds = badgesData.map((ub: any) => ub.badge.id);
-    totalBadgesEarned.value = earnedBadgeIds.length;
+    // Fetch Supabase user ID
+    const supabaseUserId = await fetchSupabaseUserId(user.value.id);
+    if (!supabaseUserId) return;
     
-    // Update featured badges earned status
-    featuredBadges.value = featuredBadges.value.map(badge => ({
-      ...badge,
-      earned: earnedBadgeIds.includes(badge.id)
-    }));
+    // Fetch movie and TV reviews
+    const [movieReviews, tvReviews] = await Promise.all([
+      getUserMovieReviews(supabaseUserId),
+      getUserTvReviews(supabaseUserId)
+    ]);
     
-    // Update badges by category
-    badgesByCategory.value = {
-      moodMastery: badgesByCategory.value.moodMastery.map(badge => ({
-        ...badge,
-        earned: earnedBadgeIds.includes(badge.id)
-      })),
-      genreExplorer: badgesByCategory.value.genreExplorer.map(badge => ({
-        ...badge,
-        earned: earnedBadgeIds.includes(badge.id)
-      })),
-      socialButterfly: badgesByCategory.value.socialButterfly.map(badge => ({
-        ...badge,
-        earned: earnedBadgeIds.includes(badge.id)
-      }))
-    };
+    // Calculate average movie score (convert 5-star to percentage)
+    const movieRatings = movieReviews
+      .map(r => r.rating)
+      .filter(r => r > 0);
+    
+    if (movieRatings.length > 0) {
+      const avgMovieRating = movieRatings.reduce((a, b) => a + b, 0) / movieRatings.length;
+      averageMovieScore.value = Math.round((avgMovieRating / 5) * 100);
+    } else {
+      averageMovieScore.value = 0;
+    }
+    
+    // Calculate average TV score (convert 5-star to percentage)
+    const tvRatings = tvReviews
+      .map(r => r.rating)
+      .filter(r => r > 0);
+    
+    if (tvRatings.length > 0) {
+      const avgTvRating = tvRatings.reduce((a, b) => a + b, 0) / tvRatings.length;
+      averageTvScore.value = Math.round((avgTvRating / 5) * 100);
+    } else {
+      averageTvScore.value = 0;
+    }
+    
+    // Calculate average mood emoji based on overall ratings
+    const allRatings = [...movieRatings, ...tvRatings];
+    if (allRatings.length > 0) {
+      const avgRating = allRatings.reduce((a, b) => a + b, 0) / allRatings.length;
+      // Map average rating to emoji
+      if (avgRating >= 4.5) averageMoodEmoji.value = '😍';
+      else if (avgRating >= 4) averageMoodEmoji.value = '😊';
+      else if (avgRating >= 3.5) averageMoodEmoji.value = '🙂';
+      else if (avgRating >= 3) averageMoodEmoji.value = '😐';
+      else if (avgRating >= 2) averageMoodEmoji.value = '😕';
+      else averageMoodEmoji.value = '😞';
+    } else {
+      averageMoodEmoji.value = '😊';
+    }
   } catch (err) {
-    // console.error('Error loading badges:', err);
+    // console.error('Error loading ratings:', err);
   }
 }
 
@@ -596,7 +616,7 @@ async function initializeData() {
       loadLists(),
       loadFriends(),
       loadFriendRequests(),
-      loadBadges(),
+      loadRatingsAndCalculateAverages(),
       loadActivity()
     ]);
   } catch (err) {
@@ -637,12 +657,8 @@ async function initializeData() {
         <ProfileSummary
           :profile="profile"
           :join-date="joinDate"
-          :average-movie-score="averageMovieScore"
-          :average-tv-score="averageTvScore"
-          :average-mood-emoji="averageMoodEmoji"
           :total-movies-watched="totalMoviesWatched"
           :total-shows-watched="totalShowsWatched"
-          :total-badges-earned="totalBadgesEarned"
         />
 
         <NavTabs :tabs="tabs" :active-tab="activeTab" @change="setTab" />
@@ -653,9 +669,6 @@ async function initializeData() {
             :top-moods="topMoods"
             :favourites="favourites"
             :friends="friends"
-            :featured-badges="featuredBadges"
-            :badges-by-category="badgesByCategory"
-            v-model:show-all-badges="showAllBadges"
           />
         </div>
 
@@ -681,6 +694,7 @@ async function initializeData() {
             :items="watchlistItems"
             @remove="removeFromWatchlist"
             @open="openWatchlistItem"
+            @change-status="changeWatchlistStatus"
           />
         </div>
 

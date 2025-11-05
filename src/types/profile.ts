@@ -95,6 +95,7 @@ export interface WatchItem {
   year?: number
   poster?: string
   addedAt?: string
+  status?: 'completed' | 'watching' | 'plan-to-watch'
 }
 
 export interface HistoryItem {

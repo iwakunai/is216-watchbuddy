@@ -120,6 +120,31 @@ export async function removeFromWatchlist(
   }
 }
 
+// Update the status of a watchlist item
+export async function updateWatchlistStatus(
+  clerkUserId: string,
+  tmdbId: number,
+  mediaType: MediaType,
+  newStatus: WatchStatus
+): Promise<void> {
+  try {
+    const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
+    if (!supabaseUserId) throw new Error("User not found");
+
+    const { error } = await supabase
+      .from("watchlist")
+      .update({ status: newStatus })
+      .eq("user_id", supabaseUserId)
+      .eq("tmdb_id", tmdbId)
+      .eq("media_type", mediaType);
+
+    if (error) throw error;
+  } catch (err) {
+    // console.error('Error updating watchlist status:', err)
+    throw err;
+  }
+}
+
 // Get watchlist status for a specific item
 
 export async function getWatchlistStatus(

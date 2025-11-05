@@ -9,6 +9,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'remove', id: string | number): void
   (e: 'open', id: string | number): void
+  (e: 'changeStatus', id: string | number, status: 'completed' | 'watching' | 'plan-to-watch', type: 'movie' | 'tv'): void
 }>()
 
 type MediaType = 'movies' | 'tv'
@@ -16,20 +17,55 @@ type WatchStatus = 'completed' | 'watching' | 'plan-to-watch'
 
 const activeMediaTab = ref<MediaType>('movies')
 const activeStatusTab = ref<WatchStatus>('watching')
-const filterBy = ref<'mood' | 'genre' | 'date'>('date')
-const orderAscending = ref(false)
+const sortOrder = ref<'asc' | 'desc'>('desc') // desc = newest first
+
+// Track which item's dropdown is open
+const openDropdownId = ref<string | number | null>(null)
+
+function toggleDropdown(itemId: string | number) {
+  openDropdownId.value = openDropdownId.value === itemId ? null : itemId
+}
+
+function changeItemStatus(item: WatchItem, newStatus: WatchStatus) {
+  emit('changeStatus', item.id, newStatus, item.type)
+  openDropdownId.value = null
+}
+
+function getStatusLabel(status: WatchStatus): string {
+  switch (status) {
+    case 'completed': return 'Completed'
+    case 'watching': return 'Currently Watching'
+    case 'plan-to-watch': return 'Plan to Watch'
+  }
+}
+
+function getStatusOptions(currentStatus: WatchStatus): WatchStatus[] {
+  const allStatuses: WatchStatus[] = ['completed', 'watching', 'plan-to-watch']
+  return allStatuses.filter(s => s !== currentStatus)
+}
 
 const movieCount = computed(() => props.items.filter(item => item.type === 'movie').length)
 const tvCount = computed(() => props.items.filter(item => item.type === 'tv').length)
 
 const filteredItems = computed(() => {
-  return props.items.filter(item => {
+  const filtered = props.items.filter(item => {
     const matchesMediaType = activeMediaTab.value === 'movies' 
       ? item.type === 'movie' 
       : item.type === 'tv'
-    // For now, all items are shown under the active status tab
-    // You can add status filtering when your data has status property
-    return matchesMediaType
+    const matchesStatus = item.status === activeStatusTab.value
+    return matchesMediaType && matchesStatus
+  })
+
+  // Sort by date added
+  return filtered.sort((a, b) => {
+    const dateA = a.addedAt ? new Date(a.addedAt).getTime() : 0
+    const dateB = b.addedAt ? new Date(b.addedAt).getTime() : 0
+    
+    if (sortOrder.value === 'desc') {
+      return dateB - dateA // Newest first
+    } else {
+      return dateA - dateB // Oldest first
+    }
   })
 })
 
@@ -38,15 +74,18 @@ const statusCounts = computed(() => {
     activeMediaTab.value === 'movies' ? item.type === 'movie' : item.type === 'tv'
   )
   return {
-    completed: 0, // Update these when you have status data
-    watching: filtered.length,
-    planToWatch: 0
+    completed: filtered.filter(item => item.status === 'completed').length,
+    watching: filtered.filter(item => item.status === 'watching').length,
+    planToWatch: filtered.filter(item => item.status === 'plan-to-watch').length
   }
 })
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+  <div 
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+    @click="openDropdownId = null"
+  >
     <!-- Header with Title and Controls -->
     <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
       <div class="flex items-center gap-4">
@@ -80,29 +119,16 @@ const statusCounts = computed(() => {
       </div>
 
       <div class="flex items-center gap-3">
-        <!-- Filter Dropdown -->
-        <div class="flex items-center gap-2">
-          <label class="text-sm text-gray-600 dark:text-gray-400">Filter by:</label>
-          <select 
-            v-model="filterBy"
-            class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-          >
-            <option value="mood">Mood</option>
-            <option value="genre">Genre</option>
-            <option value="date">Date Added</option>
-          </select>
-        </div>
-
-        <!-- Order Toggle -->
+        <!-- Sort Order Toggle -->
         <button
-          @click="orderAscending = !orderAscending"
+          @click="sortOrder = sortOrder === 'desc' ? 'asc' : 'desc'"
           class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-          :title="orderAscending ? 'Ascending' : 'Descending'"
+          :title="sortOrder === 'desc' ? 'Newest First' : 'Oldest First'"
         >
-          <span>Order</span>
+          <span>{{ sortOrder === 'desc' ? 'Newest First' : 'Oldest First' }}</span>
           <svg 
             class="w-5 h-5 transition-transform" 
-            :class="{ 'rotate-180': !orderAscending }"
+            :class="{ 'rotate-180': sortOrder === 'asc' }"
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
@@ -116,21 +142,6 @@ const statusCounts = computed(() => {
     <!-- Status Tabs (Completed, Currently Watching, Plan to Watch) -->
     <div class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
       <div class="flex items-center gap-1 px-6">
-        <button
-          @click="activeStatusTab = 'completed'"
-          :class="[
-            'px-6 py-3 text-sm font-medium uppercase tracking-wide transition-colors relative',
-            activeStatusTab === 'completed'
-              ? 'text-gray-900 dark:text-gray-100'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-          ]"
-        >
-          Completed
-          <div 
-            v-if="activeStatusTab === 'completed'"
-            class="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"
-          ></div>
-        </button>
         <button
           @click="activeStatusTab = 'watching'"
           :class="[
@@ -158,6 +169,21 @@ const statusCounts = computed(() => {
           Plan to Watch
           <div 
             v-if="activeStatusTab === 'plan-to-watch'"
+            class="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"
+          ></div>
+        </button>
+        <button
+          @click="activeStatusTab = 'completed'"
+          :class="[
+            'px-6 py-3 text-sm font-medium uppercase tracking-wide transition-colors relative',
+            activeStatusTab === 'completed'
+              ? 'text-gray-900 dark:text-gray-100'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+          ]"
+        >
+          Completed
+          <div 
+            v-if="activeStatusTab === 'completed'"
             class="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"
           ></div>
         </button>
@@ -207,29 +233,53 @@ const statusCounts = computed(() => {
                 </div>
                 <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                   <span v-if="item.year">{{ item.year }}</span>
-                  <span v-if="item.year">•</span>
-                  <span>Edit - More</span>
+                  <span v-if="item.year && item.addedAt">•</span>
+                  <span v-if="item.addedAt">Added {{ item.addedAt }}</span>
                 </div>
               </div>
 
-              <!-- Progress/Status Info (placeholder for future implementation) -->
-              <div class="flex-shrink-0 text-right">
-                <div class="text-sm text-gray-600 dark:text-gray-400">
-                  <div class="font-medium">Progress:</div>
-                  <div class="text-gray-500 dark:text-gray-500">-</div>
+              <!-- Status Change Button -->
+              <div class="flex-shrink-0 relative">
+                <button
+                  @click.stop="toggleDropdown(item.id)"
+                  class="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg transition-colors text-sm font-medium"
+                  title="Change status"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12M8 12h12M8 17h12M3 7h.01M3 12h.01M3 17h.01" />
+                  </svg>
+                  Move to...
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div 
+                  v-if="openDropdownId === item.id"
+                  class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 overflow-hidden"
+                  @click.stop
+                >
+                  <button
+                    v-for="status in getStatusOptions(item.status!)"
+                    :key="status"
+                    @click="changeItemStatus(item, status)"
+                    class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    {{ getStatusLabel(status) }}
+                  </button>
                 </div>
               </div>
 
               <!-- Remove Button -->
-              <button
-                @click.stop="emit('remove', item.id)"
-                class="flex-shrink-0 p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                title="Remove from watchlist"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div class="flex-shrink-0">
+                <button
+                  @click.stop="emit('remove', item.id)"
+                  class="p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                  title="Remove from watchlist"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>

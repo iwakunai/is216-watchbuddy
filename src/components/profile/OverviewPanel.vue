@@ -4,8 +4,6 @@ import type {
   MoodCount,
   FavouriteItem,
   Friend,
-  Badge,
-  BadgeGroups,
 } from "@/types/profile";
 
 const props = defineProps<{
@@ -13,11 +11,7 @@ const props = defineProps<{
   topMoods: MoodCount[];
   favourites: FavouriteItem[];
   friends: Friend[];
-  featuredBadges: Badge[];
-  badgesByCategory: BadgeGroups;
-  showAllBadges: boolean;
 }>();
-const emit = defineEmits<{ (e: "update:showAllBadges", v: boolean): void }>();
 </script>
 
 <template>
@@ -124,12 +118,5 @@ const emit = defineEmits<{ (e: "update:showAllBadges", v: boolean): void }>();
 
       <FriendsGrid class="lg:col-span-2" :friends="friends" />
     </div>
-
-    <BadgeGrid
-      :featured-badges="featuredBadges"
-      :badges-by-category="badgesByCategory"
-      :show-all-badges="showAllBadges"
-      @update:showAllBadges="emit('update:showAllBadges', $event)"
-    />
   </div>
 </template>

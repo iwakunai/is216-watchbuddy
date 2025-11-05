@@ -11,7 +11,6 @@ import WatchPartyPage from "@/pages/WatchPartyPage.vue";
 import MovieDetailPage from "@/pages/MovieDetailPage.vue";
 import RecommendPage from "@/pages/RecommendPage.vue";
 import ProfilePage from "@/pages/ProfilePage.vue";
-import AchievementsPage from "@/pages/AchievementsPage.vue";
 
 const routes = [
   {
@@ -63,12 +62,6 @@ const routes = [
     meta: { label: "Party Room", showInNav: false },
   },
   {
-    path: "/achievements",
-    name: "achievements",
-    component: AchievementsPage,
-    meta: { label: "Achievements", showInNav: true },
-  },
-  {
     path: "/profile",
     name: "profile",
     component: ProfilePage,
@@ -79,12 +72,6 @@ const routes = [
     name: 'PersonDetails',
     component: () => import('@/pages/PersonDetails.vue'),
     meta: { label: "Person Details", showInNav: false },
-  },
-  {
-    path: "/achievements",
-    name: "achievements",
-    component: AchievementsPage,
-    meta: { label: "Achievements", showInNav: false },
   },
 ];
 
