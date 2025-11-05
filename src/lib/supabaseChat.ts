@@ -25,7 +25,7 @@ export async function fetchMessages(roomId: string) {
         .eq('room_id', roomId)
         .order('created_at', { ascending: true });
 
-    console.log('fetchMessages data:', data, 'error:', error); // debug
+    // console.log('fetchMessages data:', data, 'error:', error); // debug
 
     if (error) throw error;
     return data;

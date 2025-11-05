@@ -103,7 +103,7 @@ export async function getUserReviews(
     // Convert Clerk ID to Supabase UUID
     const supabaseUserId = await fetchSupabaseUserId(clerkUserId)
     if (!supabaseUserId) {
-      console.error('User not found in Supabase')
+      // console.error('User not found in Supabase')
       return []
     }
 
@@ -125,7 +125,7 @@ export async function getUserReviews(
 
     return reviews
   } catch (err) {
-    console.error('Unexpected error fetching user reviews:', err)
+    // console.error('Unexpected error fetching user reviews:', err)
     return []
   }
 }
@@ -150,11 +150,11 @@ export async function deleteMovieReview(
       .eq('user_id', supabaseUserId)
 
     if (error) {
-      console.error('Error deleting movie review:', error)
+      // console.error('Error deleting movie review:', error)
       throw error
     }
   } catch (err) {
-    console.error('Unexpected error deleting movie review:', err)
+    // console.error('Unexpected error deleting movie review:', err)
     throw err
   }
 }
@@ -179,11 +179,11 @@ export async function deleteTvReview(
       .eq('user_id', supabaseUserId)
 
     if (error) {
-      console.error('Error deleting TV review:', error)
+      // console.error('Error deleting TV review:', error)
       throw error
     }
   } catch (err) {
-    console.error('Unexpected error deleting TV review:', err)
+    // console.error('Unexpected error deleting TV review:', err)
     throw err
   }
 }

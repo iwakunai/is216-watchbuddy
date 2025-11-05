@@ -1,4 +1,5 @@
-<script setup lang="ts">
+<!-- TODO: Remove -->
+<!-- <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import type { RatingItem } from '@/types/profile'
 
@@ -44,4 +45,4 @@ function navigateToMovie(rating: RatingItem) {
     </div>
   </div>
 </template>
-  
+   -->

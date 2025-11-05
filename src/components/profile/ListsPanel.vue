@@ -53,7 +53,7 @@ async function searchMovies() {
       const results = await searchMulti(q)
       searchedMovies.value = results
     } catch (error) {
-      console.error('Error searching movies:', error)
+      // console.error('Error searching movies:', error)
       searchedMovies.value = []
     } finally {
       isSearching.value = false

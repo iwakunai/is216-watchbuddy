@@ -13,7 +13,7 @@ export async function fetchTrending() {
         return data.results;
       }
     } catch (err) {
-      console.error("Error fetching movies: ", err);
+      // console.error("Error fetching movies: ", err);
       return [];
     }
   }
@@ -59,7 +59,7 @@ export async function searchMulti(query: string) {
         }));
     }
   } catch (err) {
-    console.error("Error searching TMDB: ", err);
+    // console.error("Error searching TMDB: ", err);
     return [];
   }
 
@@ -94,7 +94,7 @@ export async function searchMovies(query: string) {
       }));
     }
   } catch (err) {
-    console.error("Error searching movies: ", err);
+    // console.error("Error searching movies: ", err);
     return [];
   }
 
@@ -131,7 +131,7 @@ export async function searchTVShows(query: string) {
       }));
     }
   } catch (err) {
-    console.error("Error searching TV shows: ", err);
+    // console.error("Error searching TV shows: ", err);
     return [];
   }
 
@@ -166,7 +166,7 @@ export async function getMovieDetails(movieId: number) {
       };
     }
   } catch (err) {
-    console.error("Error fetching movie details: ", err);
+    // console.error("Error fetching movie details: ", err);
     return null;
   }
 
@@ -204,7 +204,7 @@ export async function getTVShowDetails(tvId: number) {
       };
     }
   } catch (err) {
-    console.error("Error fetching TV show details: ", err);
+    // console.error("Error fetching TV show details: ", err);
     return null;
   }
 

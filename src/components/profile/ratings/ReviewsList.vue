@@ -1,4 +1,5 @@
-<script setup lang="ts">
+<!-- TODO: Remove -->
+<!-- <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import type { ReviewItem } from '@/types/profile'
 
@@ -38,4 +39,4 @@ function navigateToMovie(review: ReviewItem) {
       <p class="text-sm text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-line">{{ review.reviewText }}</p>
     </div>
   </div>
-</template>
+</template> -->

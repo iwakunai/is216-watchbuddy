@@ -261,7 +261,7 @@ const fetchRecommendations = async () => {
       ).filter(Boolean).join(', ')
     }))
   } catch (err) {
-    console.error('Error fetching recommendations:', err)
+    // console.error('Error fetching recommendations:', err)
   } finally {
     isLoading.value = false
   }
@@ -328,7 +328,7 @@ const handleShuffle = async () => {
       }
     }
   } catch (err) {
-    console.error('Error shuffling:', err)
+    // console.error('Error shuffling:', err)
   }
 }
 
