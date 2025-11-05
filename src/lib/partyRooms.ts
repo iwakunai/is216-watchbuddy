@@ -4,7 +4,7 @@ import type { Room } from '@/composables/room';
 export async function fetchPublicRooms(): Promise<Room[]> {
   const { data, error } = await supabase
     .from('party_rooms')
-    .select('id, room_name, title, host_username, scheduled_time, duration, vibe')
+    .select('id, room_name, title, host_username, scheduled_time, duration, vibe, poster_url')
     .eq('public_status', true)
     .order('scheduled_time', { ascending: true });
 
@@ -20,6 +20,7 @@ export async function fetchPublicRooms(): Promise<Room[]> {
     datetime: r.scheduled_time,
     duration: r.duration ?? 120,
     vibeId: r.vibe,
+    posterUrl: r.poster_url ?? "",
   }));
 }
 
@@ -31,6 +32,7 @@ export interface CreateRoomParams {
   duration: number;
   publicStatus: boolean;
   vibeId?: string;
+  posterUrl?: string;
 }
 
 export async function createRoom(params: CreateRoomParams): Promise<Room | null> {
@@ -45,6 +47,7 @@ export async function createRoom(params: CreateRoomParams): Promise<Room | null>
         duration: params.duration,
         public_status: params.publicStatus,
         vibe: params.vibeId,
+        poster_url: params.posterUrl,
       },
     ])
     .select()
@@ -67,5 +70,6 @@ export async function createRoom(params: CreateRoomParams): Promise<Room | null>
     datetime: data.scheduled_time,
     duration: data.duration ?? 120,
     vibeId: data.vibe,
+    posterUrl: data.poster_url ?? "",
   };
 }

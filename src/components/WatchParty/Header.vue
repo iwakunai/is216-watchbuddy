@@ -1,72 +1,8 @@
 <template>
-  <div class="sticky top-16 z-50 text-left pt-4 pb-2 px-4 sm:px-6 md:px-10 bg-gray-900">
-    <div
-      class="flex flex-col md:flex-row items-start md:items-center justify-between mb-2 gap-4 md:gap-0"
-    >
-      <!-- LEFT SIDE -->
-      <div class="w-full md:w-auto">
-        <!-- HEADING -->
-        <h2 class="text-left text-2xl font-semibold mb-2 md:mb-3">
-          Watch Party Lobby
-        </h2>
-
-        <!-- SUBHEADING -->
-        <p class="mb-3">Join a party or create your own party</p>
-
-        <!-- STATUS FILTER BUTTONS -->
-        <div
-          class="grid grid-cols-2 gap-2 mt-3 max-w-xs sm:flex sm:gap-3 sm:max-w-none"
-        >
-          <button
-            v-for="option in ['all', 'playing', 'scheduled', 'ended']"
-            :key="option"
-            @click="$emit('status-filter', option)"
-            :class="[
-              'px-3 py-1 rounded-md border text-sm whitespace-nowrap text-center',
-              currentStatus === option
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white/5 text-gray-700 dark:text-gray-300 border-gray-400'
-            ]"
-          >
-            {{ option.charAt(0).toUpperCase() + option.slice(1) }}
-          </button>
-        </div>
-      </div>
-
-      <!-- RIGHT SIDE -->
-      <div
-        class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end"
-      >
-        <!-- VIEW TOGGLE -->
-        <div
-          class="flex bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700"
-        >
-          <button
-            class="px-3 py-1 text-sm font-medium transition"
-            :class="
-              view === 'card'
-                ? 'bg-indigo-600 text-white'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-            "
-            @click="$emit('toggle-view', 'card')"
-          >
-            Card
-          </button>
-
-          <button
-            class="px-3 py-1 text-sm font-medium transition"
-            :class="
-              view === 'list'
-                ? 'bg-indigo-600 text-white'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-            "
-            @click="$emit('toggle-view', 'list')"
-          >
-            List
-          </button>
-        </div>
-
-        <!-- CREATE ROOM BUTTON -->
+  <div class="relative overflow-hidden border-b border-gray-800 mb-10">
+    <div class="mx-auto px-4 py-14 relative">
+      <!-- CREATE ROOM BUTTON -->
+      <div class="absolute top-0 right-0 mt-4 mr-4">
         <button
           class="font-medium px-4 py-2 rounded-lg transition outline-1 outline-gray-400 hover:outline-2 whitespace-nowrap"
           @click="handleClick"
@@ -74,23 +10,69 @@
           + Create Room
         </button>
       </div>
-    </div>
-    <!-- Search Bar -->
-    <div class="text-left mb-4 mt-10">
-      <input
-        id="party-search"
-        type="text"
-        placeholder="Search for rooms or movies..."
-        name="party-search"
-        v-model="searchQuery"
-        class="block w-full rounded-md bg-white px-3 py-1.5 mt-8 text-base text-gray-900
-        outline-1 -outline-offset-1 outline-gray-400 placeholder:text-gray-400
-        focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6
-        dark:bg-white/5 dark:text-white dark:outline-white/10
-        dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-      />
+      <!-- HEADING -->
+      <h1 class="text-4xl sm:text-5xl font-extrabold mb-3 leading-tight">
+        <span class="text-white font-extrabold"> Watch Party </span>
+      </h1>
+      <!-- SUBHEADING -->
+      <p class="text-lg text-gray-400">
+        Enjoy Movies and TV Together, join a Watch Party room to chat in real time
+      </p>
+      <!-- WP INFO -->
+      <!-- <p class="text-base mt-2 text-indigo-400 text-center font-medium">
+        Showing rooms scheduled or playing <span class="font-semibold">today only</span>
+      </p> -->
+      <!-- FILTERS -->
+      <div class="flex justify-center mt-6">
+        <div class="inline-flex gap-2 items-center">
+          <!-- FILTER BUTTONS -->
+          <button
+            v-for="option in ['all', 'playing', 'scheduled']"
+            :key="option"
+            @click="$emit('status-filter', option)"
+            :class="[
+              'px-5 py-2 rounded-full transition text-sm font-semibold tracking-wide outline-none cursor-pointer',
+              currentStatus === option
+                ? 'bg-indigo-600 text-white shadow-lg scale-105'
+                : 'bg-transparent text-indigo-400 hover:bg-indigo-400/10 hover:text-white'
+            ]"
+          >
+            {{ option.charAt(0).toUpperCase() + option.slice(1) }}
+          </button>
+          <!-- SEARCH ICON -->
+          <button
+            @click="showSearch = !showSearch"
+            class="rounded-full bg-indigo-600 text-white w-8 h-8 flex items-center justify-center shadow hover:bg-indigo-700 transition ml-2"
+            aria-label="Open search"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.6 3.6a7.5 7.5 0 0013.05 13.05z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- SEARCH BAR-->
+      <div v-if="showSearch" class="max-w-xs mx-auto mt-4 w-full">
+        <input
+          id="party-search"
+          type="text"
+          placeholder="Search for rooms or movies..."
+          name="party-search"
+          v-model="searchQuery"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900
+            outline-1 -outline-offset-1 outline-gray-400 placeholder:text-gray-400
+            focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6
+            dark:bg-white/5 dark:text-white dark:outline-white/10
+            dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+        />
+      </div>
+
+
     </div>
   </div>
+  
 </template>
 
 <script setup lang="ts">
@@ -103,6 +85,7 @@ defineProps({
   currentStatus: { type: String, default: 'all' }
 })
 
+const showSearch = ref(false)
 const searchQuery = ref('');
 
 watch(searchQuery, (value) => {

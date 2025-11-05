@@ -11,12 +11,13 @@
                 <h2 class="text-xl font-semibold">{{ room?.name }}</h2>
                 <p class="text-sm text-gray-400">{{ room?.movie }}</p>
             </div>
-            <button
+            <div></div>
+            <!-- <button
                 class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium"
                 @click="inviteFriends"
             >
                 Invite
-            </button>
+            </button> -->
         </header>
 
         <!-- TIMER -->
@@ -193,9 +194,9 @@ function goBack() {
     router.back();
 }
 
-function inviteFriends() {
-    alert("Invite link copied!");
-}
+// function inviteFriends() {
+//     alert("Invite link copied!");
+// }
 
 // Send message
 async function handleSendMessage() {

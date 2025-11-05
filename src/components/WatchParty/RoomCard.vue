@@ -1,32 +1,28 @@
 <template>
-  <div
-    class="bg-white/5 p-4 rounded-lg text-center shadow-md flex flex-col justify-between"
+  <div 
+    class="bg-gradient-to-r from-black/60 via-gray-900/80 to-gray-900 rounded-xl flex flex-col sm:flex-row overflow-hidden p-0 max-w-full sm:max-w-[430px] min-h-[220px] 
+    border border-white/8 backdrop-blur-lg shadow-lg transition-all duration-300
+    hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.03] cursor-pointer"
   >
-    <div class="flex justify-between items-start mb-3">
-      <!-- MOVIE INFORMATION -->
-      <div class="movie-info flex-1">
-        <h3
-          class="font-semibold text-lg text-left break-words whitespace-normal"
-        >
+    <!-- POSTER -->
+    <img
+      :src="props.room.posterUrl"
+      alt="Movie Poster"
+      class="w-full sm:w-40 h-52 sm:h-auto object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-t-none"
+    />
+
+    <!-- ROOM INFORMARION -->
+    <div class="flex flex-col justify-between p-4 flex-1">
+      <div>
+        <h3 class="font-bold text-lg sm:text-xl text-white mb-1">
           {{ props.room.name }}
         </h3>
-        <p class="text-left font-semibold break-words whitespace-normal">
-          {{ props.room.movie }}
-        </p>
-        <p class="text-left break-words whitespace-normal">
-          Datetime: {{ formattedDatetime }}
-        </p>
-        <p class="text-left break-words whitespace-normal">
-          Hosted by: {{ props.room.host }}
-        </p>
-      </div>
-
-      <!-- ROOM STATUS + VIBE? -->
-      <div class="flex flex-col items-end gap-1">
-        <!-- STATUS -->
+        <p class="text-md text-gray-200 mb-1">{{ props.room.movie }}</p>
+        <p class="text-sm text-gray-400 mb-1">Start Time: {{ formattedDatetime }}</p>
+        <p class="text-sm text-gray-400 mb-2">Hosted by: {{ props.room.host }}</p>
         <span
           :class="[
-            'text-xs font-semibold px-2 py-1 rounded-md whitespace-nowrap',
+            'text-xs font-semibold px-2 py-1 rounded-md whitespace-nowrap mr-2',
             status === 'playing'
               ? 'bg-green-600/80 text-white'
               : status === 'scheduled'
@@ -36,25 +32,15 @@
         >
           {{ formatStatus(status) }}
         </span>
-
-        <!-- VIBE -->
-        <span
-          v-if="props.room.vibeId"
-          class="text-xl"
-          :title="props.room.vibeId"
-        >
-          {{ getVibeEmoji(props.room.vibeId) }}
-        </span>
       </div>
-    </div>
+      <button
+        class="w-3/4 mx-auto py-1 border border-[1.5px] border-indigo-300 rounded-md text-base font-medium text-white bg-transparent transition-all hover:bg-indigo-600/20 hover:border-indigo-400 focus:outline-none"
+        @click="joinRoom"
+      >
+        Join
+      </button>
 
-    <!-- JOIN PARTY BUTTON -->
-    <button
-      class="w-full px-3 py-1 border rounded-lg mt-auto hover:bg-white/10"
-      @click="joinRoom"
-    >
-      Join Room
-    </button>
+    </div>
   </div>
 </template>
 
@@ -67,7 +53,7 @@ const props = defineProps<{ room: Room }>();
 
 const router = useRouter();
 
-const { status, formatStatus, formattedDatetime, getVibeEmoji } = useRoomStatus(
+const { status, formatStatus, formattedDatetime } = useRoomStatus(
   props.room
 );
 
@@ -75,3 +61,4 @@ function joinRoom() {
   router.push(`/watchparty/room/${props.room.roomid}`);
 }
 </script>
+
