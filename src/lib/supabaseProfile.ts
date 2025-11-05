@@ -1,3 +1,4 @@
+import type { WatchlistItem } from '@/composables/watchlist'
 import { supabase } from './supabaseClient'
 
 // Set the current user context for RLS policies
@@ -11,23 +12,11 @@ export const setUserContext = async (userId: string) => {
 // ============================================
 // USER PROFILE - Using Clerk's user data
 // ============================================
-// No longer need user_profiles table operations since we use Clerk's user table
 // User data comes from Clerk: id (clerk_id), username, email, image_url, etc.
 
 // ============================================
 // WATCHLIST OPERATIONS
 // ============================================
-export interface WatchlistItem {
-  id?: string
-  user_id: string
-  tmdb_id: number
-  title: string
-  media_type: 'movie' | 'tv'
-  poster_path?: string
-  release_year?: number
-  added_at?: string
-}
-
 export const getWatchlist = async (userId: string) => {
   const { data, error } = await supabase
     .from('watchlist')

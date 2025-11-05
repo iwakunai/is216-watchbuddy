@@ -11,11 +11,7 @@ import type {
   FavouriteItem,
   Friend,
   FriendRequest,
-  RatingItem,
-  ReviewItem,
   ListFull,
-  MovieItem,
-  WatchItem,
   HistoryItem,
   ActivityItem,
 } from "@/types/profile";
@@ -43,6 +39,7 @@ import {
 import { getUserWatchlist, removeFromWatchlist as removeFromWatchlistDb, updateWatchlistStatus } from '@/lib/supabaseWatchlist';
 import { getUserMovieReviews, getUserTvReviews } from '@/lib/supabaseRatingsReviews';
 import { fetchSupabaseUserId } from '@/lib/supabaseUser';
+import type { MovieItem, WatchItem } from "@/composables/watchlist";
 
 const router = useRouter();
 

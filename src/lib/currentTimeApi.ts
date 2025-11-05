@@ -1,5 +1,5 @@
 import { onMounted, onUnmounted, ref } from "vue";
-import { supabase } from "./supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export const currentTime = ref<Date>(new Date());
 

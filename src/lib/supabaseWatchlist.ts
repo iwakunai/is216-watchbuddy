@@ -1,214 +1,135 @@
-import { supabase } from "./supabaseClient";
-import { fetchSupabaseUserId } from "./supabaseUser";
+import type {
+  MediaType,
+  WatchlistItem,
+  WatchStatus,
+} from "@/composables/watchlist";
+import { supabase } from "@/lib/supabaseClient";
+import { fetchSupabaseUserId } from "@/lib/supabaseUser";
 
-export type WatchStatus = "completed" | "watching" | "plan-to-watch";
-export type MediaType = "movie" | "tv";
+// Individual Item (Movie/Tv) CRUD
 
-export interface WatchlistItem {
-  id: string;
-  user_id: string;
-  tmdb_id: number;
-  media_type: MediaType;
-  status: WatchStatus;
-  title: string;
-  poster_path: string | null;
-  year: number | null;
-  added_at: string;
+// Fetch individual item status
+export async function getWatchlistStatus(
+  clerkUserId: string,
+  tmdbId: string,
+  mediaType: MediaType
+): Promise<WatchStatus | null> {
+  const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
+  if (!supabaseUserId) return null;
+
+  const { data, error } = await supabase
+    .from("watchlist")
+    .select("status")
+    .eq("user_id", supabaseUserId)
+    .eq("tmdb_id", tmdbId)
+    .eq("media_type", mediaType)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") return null;
+    throw error;
+  }
+
+  return data?.status || null;
 }
 
-// Add or update an item in the user's watchlist
+// Add item to user watchlist 
 export async function addToWatchlist(
   clerkUserId: string,
-  tmdbId: number,
+  tmdbId: string,
   mediaType: MediaType,
   status: WatchStatus,
   title: string,
   posterPath: string | null,
   year: number | null
 ): Promise<void> {
-  try {
-    const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
-    if (!supabaseUserId) {
-      throw new Error("User not found in database");
-    }
+  const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
+  if (!supabaseUserId) throw new Error("User not found in database");
 
-    // console.log('Adding to watchlist:', {
-    //   supabaseUserId,
-    //   tmdbId,
-    //   mediaType,
-    //   status,
-    //   title
-    // })
+  // Check for existence in user watchlist
+  const exist = await getWatchlistStatus(clerkUserId, tmdbId, mediaType);
 
-    // Check if item already exists
-    const { data: existing, error: checkError } = await supabase
-      .from("watchlist")
-      .select("*")
-      .eq("user_id", supabaseUserId)
-      .eq("tmdb_id", tmdbId)
-      .eq("media_type", mediaType)
-      .single();
-
-    // if (checkError && checkError.code !== 'PGRST116') {
-    //   // PGRST116 is "not found" error, which is fine
-    //   
-    //   throw new Error(`Database error: ${checkError.message}`)
-    // }
-
-    if (existing) {
-      // Update existing entry
-      const { error: updateError } = await supabase
-        .from("watchlist")
-        .update({
-          status,
-          title,
-          poster_path: posterPath,
-          year,
-        })
-        .eq("user_id", supabaseUserId)
-        .eq("tmdb_id", tmdbId)
-        .eq("media_type", mediaType);
-
-      if (updateError) {
-        throw new Error(`Failed to update: ${updateError.message}`);
-      }
-    } else {
-      // Insert new entry
-      const { error: insertError } = await supabase.from("watchlist").insert({
-        user_id: supabaseUserId,
-        tmdb_id: tmdbId,
-        media_type: mediaType,
-        status,
-        title,
-        poster_path: posterPath,
-        year,
-      });
-
-      if (insertError) {
-        throw new Error(`Failed to add: ${insertError.message}`);
-      }
-      
-    }
-  } catch (err) {
-    
-    throw err;
-  }
-}
-
-// Remove an item from the watchlist
-
-export async function removeFromWatchlist(
-  clerkUserId: string,
-  tmdbId: number,
-  mediaType: MediaType
-): Promise<void> {
-  try {
-    const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
-    if (!supabaseUserId) throw new Error("User not found");
-
-    const { error } = await supabase
-      .from("watchlist")
-      .delete()
-      .eq("user_id", supabaseUserId)
-      .eq("tmdb_id", tmdbId)
-      .eq("media_type", mediaType);
+  // If does not exist, add to watchlist
+  if (exist == null) {
+    const { error } = await supabase.from("watchlist").insert({
+      user_id: supabaseUserId,
+      tmdb_id: tmdbId,
+      media_type: mediaType,
+      status,
+      title,
+      poster_path: posterPath,
+      year,
+    });
 
     if (error) throw error;
-  } catch (err) {
-    
-    throw err;
+  // else update item status
+  } else {
+    await updateWatchlistStatus(clerkUserId, tmdbId, mediaType, status);
   }
 }
 
-// Update the status of a watchlist item
+// Update item status
 export async function updateWatchlistStatus(
   clerkUserId: string,
-  tmdbId: number,
+  tmdbId: string,
   mediaType: MediaType,
   newStatus: WatchStatus
 ): Promise<void> {
-  try {
-    const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
-    if (!supabaseUserId) throw new Error("User not found");
+  const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
+  if (!supabaseUserId) throw new Error("User not found");
 
-    const { error } = await supabase
-      .from("watchlist")
-      .update({ status: newStatus })
-      .eq("user_id", supabaseUserId)
-      .eq("tmdb_id", tmdbId)
-      .eq("media_type", mediaType);
+  const { error } = await supabase
+    .from("watchlist")
+    .update({ status: newStatus })
+    .eq("user_id", supabaseUserId)
+    .eq("tmdb_id", tmdbId)
+    .eq("media_type", mediaType);
 
-    if (error) throw error;
-  } catch (err) {
-    
-    throw err;
-  }
+  if (error) throw error;
 }
 
-// Get watchlist status for a specific item
-
-export async function getWatchlistStatus(
+// Remove item from watchlist
+export async function removeFromWatchlist(
   clerkUserId: string,
-  tmdbId: number,
+  tmdbId: string,
   mediaType: MediaType
-): Promise<WatchStatus | null> {
-  try {
-    const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
-    if (!supabaseUserId) return null;
+): Promise<void> {
+  const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
+  if (!supabaseUserId) throw new Error("User not found");
 
-    const { data, error } = await supabase
-      .from("watchlist")
-      .select("status")
-      .eq("user_id", supabaseUserId)
-      .eq("tmdb_id", tmdbId)
-      .eq("media_type", mediaType)
-      .single();
+  const { error } = await supabase
+    .from("watchlist")
+    .delete()
+    .eq("user_id", supabaseUserId)
+    .eq("tmdb_id", tmdbId)
+    .eq("media_type", mediaType);
 
-    if (error) {
-      if (error.code === "PGRST116") return null;
-      throw error;
-    }
-
-    return data?.status || null;
-  } catch (err) {
-    
-    return null;
-  }
+  if (error) throw error;
 }
 
-/**
- * Get all watchlist items for a user
- */
+// All of user's watchlist items
+
+// Get all items
 export async function getUserWatchlist(
   clerkUserId: string,
   mediaType?: MediaType,
   status?: WatchStatus
 ): Promise<WatchlistItem[]> {
-  try {
-    const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
-    if (!supabaseUserId) return [];
+  const supabaseUserId = await fetchSupabaseUserId(clerkUserId);
+  if (!supabaseUserId) return [];
 
-    let query = supabase
-      .from("watchlist")
-      .select("*")
-      .eq("user_id", supabaseUserId)
-      .order("added_at", { ascending: false });
+  let query = supabase
+    .from("watchlist")
+    .select("*")
+    .eq("user_id", supabaseUserId)
+    .order("added_at", { ascending: false });
 
-    if (mediaType) {
-      query = query.eq("media_type", mediaType);
-    }
+  if (mediaType) query = query.eq("media_type", mediaType);
+  if (status) query = query.eq("status", status);
 
-    if (status) {
-      query = query.eq("status", status);
-    }
+  const { data, error } = await query;
 
-    const { data, error } = await query;
+  if (error) throw error;
 
-    if (error) throw error;
-
-    return data || [];
-  } catch (err) {
-    
-    return [];
-  }
+  return data || [];
 }

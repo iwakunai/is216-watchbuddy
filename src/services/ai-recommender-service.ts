@@ -31,8 +31,11 @@ interface AIRecommendationResponse {
 
 export class AIRecommenderService {
   private apiKey: string;
-  private apiUrl = 'https://api.anthropic.com/v1/messages';
-  private requestCache: Map<string, { data: AIRecommendationResponse; timestamp: number }>;
+  private apiUrl = "https://api.anthropic.com/v1/messages";
+  private requestCache: Map<
+    string,
+    { data: AIRecommendationResponse; timestamp: number }
+  >;
   private cacheDuration = 3600000; // 1 hour in milliseconds
 
   constructor(apiKey: string) {
@@ -50,9 +53,8 @@ export class AIRecommenderService {
     // Check cache first
     const cacheKey = this.getCacheKey(request);
     const cached = this.requestCache.get(cacheKey);
-    
+
     if (cached && Date.now() - cached.timestamp < this.cacheDuration) {
-      
       return cached.data;
     }
 
@@ -60,18 +62,18 @@ export class AIRecommenderService {
 
     try {
       const response = await fetch(this.apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.apiKey,
-          'anthropic-version': '2023-06-01',
+          "Content-Type": "application/json",
+          "x-api-key": this.apiKey,
+          "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: "claude-sonnet-4-20250514",
           max_tokens: 3072, // Increased for more detailed analysis
           messages: [
             {
-              role: 'user',
+              role: "user",
               content: prompt,
             },
           ],
@@ -85,13 +87,12 @@ export class AIRecommenderService {
       const data = await response.json();
       const aiResponse = data.content[0].text;
       const result = this.parseAIResponse(aiResponse);
-      
+
       // Cache the result
       this.requestCache.set(cacheKey, { data: result, timestamp: Date.now() });
-      
+
       return result;
     } catch (error) {
-      
       return this.fallbackRanking(request.movies);
     }
   }
@@ -100,14 +101,17 @@ export class AIRecommenderService {
    * Enhanced prompt builder with better mood+genre combination logic
    */
   private buildEnhancedPrompt(request: AIRecommendationRequest): string {
-    const { mood, genres, movies, userHistory, previousRecommendations } = request;
+    const { mood, genres, movies, userHistory, previousRecommendations } =
+      request;
 
     // Build mood+genre combination instructions
-    let moodGenreInstructions = '';
+    let moodGenreInstructions = "";
     if (mood && genres.length > 0) {
       moodGenreInstructions = `
 IMPORTANT - MOOD + GENRE COMBINATION:
-The user has selected BOTH a mood (${mood}) AND specific genres (${genres.join(', ')}).
+The user has selected BOTH a mood (${mood}) AND specific genres (${genres.join(
+        ", "
+      )}).
 
 Your ranking MUST satisfy BOTH criteria:
 1. The movie MUST contain at least one of the selected genres
@@ -119,7 +123,7 @@ For mood+genre combinations:
 - A genre-matching movie with strong mood alignment: Score 80-95
 - A non-genre-matching movie regardless of mood: Score 0-20 (heavily penalize)
 
-Examples for "${mood}" mood + "${genres.join(', ')}" genres:
+Examples for "${mood}" mood + "${genres.join(", ")}" genres:
 - Perfect match: High emotional resonance AND genre match → 90-95
 - Good match: Decent emotional fit AND genre match → 75-85
 - Okay match: Weak emotional fit BUT genre match → 50-70
@@ -135,7 +139,7 @@ Your ranking should PRIORITIZE mood matching above all:
 - Score range: 0-100 based purely on mood alignment`;
     } else if (genres.length > 0) {
       moodGenreInstructions = `
-The user has selected genres (${genres.join(', ')}) with NO specific mood.
+The user has selected genres (${genres.join(", ")}) with NO specific mood.
 
 Your ranking should PRIORITIZE genre matching with quality:
 - Movie MUST be in selected genres
@@ -146,33 +150,53 @@ Your ranking should PRIORITIZE genre matching with quality:
     let prompt = `You are an expert movie recommendation system with deep understanding of film theory, emotional storytelling, and genre conventions.
 
 USER PREFERENCES:
-- Current Mood: ${mood || 'Any'}
-- Selected Genres: ${genres.length > 0 ? genres.join(', ') : 'Any'}
-${userHistory && userHistory.length > 0 ? `- Previously Liked Movies: ${userHistory.join(', ')}` : ''}
-${previousRecommendations && previousRecommendations.length > 0 ? `- Already Recommended: ${previousRecommendations.join(', ')} (try to diversify)` : ''}
+- Current Mood: ${mood || "Any"}
+- Selected Genres: ${genres.length > 0 ? genres.join(", ") : "Any"}
+${
+  userHistory && userHistory.length > 0
+    ? `- Previously Liked Movies: ${userHistory.join(", ")}`
+    : ""
+}
+${
+  previousRecommendations && previousRecommendations.length > 0
+    ? `- Already Recommended: ${previousRecommendations.join(
+        ", "
+      )} (try to diversify)`
+    : ""
+}
 
 ${moodGenreInstructions}
 
 MOVIES TO ANALYZE (ranked by ID for reference):
-${movies.map((m, idx) => `
+${movies
+  .map(
+    (m, idx) => `
 ${idx + 1}. "${m.title}" (ID: ${m.id})
-   - Overview: ${m.overview || 'No description available'}
+   - Overview: ${m.overview || "No description available"}
    - Genres: ${this.getGenreNames(m.genre_ids)}
    - Rating: ${m.vote_average}/10 (${this.getRatingDescription(m.vote_average)})
    - Popularity: ${m.popularity.toFixed(1)}
-`).join('\n')}
+`
+  )
+  .join("\n")}
 
 ANALYSIS CRITERIA:
-1. **Mood Alignment** (${mood ? '40%' : genres.length > 0 ? '20%' : '50%'} weight):
+1. **Mood Alignment** (${
+      mood ? "40%" : genres.length > 0 ? "20%" : "50%"
+    } weight):
    - Does the emotional tone match the user's mood?
    - Consider: pacing, atmosphere, color palette, music, character emotions
    - Look for thematic resonance beyond keywords
 
-2. **Genre Accuracy** (${genres.length > 0 ? '40%' : '10%'} weight):
+2. **Genre Accuracy** (${genres.length > 0 ? "40%" : "10%"} weight):
    - Does it match the selected genres?
-   ${genres.length > 0 ? '- This is CRITICAL - wrong genre = very low score' : ''}
+   ${
+     genres.length > 0
+       ? "- This is CRITICAL - wrong genre = very low score"
+       : ""
+   }
    
-3. **Story Quality** (${mood && genres.length > 0 ? '10%' : '20%'} weight):
+3. **Story Quality** (${mood && genres.length > 0 ? "10%" : "20%"} weight):
    - Character development and depth
    - Plot structure and pacing
    - Thematic complexity
@@ -222,25 +246,39 @@ Return ONLY valid JSON, no additional text.`;
    */
   private getGenreNames(genreIds: number[]): string {
     const genreMap: Record<number, string> = {
-      28: 'Action', 12: 'Adventure', 16: 'Animation', 35: 'Comedy',
-      80: 'Crime', 99: 'Documentary', 18: 'Drama', 10751: 'Family',
-      14: 'Fantasy', 27: 'Horror', 10402: 'Musical', 9648: 'Mystery',
-      10749: 'Romance', 878: 'Science Fiction', 53: 'Thriller',
-      10752: 'War', 37: 'Western'
+      28: "Action",
+      12: "Adventure",
+      16: "Animation",
+      35: "Comedy",
+      80: "Crime",
+      99: "Documentary",
+      18: "Drama",
+      10751: "Family",
+      14: "Fantasy",
+      27: "Horror",
+      10402: "Musical",
+      9648: "Mystery",
+      10749: "Romance",
+      878: "Science Fiction",
+      53: "Thriller",
+      10752: "War",
+      37: "Western",
     };
-    
-    return genreIds.map(id => genreMap[id] || 'Unknown').join(', ') || 'Unknown';
+
+    return (
+      genreIds.map((id) => genreMap[id] || "Unknown").join(", ") || "Unknown"
+    );
   }
 
   /**
    * Helper to describe rating quality
    */
   private getRatingDescription(rating: number): string {
-    if (rating >= 8.0) return 'Excellent';
-    if (rating >= 7.0) return 'Very Good';
-    if (rating >= 6.0) return 'Good';
-    if (rating >= 5.0) return 'Average';
-    return 'Below Average';
+    if (rating >= 8.0) return "Excellent";
+    if (rating >= 7.0) return "Very Good";
+    if (rating >= 6.0) return "Good";
+    if (rating >= 5.0) return "Average";
+    return "Below Average";
   }
 
   /**
@@ -251,7 +289,7 @@ Return ONLY valid JSON, no additional text.`;
       // Extract JSON from response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error('No JSON found in response');
+        throw new Error("No JSON found in response");
       }
 
       const parsed = JSON.parse(jsonMatch[0]);
@@ -262,10 +300,9 @@ Return ONLY valid JSON, no additional text.`;
           score: r.score,
           reasoning: r.reasoning,
         })),
-        personalizedInsight: parsed.insight || '',
+        personalizedInsight: parsed.insight || "",
       };
     } catch (error) {
-      
       throw error;
     }
   }
@@ -280,9 +317,10 @@ Return ONLY valid JSON, no additional text.`;
         .map((m) => ({
           id: m.id,
           score: m.vote_average * 10,
-          reasoning: 'Ranked by user ratings',
+          reasoning: "Ranked by user ratings",
         })),
-      personalizedInsight: 'Showing top-rated movies based on your preferences.',
+      personalizedInsight:
+        "Showing top-rated movies based on your preferences.",
     };
   }
 
@@ -290,8 +328,13 @@ Return ONLY valid JSON, no additional text.`;
    * Generate cache key for deduplication
    */
   private getCacheKey(request: AIRecommendationRequest): string {
-    const movieIds = request.movies.map(m => m.id).sort().join(',');
-    return `${request.mood || 'none'}-${request.genres.join(',') || 'none'}-${movieIds.slice(0, 50)}`;
+    const movieIds = request.movies
+      .map((m) => m.id)
+      .sort()
+      .join(",");
+    return `${request.mood || "none"}-${
+      request.genres.join(",") || "none"
+    }-${movieIds.slice(0, 50)}`;
   }
 
   /**
@@ -316,18 +359,18 @@ Write in an engaging, personal tone that speaks directly to their current mood. 
 
     try {
       const response = await fetch(this.apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.apiKey,
-          'anthropic-version': '2023-06-01',
+          "Content-Type": "application/json",
+          "x-api-key": this.apiKey,
+          "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: "claude-sonnet-4-20250514",
           max_tokens: 256,
           messages: [
             {
-              role: 'user',
+              role: "user",
               content: prompt,
             },
           ],
@@ -341,7 +384,6 @@ Write in an engaging, personal tone that speaks directly to their current mood. 
       const data = await response.json();
       return data.content[0].text.trim();
     } catch (error) {
-      
       return movie.overview;
     }
   }

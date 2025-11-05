@@ -139,7 +139,7 @@ export async function searchTVShows(query: string) {
 }
 
 // Get movie details by ID
-export async function getMovieDetails(movieId: number) {
+export async function getMovieDetails(movieId: string) {
   if (!TMDB_API_KEY) {
     return null;
   }
@@ -174,7 +174,7 @@ export async function getMovieDetails(movieId: number) {
 }
 
 // Get TV show details by ID
-export async function getTVShowDetails(tvId: number) {
+export async function getTVShowDetails(tvId: string) {
   if (!TMDB_API_KEY) {
     return null;
   }

@@ -1,4 +1,4 @@
-import { supabase } from "./supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export async function fetchSupabaseUserId(
   clerkUserId: string | null = null
