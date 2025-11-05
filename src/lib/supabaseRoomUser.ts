@@ -2,25 +2,34 @@ import { supabase } from "@/lib/supabaseClient";
 
 // Join a room: insert or update a user in the room.
 export async function joinRoom(roomId: string, userId: string, username: string) {
-    const { data, error } = await supabase
-        .from("party_room_user")
-        .upsert(
-        {
-            room_id: roomId,
-            user_id: userId,
-            user_username: username,
-            joined_at: new Date().toISOString(),
-        },
-        {
-            onConflict: "room_id,user_id", // avoid duplicate entry
-        }
-        )
-        .select();
-
-    if (error) {
-        throw error;
+  const { data, error } = await supabase
+    .from("party_room_user")
+    .upsert(
+    {
+        room_id: roomId,
+        user_id: userId,
+        user_username: username,
+        joined_at: new Date().toISOString(),
+    },
+    {
+        onConflict: "room_id,user_id", // avoid duplicate entry
     }
-    return data?.[0];
+    )
+    .select();
+
+  if (error) {
+    throw error;
+  }
+
+  //store history
+  await supabase
+  .from("wp_history")
+  .upsert([
+    { room_id: roomId, user_id: userId, last_joined_at: new Date().toISOString() }
+  ], {
+    onConflict: "room_id,user_id" 
+  });
+  return data?.[0];
 }
 
 // Leave a room: delete from party_room_user.
@@ -95,3 +104,22 @@ export function subscribeRoomUsers(roomId: string, callback: (users: any[]) => v
   return channel;
 }
 
+export async function fetchWatchpartyHistory() {
+  const { data, error } = await supabase
+  .from("wp_history")
+  .select(`
+    id,
+    room_id,
+    last_joined_at,
+    created_at,
+    party_rooms:room_id (
+      room_name,
+      title,
+      scheduled_time,
+      duration
+    )
+  `)
+  .order("last_joined_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}

@@ -113,22 +113,6 @@
             Share your thoughts and discover what others think. Upvote helpful reviews and build your reputation.
           </p>
         </div>
-        
-        <!-- Badges & Achievements -->
-        <div 
-          @click="$router.push('/achievements')"
-          class="bg-gray-800 border border-gray-700 rounded-xl p-8 hover:border-green-500/50 transition-all group cursor-pointer"
-        >
-          <div class="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-            </svg>
-          </div>
-          <h3 class="text-2xl font-bold mb-3">Badges & Achievements</h3>
-          <p class="text-gray-400 leading-relaxed">
-            Earn badges for completing watch parties, marathons, and social milestones. Show off your accomplishments.
-          </p>
-        </div>
       </div>
     </div>
   </div>

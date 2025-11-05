@@ -10,6 +10,7 @@ export interface Room {
   datetime: string;
   duration: number; // minutes
   vibeId?: string;
+  posterUrl?: string;
 }
 
 export function getVibeEmoji(vibeId: string | undefined): string {
@@ -50,13 +51,9 @@ export function useRoomStatus(room: Room) {
     if (!room.datetime) return '';
     const date = new Date(room.datetime);
     return date.toLocaleString('en-SG', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: true,
       timeZone: 'Asia/Singapore',
     });
   });

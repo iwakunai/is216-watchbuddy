@@ -15,7 +15,7 @@ export async function fetchMovieReviews(movieId: number): Promise<Review[]> {
       .order("movie_review_created_at", { ascending: false });
 
     if (error) {
-      // console.error("Error fetching reviews:", error);
+      
       return [];
     }
 
@@ -52,13 +52,13 @@ export async function fetchMovieReviews(movieId: number): Promise<Review[]> {
           }));
         }
       } catch (e) {
-        // console.warn("Failed to fetch TMDB reviews:", e);
+        
       }
     }
 
     return [...userReviews, ...tmdbReviews];
   } catch (e) {
-    // console.error("Unexpected error fetching reviews:", e);
+    
     return [];
   }
 }
@@ -121,7 +121,7 @@ export async function fetchTvReviews(tvId: number): Promise<Review[]> {
       .order("tv_review_created_at", { ascending: false });
 
     if (error) {
-      // console.error("Error fetching reviews:", error);
+      
       return [];
     }
 
@@ -158,13 +158,13 @@ export async function fetchTvReviews(tvId: number): Promise<Review[]> {
           }));
         }
       } catch (e) {
-        // console.warn("Failed to fetch TMDB reviews:", e);
+        
       }
     }
 
     return [...userReviews, ...tmdbReviews];
   } catch (e) {
-    // console.error("Unexpected error fetching reviews:", e);
+    
     return [];
   }
 }

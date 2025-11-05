@@ -13,7 +13,7 @@ export async function fetchTrending() {
         return data.results;
       }
     } catch (err) {
-      // console.error("Error fetching movies: ", err);
+      
       return [];
     }
   }
@@ -59,7 +59,7 @@ export async function searchMulti(query: string) {
         }));
     }
   } catch (err) {
-    // console.error("Error searching TMDB: ", err);
+    
     return [];
   }
 
@@ -94,7 +94,7 @@ export async function searchMovies(query: string) {
       }));
     }
   } catch (err) {
-    // console.error("Error searching movies: ", err);
+    
     return [];
   }
 
@@ -131,7 +131,7 @@ export async function searchTVShows(query: string) {
       }));
     }
   } catch (err) {
-    // console.error("Error searching TV shows: ", err);
+    
     return [];
   }
 
@@ -139,7 +139,7 @@ export async function searchTVShows(query: string) {
 }
 
 // Get movie details by ID
-export async function getMovieDetails(movieId: number) {
+export async function getMovieDetails(movieId: string) {
   if (!TMDB_API_KEY) {
     return null;
   }
@@ -166,7 +166,7 @@ export async function getMovieDetails(movieId: number) {
       };
     }
   } catch (err) {
-    // console.error("Error fetching movie details: ", err);
+    
     return null;
   }
 
@@ -174,7 +174,7 @@ export async function getMovieDetails(movieId: number) {
 }
 
 // Get TV show details by ID
-export async function getTVShowDetails(tvId: number) {
+export async function getTVShowDetails(tvId: string) {
   if (!TMDB_API_KEY) {
     return null;
   }
@@ -204,7 +204,7 @@ export async function getTVShowDetails(tvId: number) {
       };
     }
   } catch (err) {
-    // console.error("Error fetching TV show details: ", err);
+    
     return null;
   }
 

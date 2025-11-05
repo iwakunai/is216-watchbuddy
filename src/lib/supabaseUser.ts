@@ -1,4 +1,4 @@
-import { supabase } from "./supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export async function fetchSupabaseUserId(
   clerkUserId: string | null = null
@@ -6,9 +6,9 @@ export async function fetchSupabaseUserId(
   if (!clerkUserId) return null;
 
   const cleanId = clerkUserId.trim();
-  // console.log(clerkUserId);
+  
 
-  // console.log('Querying Supabase user for Clerk ID:', `"${cleanId}"`);
+  
 
   const { data, error } = await supabase
     .from('users')
@@ -17,11 +17,11 @@ export async function fetchSupabaseUserId(
     .maybeSingle();
 
   if (error) {
-    // console.error('Error fetching user UUID:', error);
+    
     return null;
   }
 
-  // console.log('Fetch result:', data);
+  
 
   return data?.id || null;
 }

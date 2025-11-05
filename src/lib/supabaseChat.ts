@@ -1,5 +1,5 @@
 // src/lib/supabaseChat.ts
-import { supabase } from './supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function sendMessage(roomId: string, user_clerk_id: string, text: string) {
     const { data, error } = await supabase
@@ -25,7 +25,7 @@ export async function fetchMessages(roomId: string) {
         .eq('room_id', roomId)
         .order('created_at', { ascending: true });
 
-    // console.log('fetchMessages data:', data, 'error:', error); // debug
+     // debug
 
     if (error) throw error;
     return data;

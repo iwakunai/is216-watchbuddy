@@ -121,7 +121,7 @@
         </div>
 
         <!-- VIBE -->
-        <div class="flex flex-col">
+        <!-- <div class="flex flex-col">
           <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
             >Vibe</label
           >
@@ -134,7 +134,7 @@
               {{ v.label }}
             </option>
           </select>
-        </div>
+        </div> -->
 
         <!-- INVITE FRIENDS -->
         <!-- <div class="flex flex-col">
@@ -186,6 +186,7 @@ const duration = ref<number | null>(null);
 const publicRoom = ref(true);
 const scheduledTime = ref(""); // ISO string
 const contentType = ref<"movie" | "tv">("movie");
+let selectedPoster = ref("");
 
 const vibe = ref(""); // store only mood id
 
@@ -247,6 +248,8 @@ async function selectMovie(item: any) {
   } else if (contentType.value === "tv") {
     duration.value = data.episode_run_time?.[0] || 45;
   }
+  selectedPoster.value = data.poster_path
+    ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : "";
 }
 
 // Create Room
@@ -266,6 +269,7 @@ async function createRoomHandler() {
     duration: duration.value!,
     publicStatus: publicRoom.value,
     vibeId: vibe.value,
+    posterUrl: selectedPoster.value,
   });
 
   if (!newRoom) {
