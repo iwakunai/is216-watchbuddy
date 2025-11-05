@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
+import { useRouter } from 'vue-router';
 import { useUser } from '@clerk/vue';
 import { tabs, type TabId } from "@/types/tabs";
 
@@ -23,7 +24,6 @@ import type {
 
 import {
   setUserContext,
-  getWatchlist,
   getWatchHistory,
   getUserLists,
   getListItems,
@@ -31,7 +31,6 @@ import {
   getFriendRequests,
   getUserBadges,
   getUserActivity,
-  removeFromWatchlist as removeFromWatchlistDb,
   addToWatchHistory,
   updateList,
   deleteList as deleteListDb,
@@ -44,8 +43,21 @@ import {
   addActivity,
 } from '@/lib/supabaseProfile';
 
-const activeTab = ref<TabId>('overview')
-const setTab = (id: TabId) => { activeTab.value = id }
+import { getUserWatchlist, removeFromWatchlist as removeFromWatchlistDb, updateWatchlistStatus } from '@/lib/supabaseWatchlist';
+
+const router = useRouter();
+
+// Initialize activeTab from query parameter or default to 'overview'
+const tabFromQuery = router.currentRoute.value.query.tab as TabId;
+const activeTab = ref<TabId>(
+  (tabFromQuery && tabs.some(t => t.id === tabFromQuery)) ? tabFromQuery : 'overview'
+)
+
+const setTab = (id: TabId) => { 
+  activeTab.value = id;
+  // Update URL query parameter without page reload
+  router.replace({ query: { tab: id } });
+}
 
 // Auth state
 const { user, isLoaded } = useUser()
@@ -266,9 +278,34 @@ async function removeFromWatchlist(id: string | number) {
   }
 }
 
+async function changeWatchlistStatus(
+  id: string | number, 
+  newStatus: 'completed' | 'watching' | 'plan-to-watch',
+  mediaType: 'movie' | 'tv'
+) {
+  if (!user.value) return;
+  
+  try {
+    await updateWatchlistStatus(user.value.id, Number(id), mediaType, newStatus);
+    
+    // Update the local item's status
+    const item = watchlistItems.value.find(i => i.id === id);
+    if (item) {
+      item.status = newStatus;
+    }
+  } catch (err) {
+    // console.error('Error updating watchlist status:', err);
+    error.value = 'Failed to update status';
+  }
+}
+
 function openWatchlistItem(id: string | number) {
-  // console.log('Open watchlist item:', id);
-  // TODO: Navigate to movie/TV detail page
+  const item = watchlistItems.value.find(i => i.id === id);
+  if (!item) return;
+  
+  // Navigate to movie or TV detail page
+  const path = item.type === 'movie' ? '/movie' : '/tv';
+  router.push(`${path}/${id}`);
 }
 
 // History state
@@ -386,13 +423,14 @@ async function loadWatchlist() {
   if (!user.value) return;
   
   try {
-    const data = await getWatchlist(user.value.id);
+    const data = await getUserWatchlist(user.value.id);
     watchlistItems.value = data.map(item => ({
       id: String(item.tmdb_id),
       title: item.title,
-      poster: item.poster_path || '',
-      year: item.release_year || 0,
+      poster: item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : '',
+      year: item.year || 0,
       type: item.media_type,
+      status: item.status,
       addedAt: new Date(item.added_at!).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -681,6 +719,7 @@ async function initializeData() {
             :items="watchlistItems"
             @remove="removeFromWatchlist"
             @open="openWatchlistItem"
+            @change-status="changeWatchlistStatus"
           />
         </div>
 
