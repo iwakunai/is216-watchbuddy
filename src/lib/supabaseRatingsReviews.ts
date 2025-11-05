@@ -1,64 +1,50 @@
-import { supabase } from './supabaseClient'
+import { supabase } from '@/lib/supabaseClient'
 import type { ReviewItem } from '@/types/profile'
-import { fetchSupabaseUserId } from './supabaseUser'
+import { fetchSupabaseUserId } from '@/lib/supabaseUser'
+import { getMovieDetails } from '@/lib/tmdbFetch'
+import type { CombinedReview } from '@/composables/review';
 
-export interface CombinedReview {
-  id: string
-  tmdb_id: number
-  title: string
-  media_type: 'movie' | 'tv'
-  year: number
-  poster_path: string | null
-  poster: string | undefined
-  rating: number
-  review_text: string
-  created_at: string
-  reviewedDate: string
-}
 
-/**
- * Fetch all movie reviews for a specific user (from movie_reviews table)
- * @param userId - The Supabase user UUID
- * @returns Array of review items
- */
-async function getUserMovieReviews(userId: string): Promise<CombinedReview[]> {
+
+export async function getUserMovieReviews(userId: string): Promise<CombinedReview[]> {
   try {
+    // Retrieve user reviews
     const { data, error } = await supabase
       .from('movie_reviews')
       .select('*')
       .eq('user_id', userId)
-      .order('movie_review_created_at', { ascending: false })
+      .order('movie_review_created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching movie reviews:', error)
-      throw error
-    }
+    if (error) throw error;
 
-    return (data || []).map((review: any) => ({
-      id: review.review_uuid,
-      tmdb_id: review.movie_id,
-      // Handle case where movie_title column doesn't exist
-      title: review.movie_title || `Movie ${review.movie_id}`,
-      media_type: 'movie' as const,
-      // Handle case where movie_year column doesn't exist
-      year: review.movie_year || 0,
-      // Handle case where movie_poster_path column doesn't exist
-      poster_path: review.movie_poster_path || null,
-      poster: review.movie_poster_path 
-        ? `https://image.tmdb.org/t/p/w200${review.movie_poster_path}`
-        : undefined,
-      rating: review.movie_user_rating || 0,
-      review_text: review.movie_user_review || '',
-      created_at: review.movie_review_created_at,
-      reviewedDate: new Date(review.movie_review_created_at).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
+    return await Promise.all(
+      (data || []).map(async (review: any) => {
+        const movie = await getMovieDetails(review.movie_id);
+        return {
+          id: review.review_uuid,
+          tmdb_id: review.movie_id,
+          title: movie?.title || `Movie ${review.movie_id}`,
+          media_type: "movie",
+          year: movie?.year || 0,
+          poster_path: movie?.poster || null,
+          poster: movie?.poster || undefined,
+          rating: review.movie_user_rating || 0,
+          review_text: review.movie_user_review || '',
+          created_at: review.movie_review_created_at,
+          reviewedDate: new Date(review.movie_review_created_at).toLocaleDateString('en-SG', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          }),
+          overview: movie?.overview || '',
+          vote_average: movie?.rating || 0,
+          runtime: movie?.runtime || 0,
+          genres: movie?.genres || []
+        };
       })
-    }))
+    );
   } catch (err) {
-    console.error('Unexpected error fetching movie reviews:', err)
-    return []
+    return [];
   }
 }
 
@@ -96,7 +82,7 @@ async function getUserTvReviews(userId: string): Promise<CombinedReview[]> {
       rating: review.tv_user_rating || 0,
       review_text: review.tv_user_review || '',
       created_at: review.tv_review_created_at,
-      reviewedDate: new Date(review.tv_review_created_at).toLocaleDateString('en-US', {
+      reviewedDate: new Date(review.tv_review_created_at).toLocaleDateString('en-SG', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'

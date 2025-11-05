@@ -8,6 +8,14 @@ export function tmdbImage(path: string, size = 500) {
   return `${TMDB_IMAGE_BASE}w${chosen}${path}`;
 }
 
+export function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString("en-SG", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export function navigateToMovie(id: number) {
   router.push(`/movie/${id}`)
   window.scrollTo({ top: 0, behavior: "smooth" });

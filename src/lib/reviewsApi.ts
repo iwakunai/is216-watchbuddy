@@ -21,7 +21,7 @@ export async function fetchMovieReviews(movieId: number): Promise<Review[]> {
     }
 
     const userReviews: Review[] = (data || []).map((r: any) => ({
-      id: r.review_uuid,
+      reviewId: r.review_uuid,
       showId: r.movie_id,
       userId: r.user_id,
       userName: r.username ?? "Anonymous",
@@ -99,7 +99,7 @@ export async function submitMovieReview(
 
   return data
     ? {
-        id: data.review_uuid,
+        reviewId: data.review_uuid,
         showId: data.movie_id,
         userId: data.user_id,
         userName: data.username ?? "Anonymous",
@@ -128,7 +128,7 @@ export async function fetchTvReviews(tvId: number): Promise<Review[]> {
     }
 
     const userReviews: Review[] = (data || []).map((r: any) => ({
-      id: r.review_uuid,
+      reviewId: r.review_uuid,
       showId: r.tv_id,
       userId: r.user_id,
       userName: r.username ?? "Anonymous",
@@ -206,7 +206,7 @@ export async function submitTvReview(
 
   return data
     ? {
-        id: data.review_uuid,
+        reviewId: data.review_uuid,
         showId: data.tv_id,
         userId: data.user_id,
         userName: data.username ?? "Anonymous",

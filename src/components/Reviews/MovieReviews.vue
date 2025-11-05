@@ -19,7 +19,7 @@
   >
     <div
       v-for="review in reviews"
-      :key="review.id"
+      :key="review.reviewId"
       class="p-4 rounded-xl bg-[#1e293b] border border-gray-700 transition hover:bg-[#273549]"
     >
       <div class="flex items-start gap-4">
@@ -66,16 +66,16 @@
 
           <p class="text-left text-[#d7dde8] leading-relaxed break-words">
             {{
-              showFull[review.id]
+              showFull[review.reviewId]
                 ? review.comment
                 : truncate(review.comment, 180)
             }}
             <button
               v-if="review.comment.length > 180"
-              @click="toggleExpand(review.id)"
+              @click="toggleExpand(review.reviewId)"
               class="text-[#6b6bff] hover:underline ml-1 text-sm"
             >
-              {{ showFull[review.id] ? "Show less" : "Read more" }}
+              {{ showFull[review.reviewId] ? "Show less" : "Read more" }}
             </button>
           </p>
         </div>
@@ -203,9 +203,6 @@ async function onSubmitMovieReview() {
       userId.value,
       formData.value.rating,
       formData.value.comment,
-      props.movieTitle,
-      props.posterPath,
-      props.releaseYear
     );
     
     if (newReview) {

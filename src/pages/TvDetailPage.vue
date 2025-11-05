@@ -578,7 +578,6 @@ import {
   getWatchlistStatus,
   type WatchStatus,
 } from "@/lib/supabaseWatchlist";
-import TvReviews from "@/components/reviews/TvReviews.vue";
 import { formatVoteCount } from "@/composables/review";
 import { navigateToPerson, navigateToShow, tmdbImage } from "@/composables/showDetails";
 

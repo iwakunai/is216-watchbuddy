@@ -19,7 +19,7 @@ export async function fetchTrending() {
   }
 }
 
-// Search for movies and TV shows
+// Search both movies and TV shows
 export async function searchMulti(query: string) {
   if (!TMDB_API_KEY || !query.trim()) {
     return [];
@@ -27,31 +27,42 @@ export async function searchMulti(query: string) {
 
   try {
     const response = await fetch(
-      `${TMDB_BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=1&include_adult=false`
+      `${TMDB_BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
+        query
+      )}&page=1&include_adult=false`
     );
-    
+
     if (response.ok) {
       const data = await response.json();
       // Filter to only movies and TV shows, exclude people
       return data.results
-        .filter((item: any) => item.media_type === 'movie' || item.media_type === 'tv')
+        .filter(
+          (item: any) => item.media_type === "movie" || item.media_type === "tv"
+        )
         .map((item: any) => ({
           id: item.id,
-          title: item.media_type === 'movie' ? item.title : item.name,
+          title: item.media_type === "movie" ? item.title : item.name,
           type: item.media_type,
-          year: item.media_type === 'movie' 
-            ? (item.release_date ? new Date(item.release_date).getFullYear() : 0)
-            : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : 0),
-          poster: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : '',
-          overview: item.overview || '',
-          rating: item.vote_average || 0
+          year:
+            item.media_type === "movie"
+              ? item.release_date
+                ? new Date(item.release_date).getFullYear()
+                : 0
+              : item.first_air_date
+              ? new Date(item.first_air_date).getFullYear()
+              : 0,
+          poster: item.poster_path
+            ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}`
+            : "",
+          overview: item.overview || "",
+          rating: item.vote_average || 0,
         }));
     }
   } catch (err) {
     console.error("Error searching TMDB: ", err);
     return [];
   }
-  
+
   return [];
 }
 
@@ -63,26 +74,30 @@ export async function searchMovies(query: string) {
 
   try {
     const response = await fetch(
-      `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=1&include_adult=false`
+      `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
+        query
+      )}&page=1&include_adult=false`
     );
-    
+
     if (response.ok) {
       const data = await response.json();
       return data.results.map((item: any) => ({
         id: item.id,
         title: item.title,
-        type: 'movie',
+        type: "movie",
         year: item.release_date ? new Date(item.release_date).getFullYear() : 0,
-        poster: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : '',
-        overview: item.overview || '',
-        rating: item.vote_average || 0
+        poster: item.poster_path
+          ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}`
+          : "",
+        overview: item.overview || "",
+        rating: item.vote_average || 0,
       }));
     }
   } catch (err) {
     console.error("Error searching movies: ", err);
     return [];
   }
-  
+
   return [];
 }
 
@@ -94,26 +109,32 @@ export async function searchTVShows(query: string) {
 
   try {
     const response = await fetch(
-      `${TMDB_BASE_URL}/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=1&include_adult=false`
+      `${TMDB_BASE_URL}/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
+        query
+      )}&page=1&include_adult=false`
     );
-    
+
     if (response.ok) {
       const data = await response.json();
       return data.results.map((item: any) => ({
         id: item.id,
         title: item.name,
-        type: 'tv',
-        year: item.first_air_date ? new Date(item.first_air_date).getFullYear() : 0,
-        poster: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : '',
-        overview: item.overview || '',
-        rating: item.vote_average || 0
+        type: "tv",
+        year: item.first_air_date
+          ? new Date(item.first_air_date).getFullYear()
+          : 0,
+        poster: item.poster_path
+          ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}`
+          : "",
+        overview: item.overview || "",
+        rating: item.vote_average || 0,
       }));
     }
   } catch (err) {
     console.error("Error searching TV shows: ", err);
     return [];
   }
-  
+
   return [];
 }
 
@@ -127,26 +148,28 @@ export async function getMovieDetails(movieId: number) {
     const response = await fetch(
       `${TMDB_BASE_URL}/movie/${movieId}?api_key=${TMDB_API_KEY}`
     );
-    
+
     if (response.ok) {
       const item = await response.json();
       return {
         id: item.id,
         title: item.title,
-        type: 'movie',
+        type: "movie",
         year: item.release_date ? new Date(item.release_date).getFullYear() : 0,
-        poster: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : '',
-        overview: item.overview || '',
+        poster: item.poster_path
+          ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}`
+          : "",
+        overview: item.overview || "",
         rating: item.vote_average || 0,
         runtime: item.runtime || 0,
-        genres: item.genres?.map((g: any) => g.name) || []
+        genres: item.genres?.map((g: any) => g.name) || [],
       };
     }
   } catch (err) {
     console.error("Error fetching movie details: ", err);
     return null;
   }
-  
+
   return null;
 }
 
@@ -160,26 +183,30 @@ export async function getTVShowDetails(tvId: number) {
     const response = await fetch(
       `${TMDB_BASE_URL}/tv/${tvId}?api_key=${TMDB_API_KEY}`
     );
-    
+
     if (response.ok) {
       const item = await response.json();
       return {
         id: item.id,
         title: item.name,
-        type: 'tv',
-        year: item.first_air_date ? new Date(item.first_air_date).getFullYear() : 0,
-        poster: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : '',
-        overview: item.overview || '',
+        type: "tv",
+        year: item.first_air_date
+          ? new Date(item.first_air_date).getFullYear()
+          : 0,
+        poster: item.poster_path
+          ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}`
+          : "",
+        overview: item.overview || "",
         rating: item.vote_average || 0,
         seasons: item.number_of_seasons || 0,
         episodes: item.number_of_episodes || 0,
-        genres: item.genres?.map((g: any) => g.name) || []
+        genres: item.genres?.map((g: any) => g.name) || [],
       };
     }
   } catch (err) {
     console.error("Error fetching TV show details: ", err);
     return null;
   }
-  
+
   return null;
 }
