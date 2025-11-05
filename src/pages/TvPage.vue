@@ -1,27 +1,23 @@
 <template>
   <BaseNavBar />
-  <div
-    class="min-h-screen relative overflow-hidden"
-    style="
-    "
-  >
+  <div class="min-h-screen relative overflow-hidden">
     <div class="relative overflow-hidden hero-panel border-b border-white/10">
-      <div class="max-w-[1200px] mx-auto px-4 py-14">
-        <h1 class="text-4xl sm:text-5xl font-extrabold mb-3 leading-tight">
+      <div class="max-w-[1600px] mx-auto px-6 py-14">
+        <h1 class="text-5xl sm:text-6xl font-extrabold mb-4 leading-tight">
           <span class="hero-title">Discover TV Shows</span>
         </h1>
-        <p class="hero-sub text-lg">
+        <p class="hero-sub text-xl mb-8">
           Explore trending, popular, top-rated, and airing today — your next binge awaits.
         </p>
 
         <!-- Category Tabs -->
-        <div class="flex gap-2 mt-6 overflow-x-auto pb-2 scrollbar-hide">
+        <div class="flex justify-center items-center gap-3 mt-6 flex-wrap">
           <button
             v-for="cat in categories"
             :key="cat.id"
             @click="activeCategory = cat.id"
             :class="[
-              'px-5 py-2.5 rounded-full font-medium text-sm whitespace-nowrap transition-all duration-200',
+              'px-7 py-3.5 rounded-full font-semibold text-base whitespace-nowrap transition-all duration-200 border-2',
               activeCategory === cat.id
                 ? 'active-tab'
                 : 'inactive-tab',
@@ -33,7 +29,7 @@
       </div>
     </div>
 
-    <main class="max-w-[1200px] mx-auto p-4">
+    <main class="max-w-[1600px] mx-auto px-6 py-4">
       <!-- Loading State -->
       <div v-if="loading" class="flex flex-col items-center justify-center py-20">
         <div class="w-16 h-16 rounded-full loader-ring mb-4"></div>
@@ -64,7 +60,7 @@
 
       <!-- TV Shows Grid -->
       <div v-else class="mt-8">
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
           <router-link
             v-for="show in shows"
             :key="show.id"
@@ -90,23 +86,23 @@
 
                 <!-- Rating Badge -->
                 <div v-if="show.rating" class="rating-badge">
-                  <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
-                  <span class="text-xs font-semibold text-white">{{ show.rating }}</span>
+                  <span class="text-sm font-bold text-white">{{ show.rating }}</span>
                 </div>
 
                 <div class="poster-gradient"></div>
               </div>
 
               <!-- Info -->
-              <div class="p-3">
-                <h3 class="font-semibold text-sm line-clamp-2 group-hover:text-[#6b6bff] transition-colors" :title="show.name">
+              <div class="p-4">
+                <h3 class="font-bold text-base line-clamp-2 group-hover:text-[#6b6bff] transition-colors leading-snug" :title="show.name">
                   {{ show.name }}
                 </h3>
-                <div class="flex items-center justify-between mt-2">
-                  <span class="text-xs text-[#98a1b3]">{{ show.year }}</span>
-                  <span v-if="show.voteCount" class="text-xs text-[#6b7280]">{{ formatVotes(show.voteCount) }} votes</span>
+                <div class="flex items-center justify-between mt-3">
+                  <span class="text-sm text-[#98a1b3] font-medium">{{ show.year }}</span>
+                  <span v-if="show.voteCount" class="text-sm text-[#6b7280] font-medium">{{ formatVotes(show.voteCount) }} votes</span>
                 </div>
               </div>
             </div>
@@ -348,18 +344,21 @@ onMounted(() => {
 
 .active-tab {
   background: linear-gradient(90deg, #6b6bff, #8b5cf6);
+  border-color: #6b6bff;
   color: white;
-  box-shadow: 0 6px 20px rgba(107,107,255,0.12);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(107,107,255,0.25);
+  transform: scale(1.05);
 }
 
 .inactive-tab {
   background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.1);
   color: #98a1b3;
 }
 
-.active-tab, .inactive-tab {
-  border: 1px solid rgba(255,255,255,0.03);
+.inactive-tab:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
 }
 
 .loader-ring {
@@ -415,11 +414,11 @@ onMounted(() => {
   top: 10px;
   right: 10px;
   background: linear-gradient(180deg, rgba(0,0,0,0.75), rgba(0,0,0,0.55));
-  padding: 6px 8px;
+  padding: 7px 10px;
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   border: 1px solid rgba(255,255,255,0.04);
 }
 
@@ -445,7 +444,6 @@ onMounted(() => {
   background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
   border: 1px solid rgba(255,255,255,0.03);
 }
-
 
 .scrollbar-hide::-webkit-scrollbar { 
   display: none; 

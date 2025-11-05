@@ -9,7 +9,7 @@
 
   <!-- No Reviews State -->
   <div v-else-if="reviews.length === 0" class="text-center py-8 text-[#98a1b3]">
-    No reviews yet. Be the first to review this movie!
+    No reviews yet. Be the first to review this TV Series!
   </div>
 
   <!-- Reviews List -->
@@ -88,7 +88,7 @@
     class="max-h-[400px] mt-5 overflow-y-auto p-4 space-y-4 bg-[#111827]/40 rounded-2xl border border-[#2a2f3b]"
   >
     <h3 class="text-lg font-semibold mb-4 text-white">Write a Review</h3>
-    <form @submit.prevent="onSubmitMovieReview" class="space-y-4">
+    <form @submit.prevent="onSubmitTvReview" class="space-y-4">
       <div class="flex justify-center space-x-1 select-none">
         <template v-for="star in 10" :key="star">
           <svg
@@ -139,7 +139,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { fetchMovieReviews, submitMovieReview } from "@/lib/reviewsApi";
+import { fetchTvReviews, submitTvReview } from "@/lib/reviewsApi";
 import { useAuth } from "@clerk/vue";
 import type { Review } from '@/composables/review';
 
@@ -149,16 +149,7 @@ const { userId } = useAuth();
 
 const hoverRating = ref(0);
 
-const props = withDefaults(defineProps<{ 
-  movieId: number;
-  movieTitle?: string;
-  posterPath?: string;
-  releaseYear?: number;
-}>(), {
-  movieTitle: '',
-  posterPath: '',
-  releaseYear: 0
-});
+const props = defineProps<{ tvId: number }>();
 
 const reviews = ref<Review[]>([]);
 const loading = ref(true);
@@ -191,23 +182,19 @@ function truncate(text: string, length: number) {
 
 async function loadReviews() {
   loading.value = true;
-  reviews.value = await fetchMovieReviews(props.movieId);
+  reviews.value = await fetchTvReviews(props.tvId);
   loading.value = false;
 }
 
-async function onSubmitMovieReview() {
+async function onSubmitTvReview() {
   submitting.value = true;
   try {
-    const newReview = await submitMovieReview(
-      props.movieId,
+    const newReview = await submitTvReview(
+      props.tvId,
       userId.value,
       formData.value.rating,
-      formData.value.comment,
-      props.movieTitle,
-      props.posterPath,
-      props.releaseYear
+      formData.value.comment
     );
-    
     if (newReview) {
       reviews.value.unshift(newReview);
       formData.value = { rating: 0, comment: "" };
