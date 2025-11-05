@@ -8,7 +8,6 @@ const props = defineProps<{
   averageMoodEmoji: string
   totalMoviesWatched: number
   totalShowsWatched: number
-  totalBadgesEarned: number
 }>()
 </script>
 
@@ -53,7 +52,7 @@ const props = defineProps<{
 
         <div>
           <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Activity</h3>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div class="grid grid-cols-2 gap-3">
             <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
               <p class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ totalMoviesWatched }}</p>
               <p class="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">Movies Watched</p>
@@ -61,10 +60,6 @@ const props = defineProps<{
             <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
               <p class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ totalShowsWatched }}</p>
               <p class="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">Shows Watched</p>
-            </div>
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-              <p class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ totalBadgesEarned }}</p>
-              <p class="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">Badges Earned</p>
             </div>
           </div>
         </div>

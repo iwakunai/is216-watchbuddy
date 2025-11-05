@@ -11,8 +11,6 @@ import type {
   FavouriteItem,
   Friend,
   FriendRequest,
-  Badge,
-  BadgeGroups,
   RatingItem,
   ReviewItem,
   ListFull,
@@ -29,7 +27,6 @@ import {
   getListItems,
   getFriends,
   getFriendRequests,
-  getUserBadges,
   getUserActivity,
   addToWatchHistory,
   updateList,
@@ -76,7 +73,6 @@ const averageMoodEmoji = ref("😊");
 
 const totalMoviesWatched = ref(42);
 const totalShowsWatched = ref(18);
-const totalBadgesEarned = ref(8);
 
 const topGenres = ref<GenreCount[]>([]);
 
@@ -87,33 +83,6 @@ const favourites = ref<FavouriteItem[]>([]);
 const friends = ref<Friend[]>([]);
 
 const friendRequests = ref<FriendRequest[]>([]);
-
-const featuredBadges = ref<Badge[]>([
-  { id: 'first-watch', name: 'First Watch', description: 'Watched your first movie', icon: '🎬', earned: true },
-  { id: 'social-butterfly', name: 'Social Butterfly', description: 'Added 5 friends', icon: '🦋', earned: true },
-  { id: 'binge-watcher', name: 'Binge Watcher', description: 'Watched 10 movies in a week', icon: '📺', earned: false },
-  { id: 'critic', name: 'Critic', description: 'Wrote 10 reviews', icon: '✍️', earned: true },
-  { id: 'party-host', name: 'Party Host', description: 'Hosted a watch party', icon: '🎉', earned: false },
-  { id: 'completionist', name: 'Completionist', description: 'Watched 100 movies', icon: '🏆', earned: false },
-]);
-
-const badgesByCategory = ref<BadgeGroups>({
-  moodMastery: [
-    { id: 'mood-happy', name: 'Happy Viewer', description: 'Watch 10 movies while happy', icon: '😊', earned: true },
-    { id: 'mood-sad', name: 'Emotional Explorer', description: 'Watch 10 movies while sad', icon: '😢', earned: false },
-    { id: 'mood-excited', name: 'Thrill Seeker', description: 'Watch 10 thrillers', icon: '🤩', earned: true },
-  ],
-  genreExplorer: [
-    { id: 'genre-action', name: 'Action Hero', description: 'Watch 20 action movies', icon: '💥', earned: true },
-    { id: 'genre-comedy', name: 'Comedy Fan', description: 'Watch 20 comedies', icon: '😂', earned: false },
-    { id: 'genre-drama', name: 'Drama Enthusiast', description: 'Watch 20 dramas', icon: '🎭', earned: false },
-  ],
-  socialButterfly: [
-    { id: 'social-friend', name: 'Friendly', description: 'Add 5 friends', icon: '👥', earned: true },
-    { id: 'social-party', name: 'Party Animal', description: 'Join 10 watch parties', icon: '🎊', earned: false },
-    { id: 'social-host', name: 'Super Host', description: 'Host 5 watch parties', icon: '🌟', earned: false },
-  ],
-});
 
 // Lists state
 const userLists = ref<ListFull[]>([]);
@@ -393,8 +362,6 @@ function addFriend() {
   // TODO: Open friend search/add modal
 }
 
-const showAllBadges = ref(false);
-
 // Load data functions
 async function loadProfile() {
   if (!user.value) return;
@@ -547,40 +514,6 @@ async function loadFriendRequests() {
   }
 }
 
-async function loadBadges() {
-  if (!user.value) return;
-  
-  try {
-    const badgesData = await getUserBadges(user.value.id);
-    const earnedBadgeIds = badgesData.map((ub: any) => ub.badge.id);
-    totalBadgesEarned.value = earnedBadgeIds.length;
-    
-    // Update featured badges earned status
-    featuredBadges.value = featuredBadges.value.map(badge => ({
-      ...badge,
-      earned: earnedBadgeIds.includes(badge.id)
-    }));
-    
-    // Update badges by category
-    badgesByCategory.value = {
-      moodMastery: badgesByCategory.value.moodMastery.map(badge => ({
-        ...badge,
-        earned: earnedBadgeIds.includes(badge.id)
-      })),
-      genreExplorer: badgesByCategory.value.genreExplorer.map(badge => ({
-        ...badge,
-        earned: earnedBadgeIds.includes(badge.id)
-      })),
-      socialButterfly: badgesByCategory.value.socialButterfly.map(badge => ({
-        ...badge,
-        earned: earnedBadgeIds.includes(badge.id)
-      }))
-    };
-  } catch (err) {
-    // console.error('Error loading badges:', err);
-  }
-}
-
 async function loadActivity() {
   if (!user.value) return;
   
@@ -634,7 +567,6 @@ async function initializeData() {
       loadLists(),
       loadFriends(),
       loadFriendRequests(),
-      loadBadges(),
       loadActivity()
     ]);
   } catch (err) {
@@ -680,7 +612,6 @@ async function initializeData() {
           :average-mood-emoji="averageMoodEmoji"
           :total-movies-watched="totalMoviesWatched"
           :total-shows-watched="totalShowsWatched"
-          :total-badges-earned="totalBadgesEarned"
         />
 
         <NavTabs :tabs="tabs" :active-tab="activeTab" @change="setTab" />
@@ -691,9 +622,6 @@ async function initializeData() {
             :top-moods="topMoods"
             :favourites="favourites"
             :friends="friends"
-            :featured-badges="featuredBadges"
-            :badges-by-category="badgesByCategory"
-            v-model:show-all-badges="showAllBadges"
           />
         </div>
 
