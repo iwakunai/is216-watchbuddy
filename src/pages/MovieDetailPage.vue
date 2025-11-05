@@ -25,7 +25,7 @@
           <!-- Image -->
           <img
             v-if="movie.poster_path"
-            :src="tmdbImage(movie.poster_path, 500)"
+            :src="getTMDBImage(movie.poster_path, 500)"
             :alt="movie.title"
             class="w-full h-auto object-cover block"
           />
@@ -89,143 +89,6 @@
                 >
               </h1>
 
-              <!-- Watchlist Button -->
-              <div class="mt-4 flex justify-center relative" v-if="user">
-                <div class="relative inline-block">
-                  <button
-                    @click="showWatchlistMenu = !showWatchlistMenu"
-                    :disabled="watchlistLoading"
-                    :class="[
-                      'px-6 py-3 rounded-lg font-semibold text-sm transition-all flex items-center gap-2',
-                      currentWatchStatus
-                        ? 'bg-green-600 hover:bg-green-700 text-white'
-                        : 'bg-[#6b6bff] hover:bg-[#5a5aff] text-white',
-                      watchlistLoading ? 'opacity-50 cursor-not-allowed' : '',
-                    ]"
-                  >
-                    <svg
-                      class="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        :d="
-                          currentWatchStatus
-                            ? 'M5 13l4 4L19 7'
-                            : 'M12 4v16m8-8H4'
-                        "
-                      />
-                    </svg>
-                    <span v-if="watchlistLoading">Processing...</span>
-                    <span v-else-if="currentWatchStatus">
-                      {{
-                        currentWatchStatus === "completed"
-                          ? "Completed"
-                          : currentWatchStatus === "watching"
-                          ? "Watching"
-                          : "Plan to Watch"
-                      }}
-                    </span>
-                    <span v-else>Add to Watchlist</span>
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-
-                  <!-- Dropdown Menu -->
-                  <div
-                    v-if="showWatchlistMenu"
-                    class="absolute top-full mt-2 left-0 right-0 bg-[#1e293b] border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden"
-                  >
-                    <button
-                      @click="handleWatchlistAction('completed')"
-                      class="w-full px-4 py-3 text-left text-white hover:bg-[#273549] transition-colors flex items-center gap-2"
-                    >
-                      <svg
-                        class="w-5 h-5 text-green-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                      <span>Completed</span>
-                    </button>
-                    <button
-                      @click="handleWatchlistAction('watching')"
-                      class="w-full px-4 py-3 text-left text-white hover:bg-[#273549] transition-colors flex items-center gap-2"
-                    >
-                      <svg
-                        class="w-5 h-5 text-blue-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                      <span>Currently Watching</span>
-                    </button>
-                    <button
-                      @click="handleWatchlistAction('plan-to-watch')"
-                      class="w-full px-4 py-3 text-left text-white hover:bg-[#273549] transition-colors flex items-center gap-2"
-                    >
-                      <svg
-                        class="w-5 h-5 text-yellow-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                      <span>Plan to Watch</span>
-                    </button>
-                    <button
-                      v-if="currentWatchStatus"
-                      @click="removeFromWatchlistHandler"
-                      class="w-full px-4 py-3 text-left text-red-400 hover:bg-[#273549] transition-colors flex items-center gap-2 border-t border-gray-700"
-                    >
-                      <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                      <span>Remove from Watchlist</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
               <div
                 class="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-[#98a1b3]"
               >
@@ -266,7 +129,7 @@
                       <span
                         v-for="(director, idx) in directors"
                         :key="director.id"
-                        @click="navigateToPerson(director.id)"
+                        @click="goToPerson(director.id)"
                         class="cursor-pointer hover:text-[#6b6bff] transition-colors"
                       >
                         {{ director.name
@@ -281,7 +144,7 @@
                       <span
                         v-for="(writer, idx) in writers"
                         :key="writer.id"
-                        @click="navigateToPerson(writer.id)"
+                        @click="goToPerson(writer.id)"
                         class="cursor-pointer hover:text-[#6b6bff] transition-colors"
                       >
                         {{ writer.name
@@ -361,7 +224,7 @@
             </div>
           </div>
 
-          <!-- Trailer Section - Compact below Production Info -->
+          <!-- Trailer Section -->
           <div v-if="trailerKey" class="mt-6">
             <h5 class="font-bold text-xl mb-3 text-white">Trailer</h5>
             <div
@@ -376,12 +239,10 @@
                   :alt="`${movie.title} Trailer`"
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
-                <!-- Dark overlay -->
                 <div
                   class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300"
                 ></div>
 
-                <!-- Play button -->
                 <div class="absolute inset-0 flex items-center justify-center">
                   <div
                     class="w-16 h-16 rounded-full bg-[#6b6bff] group-hover:bg-[#8b8bff] transition-all duration-300 flex items-center justify-center shadow-xl group-hover:scale-110"
@@ -396,7 +257,6 @@
                   </div>
                 </div>
 
-                <!-- Trailer label -->
                 <div
                   class="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-sm border border-white/10"
                 >
@@ -416,7 +276,6 @@
           @click="showTrailerModal = false"
         >
           <div class="relative w-full max-w-5xl" @click.stop>
-            <!-- Close button -->
             <button
               @click="showTrailerModal = false"
               class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
@@ -436,7 +295,6 @@
               </svg>
             </button>
 
-            <!-- Video iframe -->
             <div
               class="relative aspect-video rounded-lg overflow-hidden shadow-2xl"
             >
@@ -452,7 +310,7 @@
           </div>
         </div>
 
-        <!-- Full Cast & Crew Section -->
+        <!-- Cast & Crew Section -->
         <div v-if="allCast.length > 0" class="mt-12 col-span-3">
           <h2
             class="text-2xl font-bold mb-6 bg-gradient-to-r from-white to-[#cfd8ff] text-transparent bg-clip-text"
@@ -466,7 +324,7 @@
             <div
               v-for="person in allCast"
               :key="person.id"
-              @click="navigateToPerson(person.id)"
+              @click="goToPerson(person.id)"
               class="p-3 rounded-xl bg-gradient-to-b from-white/5 to-black/20 border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-[#6b6bff]/20 cursor-pointer"
             >
               <div class="flex items-center gap-4">
@@ -475,7 +333,7 @@
                 >
                   <img
                     v-if="person.profile_path"
-                    :src="tmdbImage(person.profile_path, 185)"
+                    :src="getTMDBImage(person.profile_path, 185)"
                     :alt="person.name"
                     class="w-full h-full object-cover"
                   />
@@ -533,7 +391,7 @@
               </div>
               <div>
                 <div class="text-lg font-semibold text-white">
-                  {{ formatVoteCount(movie.vote_count) }} User Reviews
+                  {{ formatVotes(movie.vote_count) }} User Reviews
                 </div>
                 <div class="text-sm text-[#98a1b3]">
                   Popularity: {{ movie.popularity?.toFixed(0) || "N/A" }}
@@ -549,7 +407,7 @@
           </div>
         </div>
 
-        <!-- Similar Movie Section -->
+        <!-- Similar Movies Section -->
         <div v-if="similarMovies.length > 0" class="col-span-3 mt-12 mb-8">
           <h2
             class="text-2xl font-bold mb-6 bg-gradient-to-r from-white to-[#cfd8ff] text-transparent bg-clip-text"
@@ -562,12 +420,12 @@
             <div
               v-for="similar in similarMovies"
               :key="similar.id"
-              @click="navigateToMovie(similar.id)"
+              @click="goToMovie(similar.id)"
               class="cursor-pointer rounded-lg border border-white/10 bg-gradient-to-b from-white/5 to-black/20 overflow-hidden group transition-all duration-300 hover:border-[#6b6bff]/30 hover:shadow-xl hover:-translate-y-1"
             >
               <img
                 v-if="similar.poster_path"
-                :src="tmdbImage(similar.poster_path, 342)"
+                :src="getTMDBImage(similar.poster_path, 342)"
                 :alt="similar.title"
                 class="w-full aspect-[2/3] object-cover"
               />
@@ -621,25 +479,13 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useUser } from "@clerk/vue";
-import {
-  addToWatchlist,
-  removeFromWatchlist,
-  getWatchlistStatus,
-  type WatchStatus,
-} from "@/lib/supabaseWatchlist";
-import { formatVoteCount } from "@/composables/review";
-import {
-  navigateToMovie,
-  navigateToPerson,
-  tmdbImage,
-} from "@/composables/showDetails";
 
 const route = useRoute();
-const { user } = useUser();
+const router = useRouter();
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
 const TMDB_BASE = "https://api.themoviedb.org/3";
+const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 
 type Movie = any;
 
@@ -652,12 +498,30 @@ const similarMovies = ref<any[]>([]);
 const trailerKey = ref<string | null>(null);
 const showTrailerModal = ref(false);
 
-// Watchlist state
-const showWatchlistMenu = ref(false);
-const currentWatchStatus = ref<WatchStatus | null>(null);
-const watchlistLoading = ref(false);
-
 const movieId = ref<string | null>(String(route.params.id || ""));
+
+// Helper functions
+function getTMDBImage(path: string, width: number = 500): string {
+  return `${TMDB_IMAGE_BASE}/w${width}${path}`;
+}
+
+function formatVotes(count: number): string {
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1)}M`;
+  }
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}k`;
+  }
+  return count.toString();
+}
+
+function goToMovie(id: number) {
+  router.push(`/movie/${id}`);
+}
+
+function goToPerson(id: number) {
+  router.push(`/person/${id}`);
+}
 
 watch(
   () => route.params.id,
@@ -665,17 +529,6 @@ watch(
     movieId.value = String(v || "");
     if (movieId.value) fetchAll();
   }
-);
-
-// Watch for user to be loaded and then load watchlist status
-watch(
-  () => user.value,
-  (newUser) => {
-    if (newUser && movieId.value) {
-      loadWatchlistStatus();
-    }
-  },
-  { immediate: true }
 );
 
 onMounted(() => {
@@ -809,68 +662,6 @@ const imdbRatingDisplay = computed(() => {
   return "-";
 });
 
-// Watchlist functions
-async function loadWatchlistStatus() {
-  if (!user.value || !movieId.value) return;
-
-  try {
-    const status = await getWatchlistStatus(
-      user.value.id,
-      Number(movieId.value),
-      "movie"
-    );
-    currentWatchStatus.value = status;
-  } catch (err) {
-    // console.error("Error loading watchlist status:", err);
-  }
-}
-
-async function handleWatchlistAction(status: WatchStatus) {
-  if (!user.value || !movie.value) return;
-
-  watchlistLoading.value = true;
-  showWatchlistMenu.value = false;
-
-  try {
-    await addToWatchlist(
-      user.value.id,
-      movie.value.id,
-      "movie",
-      status,
-      movie.value.title || "",
-      movie.value.poster_path || null,
-      releaseYear.value ? Number(releaseYear.value) : null
-    );
-    currentWatchStatus.value = status;
-  } catch (err: any) {
-    // console.error("Error adding to watchlist:", err);
-    const errorMessage =
-      err?.message || "Failed to add to watchlist. Please try again.";
-    alert(errorMessage);
-  } finally {
-    watchlistLoading.value = false;
-  }
-}
-
-async function removeFromWatchlistHandler() {
-  if (!user.value || !movie.value) return;
-
-  watchlistLoading.value = true;
-  showWatchlistMenu.value = false;
-
-  try {
-    await removeFromWatchlist(user.value.id, movie.value.id, "movie");
-    currentWatchStatus.value = null;
-  } catch (err: any) {
-    // console.error("Error removing from watchlist:", err);
-    const errorMessage =
-      err?.message || "Failed to remove from watchlist. Please try again.";
-    alert(errorMessage);
-  } finally {
-    watchlistLoading.value = false;
-  }
-}
-
 async function fetchAll() {
   loading.value = true;
   error.value = null;
@@ -908,9 +699,6 @@ async function fetchAll() {
         trailerKey.value = trailer.key;
       }
     }
-
-    // Load watchlist status after movie data is loaded
-    await loadWatchlistStatus();
   } catch (e: any) {
     error.value = e?.message ?? String(e);
   } finally {
