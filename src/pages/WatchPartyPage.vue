@@ -18,7 +18,7 @@
     @created="onRoomCreated"
   />
 
-  <BaseFooter />
+  <!-- <BaseFooter /> -->
 </template>
 
 <script setup lang="ts">

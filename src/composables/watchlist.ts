@@ -16,7 +16,7 @@ export interface WatchlistItem {
 }
 
 export interface WatchItem {
-  id: string | number
+  id: string
   title: string
   type: MediaType
   year?: number

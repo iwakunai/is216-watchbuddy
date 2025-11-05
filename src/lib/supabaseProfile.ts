@@ -1,5 +1,5 @@
 import type { WatchlistItem } from '@/composables/watchlist'
-import { supabase } from './supabaseClient'
+import { supabase } from '@/lib/supabaseClient'
 
 // Set the current user context for RLS policies
 export const setUserContext = async (userId: string) => {
@@ -8,11 +8,6 @@ export const setUserContext = async (userId: string) => {
     value: userId
   })
 }
-
-// ============================================
-// USER PROFILE - Using Clerk's user data
-// ============================================
-// User data comes from Clerk: id (clerk_id), username, email, image_url, etc.
 
 // ============================================
 // WATCHLIST OPERATIONS
@@ -276,92 +271,7 @@ export const removeFriend = async (userId: string, friendId: string) => {
   if (error) throw error
 }
 
-// ============================================
-// RATINGS OPERATIONS
-// ============================================
-export interface Rating {
-  id?: string
-  user_id: string
-  tmdb_id: number
-  title: string
-  media_type: 'movie' | 'tv'
-  rating: number
-  poster_path?: string
-  release_year?: number
-  rated_at?: string
-}
 
-export const getUserRatings = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('ratings')
-    .select('*')
-    .eq('user_id', userId)
-    .order('rated_at', { ascending: false })
-  
-  if (error) throw error
-  return data as Rating[]
-}
-
-export const addRating = async (rating: Rating) => {
-  const { data, error } = await supabase
-    .from('ratings')
-    .upsert(rating, { onConflict: 'user_id,tmdb_id,media_type' })
-    .select()
-    .single()
-  
-  if (error) throw error
-  return data
-}
-
-// ============================================
-// REVIEWS OPERATIONS
-// ============================================
-export interface Review {
-  id?: string
-  user_id: string
-  tmdb_id: number
-  title: string
-  media_type: 'movie' | 'tv'
-  review_text: string
-  poster_path?: string
-  release_year?: number
-  reviewed_at?: string
-  updated_at?: string
-}
-
-export const getUserReviews = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('user_id', userId)
-    .order('reviewed_at', { ascending: false })
-  
-  if (error) throw error
-  return data as Review[]
-}
-
-export const addReview = async (review: Review) => {
-  const { data, error } = await supabase
-    .from('reviews')
-    .insert(review)
-    .select()
-    .single()
-  
-  if (error) throw error
-  return data
-}
-
-export const updateReview = async (reviewId: string, reviewText: string) => {
-  const { data, error } = await supabase
-    .from('reviews')
-    .update({ review_text: reviewText, updated_at: new Date().toISOString() })
-    .eq('id', reviewId)
-    .select()
-    .single()
-  
-  if (error) throw error
-  return data
-}
 
 // ============================================
 // BADGES OPERATIONS

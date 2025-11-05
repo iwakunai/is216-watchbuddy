@@ -272,7 +272,7 @@ function tmdbImage(path: string, size = 500) {
 function formatDate(dateString: string): string {
   if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("en-SG", {
     year: "numeric",
     month: "long",
     day: "numeric",

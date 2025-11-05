@@ -1,22 +1,17 @@
 <script setup lang="ts">
-import type {
-  GenreCount,
-  MoodCount,
-  FavouriteItem,
-  Friend,
-} from "@/types/profile";
+import type { GenreCount, MoodCount, FavouriteItem } from "@/types/profile";
 
 const props = defineProps<{
   topGenres: GenreCount[];
   topMoods: MoodCount[];
   favourites: FavouriteItem[];
-  friends: Friend[];
 }>();
 </script>
 
 <template>
   <div class="space-y-5">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- Genre Section -->
       <div
         class="bg-white/5 dark:bg-gray-900/30 rounded-lg shadow-sm p-5 border border-gray-200 dark:border-gray-700"
       >
@@ -49,6 +44,7 @@ const props = defineProps<{
         </div>
       </div>
 
+      <!-- Mood Section -->
       <div
         class="bg-white/5 dark:bg-gray-900/30 rounded-lg shadow-sm p-5 border border-gray-200 dark:border-gray-700"
       >
@@ -82,6 +78,7 @@ const props = defineProps<{
       </div>
     </div>
 
+    <!-- Fav Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <div
         class="bg-white/5 dark:bg-gray-900/30 rounded-lg shadow-sm p-5 border border-gray-200 dark:border-gray-700"
@@ -116,7 +113,7 @@ const props = defineProps<{
         </div>
       </div>
 
-      <FriendsGrid class="lg:col-span-2" :friends="friends" />
+      <!-- <FriendsGrid class="lg:col-span-2" :friends="friends" /> -->
     </div>
   </div>
 </template>

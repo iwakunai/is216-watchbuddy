@@ -17,27 +17,15 @@ export interface FavouriteItem {
   poster?: string;
 }
 
-export interface Friend {
-  id: string;
-  name: string;
-  avatar?: string;
-  status?: "online" | "offline" | "away";
-}
-
-export interface ListBasic {
-  id: string;
-  name: string;
-  description?: string;
-  public: "yes" | "no";
-  sortBy: "original-asc" | "original-desc" | "date-added" | "rating";
-  itemCount?: number;
-}
-
-export interface ListFull extends ListBasic {
-  movies?: MovieItem[];
-  comments?: "yes" | "no";
-  createdAt?: string;
-}
+// export interface WatchItem {
+//   id: string | number
+//   title: string
+//   type: MediaType
+//   year?: number
+//   poster?: string
+//   addedAt?: string
+//   status?: 'completed' | 'watching' | 'plan-to-watch'
+// }
 
 export interface Profile {
   username: string;
@@ -63,19 +51,19 @@ export type ActivityType =
   | "badge"
   | "watchparty";
 
-export interface ActivityItem {
-  id: string | number;
-  type: ActivityType;
-  title: string;
-  description?: string;
-  at: string;
-  icon?: string;
-  href?: string;
-}
+// export interface ActivityItem {
+//   id: string | number;
+//   type: ActivityType;
+//   title: string;
+//   description?: string;
+//   at: string;
+//   icon?: string;
+//   href?: string;
+// }
 
-export interface FriendRequest {
-  id: string;
-  name: string;
-  avatar?: string;
-  requestedAt: string;
-}
+// export interface FriendRequest {
+//   id: string;
+//   name: string;
+//   avatar?: string;
+//   requestedAt: string;
+// }

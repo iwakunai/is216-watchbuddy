@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { WatchItem } from '@/types/profile'
+import type { WatchItem } from '@/composables/watchlist';
+
 
 const props = defineProps<{
   items: WatchItem[]
 }>()
 
 const emit = defineEmits<{
-  (e: 'remove', id: string | number): void
-  (e: 'open', id: string | number): void
-  (e: 'changeStatus', id: string | number, status: 'completed' | 'watching' | 'plan-to-watch', type: 'movie' | 'tv'): void
+  (e: 'remove', id: string): void
+  (e: 'open', id: string): void
+  (e: 'changeStatus', id: string, status: 'completed' | 'watching' | 'plan-to-watch', type: 'movie' | 'tv'): void
 }>()
 
 type MediaType = 'movies' | 'tv'
@@ -22,7 +23,7 @@ const sortOrder = ref<'asc' | 'desc'>('desc') // desc = newest first
 // Track which item's dropdown is open
 const openDropdownId = ref<string | number | null>(null)
 
-function toggleDropdown(itemId: string | number) {
+function toggleDropdown(itemId: string) {
   openDropdownId.value = openDropdownId.value === itemId ? null : itemId
 }
 
