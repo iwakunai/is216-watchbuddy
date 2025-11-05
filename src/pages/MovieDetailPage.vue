@@ -662,6 +662,17 @@ watch(
   }
 );
 
+// Watch for user to be loaded and then load watchlist status
+watch(
+  () => user.value,
+  (newUser) => {
+    if (newUser && movieId.value) {
+      loadWatchlistStatus();
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   if (!movieId.value) {
     error.value = "No movie id provided in the route.";

@@ -611,6 +611,17 @@ watch(
   }
 );
 
+// Watch for user to be loaded and then load watchlist status
+watch(
+  () => user.value,
+  (newUser) => {
+    if (newUser && showId.value) {
+      loadWatchlistStatus();
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   if (!showId.value) {
     error.value = "No show id provided in the route.";
