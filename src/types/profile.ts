@@ -67,3 +67,13 @@ export type ActivityType =
 //   avatar?: string;
 //   requestedAt: string;
 // }
+
+export interface WatchpartyHistoryItem {
+  id: string | number,
+  roomName: string,
+  title: string,
+  poster?: string,
+  lastJoinedAt: string,
+  scheduledTime: string,
+  duration: string | number,
+}
