@@ -52,7 +52,7 @@ export class AIRecommenderService {
     const cached = this.requestCache.get(cacheKey);
     
     if (cached && Date.now() - cached.timestamp < this.cacheDuration) {
-      console.log('✅ Using cached AI recommendations');
+      
       return cached.data;
     }
 
@@ -91,7 +91,7 @@ export class AIRecommenderService {
       
       return result;
     } catch (error) {
-      console.error('Error getting AI recommendations:', error);
+      
       return this.fallbackRanking(request.movies);
     }
   }
@@ -265,7 +265,7 @@ Return ONLY valid JSON, no additional text.`;
         personalizedInsight: parsed.insight || '',
       };
     } catch (error) {
-      console.error('Error parsing AI response:', error);
+      
       throw error;
     }
   }
@@ -341,7 +341,7 @@ Write in an engaging, personal tone that speaks directly to their current mood. 
       const data = await response.json();
       return data.content[0].text.trim();
     } catch (error) {
-      console.error('Error generating description:', error);
+      
       return movie.overview;
     }
   }

@@ -27,7 +27,7 @@ async function loadReviews() {
   try {
     allReviews.value = await getUserReviews(user.value.id, 'all')
   } catch (err) {
-    // console.error('Error loading reviews:', err)
+    
     error.value = 'Failed to load reviews'
   } finally {
     loading.value = false

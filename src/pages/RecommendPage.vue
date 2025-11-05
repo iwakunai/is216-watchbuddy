@@ -185,7 +185,7 @@ const fetchRecommendations = async () => {
     // Use AI to rank movies if available and enabled
     if (aiService && useAI.value && (selectedMood.value || selectedGenres.value.length > 0)) {
       try {
-        console.log(`🤖 Analyzing ${allResults.length} movies with AI...`)
+        
         
         // Send top 40 movies to AI for deep analysis
         const aiResponse = await aiService.getRankedRecommendations({
@@ -210,7 +210,7 @@ const fetchRecommendations = async () => {
         
         aiInsight.value = aiResponse.personalizedInsight
         
-        console.log(`✅ AI ranked ${rankedMovies.length} movies. Top score: ${rankedMovies[0]?.aiScore}`)
+        
         
         // Store ALL ranked movies, show first 9
         allRecommendations.value = rankedMovies.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
@@ -228,7 +228,7 @@ const fetchRecommendations = async () => {
           aiReasoning: item.aiReasoning
         }))
       } catch (aiError) {
-        console.error('AI ranking failed, using fallback:', aiError)
+        
         // Fallback to basic sorting
         allRecommendations.value = allResults.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
           id: item.id,
@@ -259,7 +259,7 @@ const fetchRecommendations = async () => {
       }))
     }
   } catch (err) {
-    // console.error('Error fetching recommendations:', err)
+    
   } finally {
     isLoading.value = false
   }
@@ -308,7 +308,7 @@ const handleShuffle = async () => {
       }
     }
   } catch (err) {
-    // console.error('Error shuffling:', err)
+    
   }
 }
 

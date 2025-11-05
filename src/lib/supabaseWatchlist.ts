@@ -51,7 +51,7 @@ export async function addToWatchlist(
 
     // if (checkError && checkError.code !== 'PGRST116') {
     //   // PGRST116 is "not found" error, which is fine
-    //   console.error('Error checking existing watchlist item:', checkError)
+    //   
     //   throw new Error(`Database error: ${checkError.message}`)
     // }
 
@@ -87,10 +87,10 @@ export async function addToWatchlist(
       if (insertError) {
         throw new Error(`Failed to add: ${insertError.message}`);
       }
-      // console.log('Successfully added to watchlist')
+      
     }
   } catch (err) {
-    // console.error('Error adding to watchlist:', err)
+    
     throw err;
   }
 }
@@ -115,7 +115,7 @@ export async function removeFromWatchlist(
 
     if (error) throw error;
   } catch (err) {
-    // console.error('Error removing from watchlist:', err)
+    
     throw err;
   }
 }
@@ -140,7 +140,7 @@ export async function updateWatchlistStatus(
 
     if (error) throw error;
   } catch (err) {
-    // console.error('Error updating watchlist status:', err)
+    
     throw err;
   }
 }
@@ -171,7 +171,7 @@ export async function getWatchlistStatus(
 
     return data?.status || null;
   } catch (err) {
-    // console.error('Error getting watchlist status:', err)
+    
     return null;
   }
 }
@@ -208,7 +208,7 @@ export async function getUserWatchlist(
 
     return data || [];
   } catch (err) {
-    console.error("Error getting user watchlist:", err);
+    
     return [];
   }
 }

@@ -678,7 +678,7 @@ async function loadWatchlistStatus() {
     );
     currentWatchStatus.value = status;
   } catch (err) {
-    // console.error("Error loading watchlist status:", err);
+    
   }
 }
 
@@ -700,7 +700,7 @@ async function handleWatchlistAction(status: WatchStatus) {
     );
     currentWatchStatus.value = status;
   } catch (err: any) {
-    // console.error("Error adding to watchlist:", err);
+    
     const errorMessage =
       err?.message || "Failed to add to watchlist. Please try again.";
     alert(errorMessage);
@@ -719,7 +719,7 @@ async function removeFromWatchlistHandler() {
     await removeFromWatchlist(user.value.id, show.value.id, "tv");
     currentWatchStatus.value = null;
   } catch (err: any) {
-    // console.error("Error removing from watchlist:", err);
+    
     const errorMessage =
       err?.message || "Failed to remove from watchlist. Please try again.";
     alert(errorMessage);

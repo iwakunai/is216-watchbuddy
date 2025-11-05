@@ -51,7 +51,7 @@ export async function createRoom(params: CreateRoomParams): Promise<Room | null>
     .single();
 
   if (error) {
-    // console.error('Error creating room:', error);
+    
     return null;
   }
 

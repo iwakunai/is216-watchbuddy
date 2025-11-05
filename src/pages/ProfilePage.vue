@@ -128,7 +128,7 @@ async function updateListSettings<K extends keyof ListFull>(
       userLists.value[listIndex] = { ...selectedList.value };
     }
   } catch (err) {
-    // console.error('Error updating list:', err);
+    
     error.value = 'Failed to update list';
   }
 }
@@ -150,7 +150,7 @@ async function deleteList(id: string) {
     
     await loadActivity();
   } catch (err) {
-    // console.error('Error deleting list:', err);
+    
     error.value = 'Failed to delete list';
   }
 }
@@ -200,7 +200,7 @@ async function addMovieToList(movie: MovieItem) {
     });
     
   } catch (err) {
-    // console.error('Error adding movie to list:', err);
+    
     error.value = 'Failed to add movie to list';
     setTimeout(() => error.value = null, 3000);
   }
@@ -226,7 +226,7 @@ async function removeMovieFromList(movieId: string | number) {
       userLists.value[listIndex] = { ...selectedList.value };
     }
   } catch (err) {
-    // console.error('Error removing movie from list:', err);
+    
     error.value = 'Failed to remove movie from list';
   }
 }
@@ -244,7 +244,7 @@ async function removeFromWatchlist(id: string | number) {
     await removeFromWatchlistDb(user.value.id, Number(id), item.type as 'movie' | 'tv');
     watchlistItems.value = watchlistItems.value.filter(i => i.id !== id);
   } catch (err) {
-    // console.error('Error removing from watchlist:', err);
+    
     error.value = 'Failed to remove from watchlist';
   }
 }
@@ -265,7 +265,7 @@ async function changeWatchlistStatus(
       item.status = newStatus;
     }
   } catch (err) {
-    // console.error('Error updating watchlist status:', err);
+    
     error.value = 'Failed to update status';
   }
 }
@@ -283,7 +283,7 @@ function openWatchlistItem(id: string | number) {
 const historyItems = ref<HistoryItem[]>([]);
 
 function openHistoryItem(id: string | number) {
-  // console.log('Open history item:', id);
+  
   // TODO: Navigate to movie/TV detail page
 }
 
@@ -291,13 +291,13 @@ function openHistoryItem(id: string | number) {
 const activityItems = ref<ActivityItem[]>([]);
 
 function openActivityItem(id: string | number) {
-  // console.log('Open activity item:', id);
+  
   // TODO: Handle activity item click
 }
 
 // Friends handlers
 async function openFriendProfile(id: string) {
-  // console.log('Open friend profile:', id);
+  
   // TODO: Navigate to friend's profile
 }
 
@@ -308,7 +308,7 @@ async function removeFriend(id: string) {
     await removeFriendDb(user.value.id, id);
     friends.value = friends.value.filter(f => f.id !== id);
   } catch (err) {
-    // console.error('Error removing friend:', err);
+    
     error.value = 'Failed to remove friend';
   }
 }
@@ -342,7 +342,7 @@ async function acceptFriendRequest(id: string) {
     // Refresh activity feed
     await loadActivity();
   } catch (err) {
-    // console.error('Error accepting friend request:', err);
+    
     error.value = 'Failed to accept friend request';
   }
 }
@@ -354,13 +354,13 @@ async function rejectFriendRequest(id: string) {
     await rejectRequestDb(id);
     friendRequests.value = friendRequests.value.filter(r => r.id !== id);
   } catch (err) {
-    // console.error('Error rejecting friend request:', err);
+    
     error.value = 'Failed to reject friend request';
   }
 }
 
 function addFriend() {
-  // console.log('Add friend clicked');
+  
   // TODO: Open friend search/add modal
 }
 
@@ -383,7 +383,7 @@ async function loadProfile() {
         })
       : 'Recently';
   } catch (err: any) {
-    // console.error('Error loading profile:', err);
+    
     error.value = 'Failed to load profile';
   }
 }
@@ -407,7 +407,7 @@ async function loadWatchlist() {
       })
     }));
   } catch (err) {
-    // console.error('Error loading watchlist:', err);
+    
   }
 }
 
@@ -436,7 +436,7 @@ async function loadHistory() {
     totalMoviesWatched.value = movies.length;
     totalShowsWatched.value = shows.length;
   } catch (err) {
-    // console.error('Error loading history:', err);
+    
   }
 }
 
@@ -467,7 +467,7 @@ async function loadLists() {
       })
     );
   } catch (err) {
-    // console.error('Error loading lists:', err);
+    
   }
 }
 
@@ -483,7 +483,7 @@ async function loadFriends() {
       status: 'offline' as const // TODO: Implement real-time status
     }));
   } catch (err) {
-    // console.error('Error loading friends:', err);
+    
   }
 }
 
@@ -502,7 +502,7 @@ async function loadFriendRequests() {
       })
     }));
   } catch (err) {
-    // console.error('Error loading friend requests:', err);
+    
   }
 }
 
@@ -559,7 +559,7 @@ async function loadRatingsAndCalculateAverages() {
       averageMoodEmoji.value = '😊';
     }
   } catch (err) {
-    // console.error('Error loading ratings:', err);
+    
   }
 }
 
@@ -580,7 +580,7 @@ async function loadActivity() {
       })
     }));
   } catch (err) {
-    // console.error('Error loading activity:', err);
+    
   }
 }
 
@@ -620,7 +620,7 @@ async function initializeData() {
       loadActivity()
     ]);
   } catch (err) {
-    // console.error('Error initializing data:', err);
+    
     error.value = 'Failed to load profile data';
   } finally {
     isLoading.value = false;
