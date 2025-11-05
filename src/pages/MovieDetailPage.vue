@@ -18,14 +18,14 @@
       </div>
 
       <div v-else class="grid gap-8 lg:grid-cols-3">
-        <!-- Col 1 -->
+        <!--  Poster Column -->
         <div
           class="col-span-3 md:col-span-1 rounded-xl overflow-hidden shadow-lg bg-gradient-to-b from-white/5 to-black/20"
         >
-          <!-- Image -->
+          <!-- Poster -->
           <img
             v-if="movie.poster_path"
-            :src="getTMDBImage(movie.poster_path, 500)"
+            :src="tmdbImage(movie.poster_path, 500)"
             :alt="movie.title"
             class="w-full h-auto object-cover block"
           />
@@ -47,6 +47,7 @@
               <div class="text-xs text-[#98a1b3]">TMDB</div>
             </div>
 
+            <!-- Imdb Rating -->
             <div
               class="w-16 h-16 rounded-xl flex flex-col items-center justify-center border border-white/5 bg-gradient-to-b from-white/5 to-black/30 shadow-lg"
             >
@@ -57,7 +58,7 @@
             </div>
           </div>
 
-          <!-- Under Rating Section -->
+          <!-- Info Section -->
           <div class="mt-2 p-3 text-[#98a1b3]">
             <div class="text-base">
               <strong class="text-white">Original Title:</strong>
@@ -75,9 +76,8 @@
           </div>
         </div>
 
-        <!-- Col 2 -->
+        <!-- Details Column -->
         <div class="col-span-3 md:col-span-2 gap-[2rem]">
-          <!-- Details -->
           <div class="flex flex-col items-center gap-[4rem] h-min">
             <div class="flex-1 items-center">
               <h1
@@ -88,6 +88,13 @@
                   >({{ releaseYear }})</span
                 >
               </h1>
+
+              <WatchListButton
+                :user="user"
+                :showId="movieId"
+                :show="movie"
+                :media="pageType"
+              />
 
               <div
                 class="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-[#98a1b3]"
@@ -129,7 +136,7 @@
                       <span
                         v-for="(director, idx) in directors"
                         :key="director.id"
-                        @click="goToPerson(director.id)"
+                        @click="navigateToPerson(director.id)"
                         class="cursor-pointer hover:text-[#6b6bff] transition-colors"
                       >
                         {{ director.name
@@ -144,7 +151,7 @@
                       <span
                         v-for="(writer, idx) in writers"
                         :key="writer.id"
-                        @click="goToPerson(writer.id)"
+                        @click="navigateToPerson(writer.id)"
                         class="cursor-pointer hover:text-[#6b6bff] transition-colors"
                       >
                         {{ writer.name
@@ -324,7 +331,7 @@
             <div
               v-for="person in allCast"
               :key="person.id"
-              @click="goToPerson(person.id)"
+              @click="navigateToPerson(person.id)"
               class="p-3 rounded-xl bg-gradient-to-b from-white/5 to-black/20 border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-[#6b6bff]/20 cursor-pointer"
             >
               <div class="flex items-center gap-4">
@@ -333,7 +340,7 @@
                 >
                   <img
                     v-if="person.profile_path"
-                    :src="getTMDBImage(person.profile_path, 185)"
+                    :src="tmdbImage(person.profile_path, 185)"
                     :alt="person.name"
                     class="w-full h-full object-cover"
                   />
@@ -391,18 +398,22 @@
               </div>
               <div>
                 <div class="text-lg font-semibold text-white">
-                  {{ formatVotes(movie.vote_count) }} User Reviews
+                  {{ formatVoteCount(movie.vote_count) }} User Reviews
                 </div>
                 <div class="text-sm text-[#98a1b3]">
                   Popularity: {{ movie.popularity?.toFixed(0) || "N/A" }}
                 </div>
               </div>
             </div>
-            <MovieReviews 
-              :movie-id="movie.id" 
+            <MovieReviews
+              :movie-id="movie.id"
               :movie-title="movie.title"
               :poster-path="movie.poster_path"
-              :release-year="movie.release_date ? new Date(movie.release_date).getFullYear() : 0"
+              :release-year="
+                movie.release_date
+                  ? new Date(movie.release_date).getFullYear()
+                  : 0
+              "
             />
           </div>
         </div>
@@ -420,12 +431,12 @@
             <div
               v-for="similar in similarMovies"
               :key="similar.id"
-              @click="goToMovie(similar.id)"
+              @click="navigateToMovie(similar.id)"
               class="cursor-pointer rounded-lg border border-white/10 bg-gradient-to-b from-white/5 to-black/20 overflow-hidden group transition-all duration-300 hover:border-[#6b6bff]/30 hover:shadow-xl hover:-translate-y-1"
             >
               <img
                 v-if="similar.poster_path"
-                :src="getTMDBImage(similar.poster_path, 342)"
+                :src="tmdbImage(similar.poster_path, 342)"
                 :alt="similar.title"
                 class="w-full aspect-[2/3] object-cover"
               />
@@ -478,50 +489,33 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
+import { useUser } from "@clerk/vue";
+import { formatVoteCount } from "@/composables/review";
+import {
+  navigateToMovie,
+  navigateToPerson,
+  tmdbImage,
+} from "@/composables/showDetails";
+import type { MediaType } from "@/composables/watchlist";
 
 const route = useRoute();
-const router = useRouter();
+const { user } = useUser();
+const pageType: MediaType = "movie";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
 const TMDB_BASE = "https://api.themoviedb.org/3";
-const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
-
-type Movie = any;
 
 const loading = ref(true);
 const error = ref<string | null>(null);
-const movie = ref<Movie>({} as Movie);
-const credits = ref<any>({} as any);
-const imdbRating = ref<string | null>(null);
+const movie = ref<any>({});
+const credits = ref<any>({});
 const similarMovies = ref<any[]>([]);
+const imdbRating = ref<any>({});
 const trailerKey = ref<string | null>(null);
 const showTrailerModal = ref(false);
 
-const movieId = ref<string | null>(String(route.params.id || ""));
-
-// Helper functions
-function getTMDBImage(path: string, width: number = 500): string {
-  return `${TMDB_IMAGE_BASE}/w${width}${path}`;
-}
-
-function formatVotes(count: number): string {
-  if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}M`;
-  }
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}k`;
-  }
-  return count.toString();
-}
-
-function goToMovie(id: number) {
-  router.push(`/movie/${id}`);
-}
-
-function goToPerson(id: number) {
-  router.push(`/person/${id}`);
-}
+const movieId = ref<string>(String(route.params.id || ""));
 
 watch(
   () => route.params.id,
@@ -529,6 +523,17 @@ watch(
     movieId.value = String(v || "");
     if (movieId.value) fetchAll();
   }
+);
+
+// Watch for user to be loaded and then load watchlist status
+watch(
+  () => user.value,
+  (newUser) => {
+    if (newUser && movieId.value) {
+      // loadWatchlistStatus();
+    }
+  },
+  { immediate: true }
 );
 
 onMounted(() => {

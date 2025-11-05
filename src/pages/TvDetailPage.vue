@@ -22,6 +22,7 @@
         <div
           class="col-span-3 md:col-span-1 rounded-xl overflow-hidden shadow-lg bg-gradient-to-b from-white/5 to-black/20"
         >
+          <!-- Poster -->
           <img
             v-if="show.poster_path"
             :src="tmdbImage(show.poster_path, 500)"
@@ -83,8 +84,13 @@
               </h1>
 
               <!-- Watchlist Button -->
-              <WatchListButton :user="user" :showId="showId" :show="show" :media="pageType"/>
-              
+              <WatchListButton
+                :user="user"
+                :showId="showId"
+                :show="show"
+                :media="pageType"
+              />
+
               <div
                 class="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-[#98a1b3]"
               >
@@ -436,15 +442,19 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useUser } from "@clerk/vue";
 import { formatVoteCount } from "@/composables/review";
-import { navigateToPerson, navigateToShow, tmdbImage } from "@/composables/showDetails";
+import {
+  navigateToPerson,
+  navigateToShow,
+  tmdbImage,
+} from "@/composables/showDetails";
 import type { MediaType } from "@/composables/watchlist";
 
 const route = useRoute();
 const { user } = useUser();
-const pageType : MediaType = "tv";
+const pageType: MediaType = "tv";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
 const TMDB_BASE = "https://api.themoviedb.org/3";
@@ -456,7 +466,6 @@ const credits = ref<any>({});
 const similarShows = ref<any[]>([]);
 const trailerKey = ref<string | null>(null);
 const showTrailerModal = ref(false);
-
 
 const showId = ref<string>(String(route.params.id || ""));
 
@@ -487,7 +496,6 @@ onMounted(() => {
   }
   fetchAll();
 });
-
 
 const firstAirYear = computed(() => {
   if (!show.value?.first_air_date) return "";
@@ -523,9 +531,6 @@ const allCast = computed(() => {
     })) || [];
   return cast;
 });
-
-
-
 
 async function fetchAll() {
   loading.value = true;
@@ -563,7 +568,6 @@ async function fetchAll() {
         trailerKey.value = trailer.key;
       }
     }
-
   } catch (e: any) {
     error.value = e?.message ?? String(e);
   } finally {
