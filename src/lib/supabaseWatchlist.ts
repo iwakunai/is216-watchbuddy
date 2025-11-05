@@ -16,9 +16,8 @@ export interface WatchlistItem {
   added_at: string
 }
 
-/**
- * Add or update an item in the user's watchlist
- */
+
+// Add or update an item in the user's watchlist
 export async function addToWatchlist(
   clerkUserId: string,
   tmdbId: number,
@@ -31,17 +30,16 @@ export async function addToWatchlist(
   try {
     const supabaseUserId = await fetchSupabaseUserId(clerkUserId)
     if (!supabaseUserId) {
-      console.error('User not found in Supabase')
       throw new Error('User not found in database')
     }
 
-    console.log('Adding to watchlist:', {
-      supabaseUserId,
-      tmdbId,
-      mediaType,
-      status,
-      title
-    })
+    // console.log('Adding to watchlist:', {
+    //   supabaseUserId,
+    //   tmdbId,
+    //   mediaType,
+    //   status,
+    //   title
+    // })
 
     // Check if item already exists
     const { data: existing, error: checkError } = await supabase
@@ -52,15 +50,14 @@ export async function addToWatchlist(
       .eq('media_type', mediaType)
       .single()
 
-    if (checkError && checkError.code !== 'PGRST116') {
-      // PGRST116 is "not found" error, which is fine
-      console.error('Error checking existing watchlist item:', checkError)
-      throw new Error(`Database error: ${checkError.message}`)
-    }
+    // if (checkError && checkError.code !== 'PGRST116') {
+    //   // PGRST116 is "not found" error, which is fine
+    //   console.error('Error checking existing watchlist item:', checkError)
+    //   throw new Error(`Database error: ${checkError.message}`)
+    // }
 
     if (existing) {
       // Update existing entry
-      console.log('Updating existing watchlist item')
       const { error: updateError } = await supabase
         .from('watchlist')
         .update({ 
@@ -74,13 +71,11 @@ export async function addToWatchlist(
         .eq('media_type', mediaType)
 
       if (updateError) {
-        console.error('Update error:', updateError)
         throw new Error(`Failed to update: ${updateError.message}`)
       }
-      console.log('Successfully updated watchlist item')
+
     } else {
       // Insert new entry
-      console.log('Inserting new watchlist item')
       const { error: insertError } = await supabase
         .from('watchlist')
         .insert({
@@ -94,20 +89,19 @@ export async function addToWatchlist(
         })
 
       if (insertError) {
-        console.error('Insert error:', insertError)
         throw new Error(`Failed to add: ${insertError.message}`)
       }
-      console.log('Successfully added to watchlist')
+      // console.log('Successfully added to watchlist')
     }
   } catch (err) {
-    console.error('Error adding to watchlist:', err)
+    // console.error('Error adding to watchlist:', err)
     throw err
   }
 }
 
-/**
- * Remove an item from the watchlist
- */
+
+// Remove an item from the watchlist
+
 export async function removeFromWatchlist(
   clerkUserId: string,
   tmdbId: number,
@@ -126,14 +120,13 @@ export async function removeFromWatchlist(
 
     if (error) throw error
   } catch (err) {
-    console.error('Error removing from watchlist:', err)
+    // console.error('Error removing from watchlist:', err)
     throw err
   }
 }
 
-/**
- * Get watchlist status for a specific item
- */
+// Get watchlist status for a specific item
+
 export async function getWatchlistStatus(
   clerkUserId: string,
   tmdbId: number,
@@ -152,13 +145,13 @@ export async function getWatchlistStatus(
       .single()
 
     if (error) {
-      if (error.code === 'PGRST116') return null // Not found
+      if (error.code === 'PGRST116') return null 
       throw error
     }
 
     return data?.status || null
   } catch (err) {
-    console.error('Error getting watchlist status:', err)
+    // console.error('Error getting watchlist status:', err)
     return null
   }
 }
