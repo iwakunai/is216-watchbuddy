@@ -25,9 +25,31 @@
       No rooms found
     </div>
 
-    <button class="my-5 text-gray-500" v-if="roomsToShow < filteredRooms.length" @click="roomsToShow += 6">
-      Load More
-    </button>
+    <div
+      v-if="!loading && filteredRooms.length > roomsToShow"
+      class="flex justify-center mt-10 mb-6"
+    >
+      <button
+        @click="roomsToShow += 6"
+        class="inline-flex items-center gap-2 rounded-full px-4 py-2 font-semibold text-sm border border-gray-700 bg-blue-900 text-white shadow-md transition-transform duration-120 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+      >
+        <svg
+          class="w-4 h-4 stroke-current opacity-95 translate-y-[0.5px]"
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path
+            d="M12 4v12M8 12l4 4 4-4"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span>Load more</span>
+      </button>
+    </div>
+
 
   </div>
 </template>
