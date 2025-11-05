@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, h } from 'vue'
+import { ref, watch, h, computed } from 'vue'
 import { useUser } from '@clerk/vue'
 import { useRouter } from 'vue-router'
 import { AIRecommenderService } from '../services/ai-recommender-service'
@@ -22,11 +22,21 @@ const selectedMood = ref<Mood | null>(null)
 const selectedGenres = ref<string[]>([])
 
 // Data State
-const recommendations = ref<any[]>([])
+const allRecommendations = ref<any[]>([]) // Store all fetched recommendations
+const displayedCount = ref(9) // How many to show initially
+const recommendations = computed(() => allRecommendations.value.slice(0, displayedCount.value))
+const hasMore = computed(() => displayedCount.value < allRecommendations.value.length)
+
 const shuffleResult = ref<any | null>(null)
 const isLoading = ref(false)
+const isLoadingMore = ref(false)
 const aiInsight = ref<string>('')
-const useAI = ref(true) // Toggle for AI enhancement
+const useAI = ref(true)
+
+// Pagination settings
+const INITIAL_DISPLAY = 9
+const LOAD_MORE_INCREMENT = 6
+const MAX_RECOMMENDATIONS = 30
 
 // Moods Configuration
 const moods = [
@@ -136,22 +146,34 @@ const getGenreIds = (): number[] => {
   return []
 }
 
-// Enhanced fetch with AI ranking
+// Enhanced fetch with more movies and better AI ranking
 const fetchRecommendations = async () => {
   if (!TMDB_API_KEY) return
 
   isLoading.value = true
   aiInsight.value = ''
+  displayedCount.value = INITIAL_DISPLAY // Reset display count
   
   try {
     const genreIds = getGenreIds()
-    const genreQuery = genreIds.length > 0 ? `&with_genres=${genreIds.join(',')}` : ''
     
-    // Fetch 3 pages for better AI analysis
+    // Special handling for mood+genre combinations
+    let genreQuery = ''
+    if (selectedGenres.value.length > 0) {
+      // When genres are explicitly selected, use them
+      genreQuery = `&with_genres=${genreIds.join(',')}`
+    } else if (selectedMood.value) {
+      // When only mood is selected, get broader results for AI to filter
+      // Don't restrict by genre too much, let AI handle it
+      const moodGenres = moodGenreMap[selectedMood.value]
+      genreQuery = `&with_genres=${moodGenres.join('|')}` // OR instead of AND
+    }
+    
+    // Fetch 5 pages (100 movies) for better selection
     const allResults: any[] = []
-    for (let page = 1; page <= 3; page++) {
+    for (let page = 1; page <= 5; page++) {
       const response = await fetch(
-        `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&include_adult=false&page=${page}${genreQuery}`
+        `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&include_adult=false&page=${page}${genreQuery}&vote_count.gte=100`
       )
       
       if (response.ok) {
@@ -161,12 +183,15 @@ const fetchRecommendations = async () => {
     }
     
     // Use AI to rank movies if available and enabled
-    if (aiService && useAI.value && selectedMood.value) {
+    if (aiService && useAI.value && (selectedMood.value || selectedGenres.value.length > 0)) {
       try {
+        console.log(`🤖 Analyzing ${allResults.length} movies with AI...`)
+        
+        // Send top 40 movies to AI for deep analysis
         const aiResponse = await aiService.getRankedRecommendations({
-          mood: selectedMood.value,
+          mood: selectedMood.value || '',
           genres: selectedGenres.value,
-          movies: allResults.slice(0, 20) // Send top 20 to AI for analysis
+          movies: allResults.slice(0, 40)
         })
         
         // Sort movies by AI scores
@@ -185,14 +210,17 @@ const fetchRecommendations = async () => {
         
         aiInsight.value = aiResponse.personalizedInsight
         
-        // Format for display
-        recommendations.value = rankedMovies.slice(0, 9).map((item: any) => ({
+        console.log(`✅ AI ranked ${rankedMovies.length} movies. Top score: ${rankedMovies[0]?.aiScore}`)
+        
+        // Store ALL ranked movies, show first 9
+        allRecommendations.value = rankedMovies.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
           id: item.id,
           title: item.title,
           description: item.overview,
           thumbnailUrl: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : null,
           releaseYear: item.release_date ? new Date(item.release_date).getFullYear() : null,
           duration: null,
+          rating: item.vote_average,
           genres: item.genre_ids?.map((id: number) => 
             Object.entries(genreIdMap).find(([_, gid]) => gid === id)?.[0]
           ).filter(Boolean).join(', '),
@@ -202,13 +230,14 @@ const fetchRecommendations = async () => {
       } catch (aiError) {
         console.error('AI ranking failed, using fallback:', aiError)
         // Fallback to basic sorting
-        recommendations.value = allResults.slice(0, 9).map((item: any) => ({
+        allRecommendations.value = allResults.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
           id: item.id,
           title: item.title,
           description: item.overview,
           thumbnailUrl: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : null,
           releaseYear: item.release_date ? new Date(item.release_date).getFullYear() : null,
           duration: null,
+          rating: item.vote_average,
           genres: item.genre_ids?.map((id: number) => 
             Object.entries(genreIdMap).find(([_, gid]) => gid === id)?.[0]
           ).filter(Boolean).join(', ')
@@ -216,13 +245,14 @@ const fetchRecommendations = async () => {
       }
     } else {
       // Standard sorting without AI
-      recommendations.value = allResults.slice(0, 9).map((item: any) => ({
+      allRecommendations.value = allResults.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
         id: item.id,
         title: item.title,
         description: item.overview,
         thumbnailUrl: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : null,
         releaseYear: item.release_date ? new Date(item.release_date).getFullYear() : null,
         duration: null,
+        rating: item.vote_average,
         genres: item.genre_ids?.map((id: number) => 
           Object.entries(genreIdMap).find(([_, gid]) => gid === id)?.[0]
         ).filter(Boolean).join(', ')
@@ -233,6 +263,14 @@ const fetchRecommendations = async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+// Load more recommendations
+const loadMore = () => {
+  displayedCount.value = Math.min(
+    displayedCount.value + LOAD_MORE_INCREMENT,
+    allRecommendations.value.length
+  )
 }
 
 const handleShuffle = async () => {
@@ -265,6 +303,7 @@ const handleShuffle = async () => {
         thumbnailUrl: selectedMovie.poster_path ? `${TMDB_IMAGE_BASE_URL}${selectedMovie.poster_path}` : null,
         releaseYear: selectedMovie.release_date ? new Date(selectedMovie.release_date).getFullYear() : null,
         duration: details?.runtime || null,
+        rating: selectedMovie.vote_average,
         genres: details?.genres?.map((g: any) => g.name).join(', ') || ''
       }
     }
@@ -316,7 +355,7 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
               <input type="checkbox" v-model="useAI" class="sr-only peer">
               <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
               <span class="ml-3 text-sm font-medium text-gray-300">
-                🤖 AI-Enhanced Recommendations
+                🤖 AI-Enhanced (More Accurate)
               </span>
             </label>
           </div>
@@ -346,28 +385,66 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
           </div>
         </div>
 
-        <!-- Genre Selection -->
-        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl shadow-xl border border-slate-700/50 p-8">
-          <div class="mb-6">
-            <h2 class="text-xl font-semibold mb-1 text-white">Select Genres (Optional)</h2>
-            <p class="text-sm text-gray-400">Choose one or more genres to refine recommendations</p>
-          </div>
-          <div class="flex flex-wrap gap-3">
-            <button
-              v-for="genre in genres"
-              :key="genre"
-              @click="toggleGenre(genre)"
-              :class="[
-                'px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-md',
-                selectedGenres.includes(genre)
-                  ? 'bg-blue-500 text-white shadow-blue-500/40'
-                  : 'bg-slate-700/60 text-gray-300 hover:bg-slate-600/60 border border-slate-600/50'
-              ]"
-            >
-              {{ genre }}
-            </button>
-          </div>
-        </div>
+        <!-- Compact Genre Selection — Button-style (replace the old Genre Selection block) -->
+<details class="rounded-xl shadow-xl border border-slate-700/50 bg-slate-800/40 p-0" >
+  <!-- Big button-style summary (no '(optional)') -->
+  <summary
+    class="list-none cursor-pointer flex items-center justify-between gap-4 p-6 rounded-xl hover:bg-slate-700/50 transition-colors"
+    role="button"
+    aria-label="Toggle genres"
+  >
+    <div>
+      <!-- Matches the 'How are you feeling?' size -->
+      <h2 class="text-xl font-semibold text-white leading-tight">Genres</h2>
+      <p class="text-sm text-gray-400 mt-1">Refine recommendations — expand to choose genres</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Selected count badge -->
+      <div class="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/50 border border-slate-600/40">
+        {{ selectedGenres.length }} selected
+      </div>
+
+      <!-- Chevron (rotates when open via small inline style) -->
+      <svg class="w-5 h-5 text-gray-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  </summary>
+
+  <!-- Hidden content: pill buttons -->
+  <div class="px-4 pb-4 pt-3">
+    <div class="flex flex-wrap gap-2">
+      <button
+        v-for="genre in genres"
+        :key="genre"
+        @click="toggleGenre(genre)"
+        :aria-pressed="selectedGenres.includes(genre)"
+        :class="[
+          'px-3 py-1.5 text-sm rounded-full font-medium transition-all duration-150 shadow-sm focus:outline-none',
+          selectedGenres.includes(genre)
+            ? 'bg-blue-500 text-white shadow-blue-500/30 border border-blue-400/30'
+            : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50 border border-slate-600/40'
+        ]"
+      >
+        {{ genre }}
+      </button>
+    </div>
+
+    <!-- Helper row with Clear button -->
+    <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
+      <div>Choose multiple genres to narrow results.</div>
+      <button
+        v-if="selectedGenres.length > 0"
+        @click="selectedGenres = []"
+        class="px-2 py-1 rounded bg-transparent border border-slate-600/40 text-gray-300 hover:bg-slate-700/60 transition"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+</details>
+
 
         <!-- AI Insight Banner -->
         <transition
@@ -481,6 +558,12 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
                     </svg>
                     <span class="font-medium">{{ shuffleResult.duration }}m</span>
                   </div>
+                  <div v-if="shuffleResult.rating" class="flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span class="font-medium text-yellow-500">{{ shuffleResult.rating.toFixed(1) }}</span>
+                  </div>
                 </div>
                 
                 <div v-if="shuffleResult.genres" class="flex flex-wrap gap-1.5 pt-1">
@@ -499,12 +582,17 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
 
         <!-- Recommendations -->
         <div class="space-y-6">
-          <h2 class="text-2xl font-bold text-white">Recommended for You</h2>
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-white">Recommended for You</h2>
+            <div v-if="!isLoading && allRecommendations.length > 0" class="text-sm text-gray-400">
+              Showing {{ recommendations.length }} of {{ allRecommendations.length }} movies
+            </div>
+          </div>
           
           <!-- Loading State -->
           <div v-if="isLoading" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div
-              v-for="i in 6"
+              v-for="i in 9"
               :key="i"
               class="bg-slate-800/60 rounded-lg shadow-xl overflow-hidden animate-pulse border border-slate-700/50"
             >
@@ -517,54 +605,76 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
           </div>
 
           <!-- Recommendations Grid -->
-          <div v-else-if="recommendations.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div
-              v-for="item in recommendations"
-              :key="item.id"
-              @click="navigateToMovie(item.id)"
-              class="bg-slate-800/60 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden cursor-pointer group hover:shadow-2xl hover:border-blue-500/50 transition-all duration-300 border border-slate-700/50 hover:scale-105"
-            >
-              <div class="aspect-video relative overflow-hidden bg-slate-900">
-                <!-- AI Score Badge -->
-                <div v-if="item.aiScore" class="absolute top-2 right-2 z-10 bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-white shadow-lg">
-                  🤖 {{ Math.round(item.aiScore) }}%
-                </div>
-                
-                <img
-                  v-if="item.thumbnailUrl"
-                  :src="item.thumbnailUrl"
-                  :alt="item.title"
-                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                />
-                <div v-else class="w-full h-full flex items-center justify-center">
-                  <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="p-6">
-                <h3 class="font-bold text-lg mb-2 line-clamp-1 text-white group-hover:text-blue-400 transition-colors">
-                  {{ item.title }}
-                </h3>
-                
-                <!-- AI Reasoning -->
-                <p v-if="item.aiReasoning" class="text-xs text-blue-400 mb-2 italic line-clamp-2">
-                  💡 {{ item.aiReasoning }}
-                </p>
-                
-                <p class="text-sm text-gray-400 line-clamp-2 mb-4 leading-relaxed">
-                  {{ item.description }}
-                </p>
-                <div class="flex items-center gap-4 text-sm text-gray-500">
-                  <div v-if="item.releaseYear" class="flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <div v-else-if="recommendations.length > 0">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div
+                v-for="item in recommendations"
+                :key="item.id"
+                @click="navigateToMovie(item.id)"
+                class="bg-slate-800/60 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden cursor-pointer group hover:shadow-2xl hover:border-blue-500/50 transition-all duration-300 border border-slate-700/50 hover:scale-105"
+              >
+                <div class="aspect-video relative overflow-hidden bg-slate-900">
+                  <!-- AI Score Badge -->
+                  <div v-if="item.aiScore" class="absolute top-2 right-2 z-10 bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-white shadow-lg">
+                    🤖 {{ Math.round(item.aiScore) }}%
+                  </div>
+                  
+                  <img
+                    v-if="item.thumbnailUrl"
+                    :src="item.thumbnailUrl"
+                    :alt="item.title"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center">
+                    <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {{ item.releaseYear }}
+                  </div>
+                </div>
+                <div class="p-6">
+                  <h3 class="font-bold text-lg mb-2 line-clamp-1 text-white group-hover:text-blue-400 transition-colors">
+                    {{ item.title }}
+                  </h3>
+                  
+                  <!-- AI Reasoning -->
+                  <p v-if="item.aiReasoning" class="text-xs text-blue-400 mb-2 italic line-clamp-2">
+                    💡 {{ item.aiReasoning }}
+                  </p>
+                  
+                  <p class="text-sm text-gray-400 line-clamp-2 mb-4 leading-relaxed">
+                    {{ item.description }}
+                  </p>
+                  <div class="flex items-center gap-4 text-sm text-gray-500">
+                    <div v-if="item.releaseYear" class="flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {{ item.releaseYear }}
+                    </div>
+                    <div v-if="item.rating" class="flex items-center gap-1">
+                      <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                      <span class="text-yellow-500">{{ item.rating.toFixed(1) }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Load More Button -->
+            <div v-if="hasMore" class="flex justify-center mt-8">
+              <button
+                @click="loadMore"
+                :disabled="isLoadingMore"
+                class="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-xl shadow-blue-900/50 hover:scale-105 hover:shadow-2xl"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>{{ isLoadingMore ? 'Loading...' : 'Load More' }}</span>
+              </button>
             </div>
           </div>
 
