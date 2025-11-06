@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
   origin: [
     'http://localhost:5173',  // Local development
-    'https:/watchbuddy.win',  // Replace with YOUR Vercel URL
+    'https:/watchbuddy.win',  // Deployment
   ],
   credentials: true
 }));
@@ -226,7 +226,7 @@ function parseAIResponse(response) {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on  port ${PORT}`);
   console.log(`📍 Endpoints:
   - GET  /health
   - POST /api/recommend
