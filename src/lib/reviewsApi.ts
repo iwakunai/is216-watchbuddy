@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 import { fetchSupabaseUserId } from "@/lib/supabaseUser";
-import type { Review } from '@/composables/review';
-
+import type { Review } from "@/composables/review";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
 
@@ -15,7 +14,6 @@ export async function fetchMovieReviews(movieId: number): Promise<Review[]> {
       .order("movie_review_created_at", { ascending: false });
 
     if (error) {
-      
       return [];
     }
 
@@ -51,16 +49,49 @@ export async function fetchMovieReviews(movieId: number): Promise<Review[]> {
             source: "tmdb" as const,
           }));
         }
-      } catch (e) {
-        
-      }
+      } catch (e) {}
     }
 
     return [...userReviews, ...tmdbReviews];
   } catch (e) {
-    
     return [];
   }
+}
+
+export async function fetchUserMovieReview(
+  movieId: number,
+  clerkUserId: string | null = null
+): Promise<Review | null> {
+  const userId = await fetchSupabaseUserId(clerkUserId);
+
+  if (!userId) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("movie_reviews")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("movie_id", movieId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data
+    ? {
+        reviewId: data.review_uuid,
+        showId: data.movie_id,
+        userId: data.user_id,
+        userName: data.username,
+        userAvatar: data.user_avatar ?? null,
+        rating: data.movie_user_rating,
+        comment: data.movie_user_review,
+        createdAt: data.movie_review_created_at,
+        source: "user",
+      }
+    : null;
 }
 
 export async function submitMovieReview(
@@ -69,11 +100,10 @@ export async function submitMovieReview(
   rating: number,
   comment: string
 ): Promise<Review | null> {
-
-  if (!clerkUserId) throw new Error("Login to submit a review!");
-
   const userId = await fetchSupabaseUserId(clerkUserId);
-  if (!userId) throw new Error("User record not found.");
+  if (!userId) {
+    return null;
+  }
 
   const { data, error } = await supabase
     .from("movie_reviews")
@@ -89,11 +119,7 @@ export async function submitMovieReview(
     .single();
 
   if (error) {
-    if (error.code === "23505") {
-      throw new Error("You have already reviewed this movie!");
-    } else {
-      throw error;
-    }
+    return null;
   }
 
   return data
@@ -121,7 +147,6 @@ export async function fetchTvReviews(tvId: number): Promise<Review[]> {
       .order("tv_review_created_at", { ascending: false });
 
     if (error) {
-      
       return [];
     }
 
@@ -157,16 +182,48 @@ export async function fetchTvReviews(tvId: number): Promise<Review[]> {
             source: "tmdb" as const,
           }));
         }
-      } catch (e) {
-        
-      }
+      } catch (e) {}
     }
 
     return [...userReviews, ...tmdbReviews];
   } catch (e) {
-    
     return [];
   }
+}
+
+export async function fetchUserTvReview(
+  tvId: number,
+  clerkUserId: string | null = null
+): Promise<Review | null> {
+  const userId = await fetchSupabaseUserId(clerkUserId);
+  if (!userId) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("tv_reviews")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("tv_id", tvId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data
+    ? {
+        reviewId: data.review_uuid,
+        showId: data.tv_id,
+        userId: data.user_id,
+        userName: data.username,
+        userAvatar: data.user_avatar ?? null,
+        rating: data.tv_user_rating,
+        comment: data.tv_user_review,
+        createdAt: data.tv_review_created_at,
+        source: "user",
+      }
+    : null;
 }
 
 export async function submitTvReview(
@@ -175,11 +232,10 @@ export async function submitTvReview(
   rating: number,
   comment: string
 ): Promise<Review | null> {
-
-  if (!clerkUserId) throw new Error("Login to submit a review!");
-
   const userId = await fetchSupabaseUserId(clerkUserId);
-  if (!userId) throw new Error("User record not found.");
+  if (!userId) {
+    return null;
+  }
 
   const { data, error } = await supabase
     .from("tv_reviews")
@@ -195,11 +251,7 @@ export async function submitTvReview(
     .single();
 
   if (error) {
-    if (error.code === "23505") {
-      throw new Error("You have already reviewed this TV series!");
-    } else {
-      throw error;
-    }
+    return null;
   }
 
   return data

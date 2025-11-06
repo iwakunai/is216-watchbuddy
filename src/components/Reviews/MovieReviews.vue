@@ -83,85 +83,161 @@
     </div>
   </div>
 
-  <!-- Review Form -->
+  <!-- Pesonal Review Section -->
   <div
     class="max-h-[400px] mt-5 overflow-y-auto p-4 space-y-4 bg-[#111827]/40 rounded-2xl border border-[#2a2f3b]"
   >
-    <h3 class="text-lg font-semibold mb-4 text-white">Write a Review</h3>
-    <form @submit.prevent="onSubmitMovieReview" class="space-y-4">
-      <div class="flex justify-center space-x-1 select-none">
-        <template v-for="star in 10" :key="star">
-          <svg
-            @click="formData.rating = star"
-            @mouseover="hoverRating = star"
-            @mouseleave="hoverRating = 0"
-            xmlns="http://www.w3.org/2000/svg"
-            :class="
-              star <= (hoverRating || formData.rating)
-                ? 'text-yellow-400'
-                : 'text-gray-400'
-            "
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            stroke="none"
-            class="w-6 h-6 cursor-pointer hover:text-yellow-300 transition-colors"
+    <SignedIn>
+      <!-- display Review Form if no review -->
+      <div v-if="userReview == null">
+        <h3 class="text-lg font-semibold mb-4 text-white">Write a Review</h3>
+        <form @submit.prevent="onSubmitMovieReview" class="space-y-4">
+          <div class="flex justify-center space-x-1 select-none">
+            <template v-for="star in 10" :key="star">
+              <svg
+                @click="formData.rating = star"
+                @mouseover="hoverRating = star"
+                @mouseleave="hoverRating = 0"
+                xmlns="http://www.w3.org/2000/svg"
+                :class="
+                  star <= (hoverRating || formData.rating)
+                    ? 'text-yellow-400'
+                    : 'text-gray-400'
+                "
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                stroke="none"
+                class="w-6 h-6 cursor-pointer hover:text-yellow-300 transition-colors"
+              >
+                <path
+                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.167c.969 0 1.371 1.24.588 1.81l-3.374 2.455a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.117l-3.374-2.454a1 1 0 00-1.176 0l-3.374 2.454c-.783.57-1.838-.195-1.538-1.118l1.287-3.956a1 1 0 00-.364-1.118L2.038 9.384c-.783-.57-.38-1.81.588-1.81h4.167a1 1 0 00.95-.69l1.286-3.957z"
+                />
+              </svg>
+            </template>
+          </div>
+
+          <div>
+            <label class="block mb-2 text-sm text-[#98a1b3]" for="comment"
+              >Comment</label
+            >
+            <textarea
+              v-model="formData.comment"
+              id="comment"
+              rows="4"
+              required
+              class="w-full px-4 py-2 rounded-lg bg-white/4 border border-white/6 text-white placeholder-gray-500 resize-none focus:outline-none focus:border-[#6b6bff]"
+              placeholder="Write your review..."
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            :disabled="submitting"
+            class="px-6 py-2 rounded-lg bg-[#6b6bff] hover:bg-[#5a5aff] text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <path
-              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.167c.969 0 1.371 1.24.588 1.81l-3.374 2.455a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.117l-3.374-2.454a1 1 0 00-1.176 0l-3.374 2.454c-.783.57-1.838-.195-1.538-1.118l1.287-3.956a1 1 0 00-.364-1.118L2.038 9.384c-.783-.57-.38-1.81.588-1.81h4.167a1 1 0 00.95-.69l1.286-3.957z"
-            />
-          </svg>
-        </template>
+            {{ submitting ? "Submitting..." : "Submit Review" }}
+          </button>
+        </form>
       </div>
 
-      <div>
-        <label class="block mb-2 text-sm text-[#98a1b3]" for="comment"
-          >Comment</label
-        >
-        <textarea
-          v-model="formData.comment"
-          id="comment"
-          rows="4"
-          required
-          class="w-full px-4 py-2 rounded-lg bg-white/4 border border-white/6 text-white placeholder-gray-500 resize-none focus:outline-none focus:border-[#6b6bff]"
-          placeholder="Write your review..."
-        ></textarea>
-      </div>
-      <button
-        type="submit"
-        :disabled="submitting"
-        class="px-6 py-2 rounded-lg bg-[#6b6bff] hover:bg-[#5a5aff] text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      <!-- else display own review -->
+      <div
+        v-else
+        class="p-4 rounded-xl bg-[#1e293b] border border-gray-700 transition hover:bg-[#273549]"
       >
-        {{ submitting ? "Submitting..." : "Submit Review" }}
-      </button>
-    </form>
+      <h3 class="text-lg font-semibold mb-4 text-white">Your Review</h3>
+        <div class="flex items-start gap-4">
+          <div
+            class="w-10 h-10 rounded-full overflow-hidden bg-[#6b6bff]/20 flex-shrink-0"
+          >
+            <img
+              v-if="userReview.userAvatar"
+              :src="userReview.userAvatar"
+              :alt="userReview.userName"
+              class="w-full h-full object-cover"
+            />
+            <div
+              v-else
+              class="w-full h-full flex items-center justify-center bg-[#6b6bff]/20 text-white font-bold"
+            >
+              {{ userReview.userName.charAt(0).toUpperCase() }}
+            </div>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="font-semibold text-white truncate">{{
+                userReview.userName
+              }}</span>
+              <span
+                class="px-2 py-1 rounded bg-green-500/20 text-green-300 border border-green-500/30 text-xs font-semibold"
+                >⭐ {{ userReview.rating }}/10</span
+              >
+              <span class="text-xs text-[#98a1b3]">{{
+                formatDate(userReview.createdAt)
+              }}</span>
+            </div>
+
+            <p class="text-left text-[#d7dde8] leading-relaxed break-words">
+              {{
+                showFull[userReview.reviewId]
+                  ? userReview.comment
+                  : truncate(userReview.comment, 180)
+              }}
+              <button
+                v-if="userReview.comment.length > 180"
+                @click="toggleExpand(userReview.reviewId)"
+                class="text-[#6b6bff] hover:underline ml-1 text-sm"
+              >
+                {{ showFull[userReview.reviewId] ? "Show less" : "Read more" }}
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    </SignedIn>
+    <SignedOut>
+      <SignInButton>
+        <button
+          class="nav-link bg-[#5b5bef] hover:bg-[#4545eb] text-white text-[1rem]"
+        >
+          Login to submit a review!
+        </button></SignInButton
+      >
+    </SignedOut>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { fetchMovieReviews, submitMovieReview } from "@/lib/reviewsApi";
-import { useAuth } from "@clerk/vue";
-import type { Review } from '@/composables/review';
+import {
+  fetchMovieReviews,
+  fetchUserMovieReview,
+  submitMovieReview,
+} from "@/lib/reviewsApi";
+import { SignedIn, SignedOut, SignInButton, useAuth } from "@clerk/vue";
+import type { Review } from "@/composables/review";
 import { formatDate } from "@/composables/showDetails";
-
 
 const { userId } = useAuth();
 
-
 const hoverRating = ref(0);
 
-const props = withDefaults(defineProps<{ 
-  movieId: number;
-  movieTitle?: string;
-  posterPath?: string;
-  releaseYear?: number;
-}>(), {
-  movieTitle: '',
-  posterPath: '',
-  releaseYear: 0
-});
+const props = withDefaults(
+  defineProps<{
+    movieId: number;
+    movieTitle?: string;
+    posterPath?: string;
+    releaseYear?: number;
+  }>(),
+  {
+    movieTitle: "",
+    posterPath: "",
+    releaseYear: 0,
+  }
+);
 
 const reviews = ref<Review[]>([]);
+const userReview = ref<Review | null>();
 const loading = ref(true);
 const submitting = ref(false);
 const showFull = ref<Record<string, boolean>>({});
@@ -170,7 +246,6 @@ const formData = ref({
   rating: 0,
   comment: "",
 });
-
 
 function toggleExpand(id: string) {
   showFull.value[id] = !showFull.value[id];
@@ -184,6 +259,7 @@ function truncate(text: string, length: number) {
 async function loadReviews() {
   loading.value = true;
   reviews.value = await fetchMovieReviews(props.movieId);
+  userReview.value = await fetchUserMovieReview(props.movieId, userId.value);
   loading.value = false;
 }
 
@@ -194,13 +270,15 @@ async function onSubmitMovieReview() {
       props.movieId,
       userId.value,
       formData.value.rating,
-      formData.value.comment,
+      formData.value.comment
     );
-    
+
     if (newReview) {
       reviews.value.unshift(newReview);
       formData.value = { rating: 0, comment: "" };
     }
+
+    userReview.value = newReview
   } catch (error: any) {
     alert(error.message || "Failed to submit review. Please try again.");
   }

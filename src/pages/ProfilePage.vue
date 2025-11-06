@@ -6,10 +6,6 @@ import { tabs, type TabId } from "@/types/tabs";
 
 import type {
   Profile,
-  GenreCount,
-  MoodCount,
-  FavouriteItem,
-  // HistoryItem,
 } from "@/types/profile";
 
 import { setUserContext } from "@/lib/supabaseProfile";
@@ -58,14 +54,18 @@ const averageMovieScore = ref(85);
 const averageTvScore = ref(78);
 const averageMoodEmoji = ref("😊");
 
-const totalMoviesWatched = ref(42);
-const totalShowsWatched = ref(18);
+const totalMoviesWatched = computed(() => {
+  return watchlistItems.value.filter(
+    item => item.type === 'movie' && item.status === 'completed'
+  ).length;
+});
 
-const topGenres = ref<GenreCount[]>([]);
+const totalShowsWatched = computed(() => {
+  return watchlistItems.value.filter(
+    item => item.type === 'tv' && item.status === 'completed'
+  ).length;
+});
 
-const topMoods = ref<MoodCount[]>([]);
-
-const favourites = ref<FavouriteItem[]>([]);
 
 // Watchlist state
 const watchlistItems = ref<WatchItem[]>([]);
@@ -198,60 +198,6 @@ async function loadHistory() {
   }
 }
 
-async function loadRatingsAndCalculateAverages() {
-  if (!user.value) return;
-
-  try {
-    // Fetch Supabase user ID
-    const supabaseUserId = await fetchSupabaseUserId(user.value.id);
-    if (!supabaseUserId) return;
-
-    // Fetch movie and TV reviews
-    const [movieReviews, tvReviews] = await Promise.all([
-      getUserMovieReviews(supabaseUserId),
-      getUserTvReviews(supabaseUserId),
-    ]);
-
-    // Calculate average movie score (convert 5-star to percentage)
-    const movieRatings = movieReviews.map((r) => r.rating).filter((r) => r > 0);
-
-    if (movieRatings.length > 0) {
-      const avgMovieRating =
-        movieRatings.reduce((a, b) => a + b, 0) / movieRatings.length;
-      averageMovieScore.value = Math.round((avgMovieRating / 5) * 100);
-    } else {
-      averageMovieScore.value = 0;
-    }
-
-    // Calculate average TV score (convert 5-star to percentage)
-    const tvRatings = tvReviews.map((r) => r.rating).filter((r) => r > 0);
-
-    if (tvRatings.length > 0) {
-      const avgTvRating =
-        tvRatings.reduce((a, b) => a + b, 0) / tvRatings.length;
-      averageTvScore.value = Math.round((avgTvRating / 5) * 100);
-    } else {
-      averageTvScore.value = 0;
-    }
-
-    // Calculate average mood emoji based on overall ratings
-    const allRatings = [...movieRatings, ...tvRatings];
-    if (allRatings.length > 0) {
-      const avgRating =
-        allRatings.reduce((a, b) => a + b, 0) / allRatings.length;
-      // Map average rating to emoji
-      if (avgRating >= 4.5) averageMoodEmoji.value = "😍";
-      else if (avgRating >= 4) averageMoodEmoji.value = "😊";
-      else if (avgRating >= 3.5) averageMoodEmoji.value = "🙂";
-      else if (avgRating >= 3) averageMoodEmoji.value = "😐";
-      else if (avgRating >= 2) averageMoodEmoji.value = "😕";
-      else averageMoodEmoji.value = "😞";
-    } else {
-      averageMoodEmoji.value = "😊";
-    }
-  } catch (err) {}
-}
-
 // Initialize data on mount
 onMounted(async () => {
   if (!isLoaded.value || !user.value) {
@@ -281,7 +227,7 @@ async function initializeData() {
       loadProfile(),
       loadWatchlist(),
       loadHistory(),
-      loadRatingsAndCalculateAverages(),
+
     ]);
   } catch (err) {
     error.value = "Failed to load profile data";

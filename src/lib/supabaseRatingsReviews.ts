@@ -1,18 +1,18 @@
-import { supabase } from '@/lib/supabaseClient'
-import { fetchSupabaseUserId } from '@/lib/supabaseUser'
-import { getMovieDetails, getTVShowDetails } from '@/lib/tmdbFetch'
-import type { CombinedReview } from '@/composables/review';
+import { supabase } from "@/lib/supabaseClient";
+import { fetchSupabaseUserId } from "@/lib/supabaseUser";
+import { getMovieDetails, getTVShowDetails } from "@/lib/tmdbFetch";
+import type { CombinedReview } from "@/composables/review";
 
-
-
-export async function getUserMovieReviews(userId: string): Promise<CombinedReview[]> {
+export async function getUserMovieReviews(
+  userId: string
+): Promise<CombinedReview[]> {
   try {
     // Retrieve user reviews
     const { data, error } = await supabase
-      .from('movie_reviews')
-      .select('*')
-      .eq('user_id', userId)
-      .order('movie_review_created_at', { ascending: false });
+      .from("movie_reviews")
+      .select("*")
+      .eq("user_id", userId)
+      .order("movie_review_created_at", { ascending: false });
 
     if (error) throw error;
 
@@ -28,17 +28,19 @@ export async function getUserMovieReviews(userId: string): Promise<CombinedRevie
           poster_path: movie?.poster || null,
           poster: movie?.poster || undefined,
           rating: review.movie_user_rating || 0,
-          review_text: review.movie_user_review || '',
+          review_text: review.movie_user_review || "",
           created_at: review.movie_review_created_at,
-          reviewedDate: new Date(review.movie_review_created_at).toLocaleDateString('en-SG', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
+          reviewedDate: new Date(
+            review.movie_review_created_at
+          ).toLocaleDateString("en-SG", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
           }),
-          overview: movie?.overview || '',
+          overview: movie?.overview || "",
           vote_average: movie?.rating || 0,
           runtime: movie?.runtime || 0,
-          genres: movie?.genres || []
+          genres: movie?.genres || [],
         };
       })
     );
@@ -47,14 +49,16 @@ export async function getUserMovieReviews(userId: string): Promise<CombinedRevie
   }
 }
 
-export async function getUserTvReviews(userId: string): Promise<CombinedReview[]> {
+export async function getUserTvReviews(
+  userId: string
+): Promise<CombinedReview[]> {
   try {
     // Retrieve user reviews
     const { data, error } = await supabase
-      .from('tv_reviews')
-      .select('*')
-      .eq('user_id', userId)
-      .order('tv_review_created_at', { ascending: false });
+      .from("tv_reviews")
+      .select("*")
+      .eq("user_id", userId)
+      .order("tv_review_created_at", { ascending: false });
 
     if (error) throw error;
 
@@ -70,17 +74,19 @@ export async function getUserTvReviews(userId: string): Promise<CombinedReview[]
           poster_path: tv?.poster || null,
           poster: tv?.poster || undefined,
           rating: review.tv_user_rating || 0,
-          review_text: review.tv_user_review || '',
+          review_text: review.tv_user_review || "",
           created_at: review.tv_review_created_at,
-          reviewedDate: new Date(review.tv_review_created_at).toLocaleDateString('en-SG', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
+          reviewedDate: new Date(
+            review.tv_review_created_at
+          ).toLocaleDateString("en-SG", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
           }),
-          overview: tv?.overview || '',
+          overview: tv?.overview || "",
           vote_average: tv?.rating || 0,
           // runtime: tv?.runtime || 0,
-          genres: tv?.genres || []
+          genres: tv?.genres || [],
         };
       })
     );
@@ -96,37 +102,38 @@ export async function getUserTvReviews(userId: string): Promise<CombinedReview[]
  * @returns Array of combined review items
  */
 export async function getUserReviews(
-  clerkUserId: string, 
-  mediaType: 'movie' | 'tv' | 'all' = 'all'
+  clerkUserId: string,
+  mediaType: "movie" | "tv" | "all" = "all"
 ): Promise<CombinedReview[]> {
   try {
     // Convert Clerk ID to Supabase UUID
-    const supabaseUserId = await fetchSupabaseUserId(clerkUserId)
-    if (!supabaseUserId) {
-      
-      return []
+    const userId = await fetchSupabaseUserId(clerkUserId);
+    if (!userId) {
+      return [];
     }
 
-    let reviews: CombinedReview[] = []
+    let reviews: CombinedReview[] = [];
 
     // Fetch based on filter
-    if (mediaType === 'all' || mediaType === 'movie') {
-      const movieReviews = await getUserMovieReviews(supabaseUserId)
-      reviews = [...reviews, ...movieReviews]
+    if (mediaType === "all" || mediaType === "movie") {
+      const movieReviews = await getUserMovieReviews(userId);
+      reviews = [...reviews, ...movieReviews];
     }
 
-    if (mediaType === 'all' || mediaType === 'tv') {
-      const tvReviews = await getUserTvReviews(supabaseUserId)
-      reviews = [...reviews, ...tvReviews]
+    if (mediaType === "all" || mediaType === "tv") {
+      const tvReviews = await getUserTvReviews(userId);
+      reviews = [...reviews, ...tvReviews];
     }
 
     // Sort by date (most recent first)
-    reviews.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    reviews.sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
 
-    return reviews
+    return reviews;
   } catch (err) {
-    
-    return []
+    return [];
   }
 }
 
@@ -139,23 +146,22 @@ export async function deleteMovieReview(
   clerkUserId: string,
   reviewId: string
 ): Promise<void> {
+  console.log(reviewId)
   try {
-    const supabaseUserId = await fetchSupabaseUserId(clerkUserId)
-    if (!supabaseUserId) throw new Error('User not found')
+    const userId = await fetchSupabaseUserId(clerkUserId);
 
+    console.log(userId)
     const { error } = await supabase
-      .from('movie_reviews')
+      .from("movie_reviews")
       .delete()
-      .eq('review_uuid', reviewId)
-      .eq('user_id', supabaseUserId)
+      .eq("review_uuid", reviewId)
+      .eq("user_id", userId);
 
     if (error) {
-      
-      throw error
+      throw error;
     }
   } catch (err) {
-    
-    throw err
+    throw err;
   }
 }
 
@@ -169,21 +175,18 @@ export async function deleteTvReview(
   reviewId: string
 ): Promise<void> {
   try {
-    const supabaseUserId = await fetchSupabaseUserId(clerkUserId)
-    if (!supabaseUserId) throw new Error('User not found')
+    const userId = await fetchSupabaseUserId(clerkUserId);
 
     const { error } = await supabase
-      .from('tv_reviews')
+      .from("tv_reviews")
       .delete()
-      .eq('review_uuid', reviewId)
-      .eq('user_id', supabaseUserId)
+      .eq("review_uuid", reviewId)
+      .eq("user_id", userId);
 
     if (error) {
-      
-      throw error
+      throw error;
     }
   } catch (err) {
-    
-    throw err
+    throw err;
   }
 }
