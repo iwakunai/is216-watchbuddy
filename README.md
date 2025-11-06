@@ -6,6 +6,8 @@ App Link : https://watchbuddy.win
 
 Do create an account and login or some features (recommender, watchparty, reviews) will be unavailable!
 
+Account features (login, signup) might also be unavailable on more restricted networks.
+
 ## ✨ Features
 
 - 🤖 **AI-Powered Recommendations** - Claude AI analyzes and ranks movies based on your mood and genre preferences
