@@ -4,9 +4,6 @@
     <!-- Animated Gradient Mesh -->
     <div class="gradient-mesh"></div>
     
-    <!-- Particle Background -->
-    <div ref="particlesRef" class="particle-container"></div>
-    
     <!-- Animated Wave Lines -->
     <div class="wave-container">
       <svg class="wave wave-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -20,16 +17,16 @@
       </svg>
       <defs>
         <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:rgba(168, 85, 247, 0.1);stop-opacity:1" />
-          <stop offset="100%" style="stop-color:rgba(59, 130, 246, 0.1);stop-opacity:1" />
+          <stop offset="0%" style="stop-color:rgba(59, 130, 246, 0.1);stop-opacity:1" />
+          <stop offset="100%" style="stop-color:rgba(37, 99, 235, 0.1);stop-opacity:1" />
         </linearGradient>
         <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:rgba(139, 92, 246, 0.08);stop-opacity:1" />
-          <stop offset="100%" style="stop-color:rgba(168, 85, 247, 0.08);stop-opacity:1" />
+          <stop offset="0%" style="stop-color:rgba(37, 99, 235, 0.08);stop-opacity:1" />
+          <stop offset="100%" style="stop-color:rgba(29, 78, 216, 0.08);stop-opacity:1" />
         </linearGradient>
         <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:rgba(59, 130, 246, 0.06);stop-opacity:1" />
-          <stop offset="100%" style="stop-color:rgba(139, 92, 246, 0.06);stop-opacity:1" />
+          <stop offset="0%" style="stop-color:rgba(29, 78, 216, 0.06);stop-opacity:1" />
+          <stop offset="100%" style="stop-color:rgba(37, 99, 235, 0.06);stop-opacity:1" />
         </linearGradient>
       </defs>
     </div>
@@ -46,7 +43,7 @@
   
   <!-- Hero Section -->
   <div class="relative min-h-screen flex items-center justify-center text-white overflow-hidden hero-section">
-    <!-- Film Strip Effect - Moved here so it scrolls with content -->
+    <!-- Film Strip Effect -->
     <div class="film-strip"></div>
     
     <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
@@ -68,7 +65,7 @@
         <div class="cta-container flex flex-col sm:flex-row items-center justify-center gap-6">
           <button
             @click="navigate('/movies')"
-            class="btn-main group relative px-12 py-6 bg-purple-600 text-white text-lg font-bold rounded-2xl transition-all overflow-hidden"
+            class="btn-main group relative px-12 py-6 bg-blue-600 text-white text-lg font-bold rounded-2xl transition-all overflow-hidden"
           >
             <span class="relative z-10 flex items-center gap-3">
               <span class="text-2xl">🎬</span>
@@ -202,71 +199,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const particlesRef = ref<HTMLDivElement | null>(null);
 
 const navigate = (path: string) => {
   router.push(path);
 };
-
-// Particle attraction to mouse
-const handleMouseMove = (e: MouseEvent) => {
-  const particles = particlesRef.value?.querySelectorAll('.particle');
-  particles?.forEach((particle, index) => {
-    if (index % 3 === 0) {
-      const htmlParticle = particle as HTMLElement;
-      const rect = htmlParticle.getBoundingClientRect();
-      const particleX = rect.left + rect.width / 2;
-      const particleY = rect.top + rect.height / 2;
-      
-      const deltaX = e.clientX - particleX;
-      const deltaY = e.clientY - particleY;
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      
-      if (distance < 200) {
-        const force = (200 - distance) / 200;
-        htmlParticle.style.transform = `translate(${deltaX * force * 0.3}px, ${deltaY * force * 0.3}px)`;
-      } else {
-        htmlParticle.style.transform = 'translate(0, 0)';
-      }
-    }
-  });
-};
-
-// Create particles
-const createParticles = () => {
-  if (!particlesRef.value) return;
-  const particleCount = 60;
-  
-  for (let i = 0; i < particleCount; i++) {
-    const particle = document.createElement('div');
-    particle.className = 'particle';
-    particle.style.left = Math.random() * 100 + '%';
-    particle.style.top = Math.random() * 100 + '%';
-    particle.style.animation = `float ${Math.random() * 6 + 6}s ease-in-out infinite`;
-    particle.style.animationDelay = Math.random() * 3 + 's';
-    particle.style.opacity = (Math.random() * 0.3 + 0.1).toString();
-    const size = Math.random() * 3 + 1;
-    particle.style.width = `${size}px`;
-    particle.style.height = `${size}px`;
-    particlesRef.value.appendChild(particle);
-  }
-};
-
-onMounted(() => {
-  createParticles();
-  document.addEventListener('mousemove', handleMouseMove);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('mousemove', handleMouseMove);
-});
 </script>
 
 <style scoped>
+/* Remove any custom cursor effects */
+* {
+  cursor: default !important;
+}
+
 /* Background Container */
 .background-container {
   position: fixed;
@@ -284,9 +231,9 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.12) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(37, 99, 235, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.08) 0%, transparent 50%),
     linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0f1629 100%);
   animation: gradientShift 20s ease infinite;
 }
@@ -352,7 +299,7 @@ onUnmounted(() => {
 .shape-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
   top: -20%;
   right: -10%;
   animation: floatShape 25s ease-in-out infinite;
@@ -361,7 +308,7 @@ onUnmounted(() => {
 .shape-2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, transparent 70%);
   bottom: -10%;
   left: -10%;
   animation: floatShape 30s ease-in-out infinite reverse;
@@ -370,7 +317,7 @@ onUnmounted(() => {
 .shape-3 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(29, 78, 216, 0.35) 0%, transparent 70%);
   top: 50%;
   left: 50%;
   animation: floatShape 35s ease-in-out infinite;
@@ -382,7 +329,7 @@ onUnmounted(() => {
   66% { transform: translate(-100px, 50px) rotate(240deg); }
 }
 
-/* Film Strip Effect - Realistic Film Strip with Frame Boxes */
+/* Film Strip Effect - Pure Black & White */
 .film-strip {
   position: absolute;
   top: 0;
@@ -392,159 +339,219 @@ onUnmounted(() => {
   z-index: 1;
   pointer-events: none;
   overflow: hidden;
+  cursor: default;
 }
 
-/* Top sprocket bar with realistic perforations */
+/* Top film strip with perforations - Realistic Film Strip */
 .film-strip::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 90px;
-  background: linear-gradient(180deg, #1a1820 0%, #0f0d12 100%);
-  border-bottom: 2px solid #2a2530;
+  height: 80px;
+  background: #000000;
+  border-bottom: 4px solid #000000;
   
-  /* Sprocket holes pattern - rectangular perforations */
+  /* Sprocket holes on LEFT side */
   background-image: 
+    /* Left sprocket holes - rectangular perforations */
+    repeating-linear-gradient(
+      90deg,
+      #000000 0px,
+      #000000 10px,
+      transparent 10px,
+      transparent 30px,
+      #000000 30px,
+      #000000 50px
+    ),
+    /* Right sprocket holes - rectangular perforations */
+    repeating-linear-gradient(
+      90deg,
+      #000000 0px,
+      #000000 10px,
+      transparent 10px,
+      transparent 30px,
+      #000000 30px,
+      #000000 50px
+    ),
+    /* Frame numbers (optional white text area) */
+    linear-gradient(
+      90deg,
+      #000000 0%,
+      #000000 100%
+    );
+  
+  background-size: 50px 20px, 50px 20px, 100% 100%;
+  background-position: 0 15px, 0 45px, 0 0;
+  background-repeat: repeat-x, repeat-x, no-repeat;
+  animation: scrollFilmStrip 40s linear infinite;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.9);
+  z-index: 2;
+  
+  /* Create actual sprocket hole cutouts */
+  -webkit-mask-image: 
+    /* Top row of sprockets */
     repeating-linear-gradient(
       90deg,
       transparent 0px,
-      transparent 20px,
-      #6b46c1 20px,
-      #6b46c1 22px,
-      #8b5cf6 22px,
-      #8b5cf6 38px,
-      #6b46c1 38px,
-      #6b46c1 40px,
-      transparent 40px,
-      transparent 60px
-    );
-  background-size: 60px 24px;
-  background-position: 0 33px;
-  animation: scrollFilmStrip 30s linear infinite;
+      transparent 15px,
+      #000000 15px,
+      #000000 25px,
+      transparent 25px,
+      transparent 50px
+    ),
+    /* Bottom row of sprockets */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 15px,
+      #000000 15px,
+      #000000 25px,
+      transparent 25px,
+      transparent 50px
+    ),
+    /* Main film body */
+    linear-gradient(#000000, #000000);
+  -webkit-mask-size: 100% 16px, 100% 16px, 100% 100%;
+  -webkit-mask-position: 0 8px, 0 56px, 0 0;
+  -webkit-mask-repeat: repeat-x, repeat-x, no-repeat;
+  -webkit-mask-composite: destination-out, destination-out, source-over;
   
-  z-index: 2;
+  mask-image: 
+    /* Top row of sprockets */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 15px,
+      #000000 15px,
+      #000000 25px,
+      transparent 25px,
+      transparent 50px
+    ),
+    /* Bottom row of sprockets */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 15px,
+      #000000 15px,
+      #000000 25px,
+      transparent 25px,
+      transparent 50px
+    ),
+    /* Main film body */
+    linear-gradient(#000000, #000000);
+  mask-size: 100% 16px, 100% 16px, 100% 100%;
+  mask-position: 0 8px, 0 56px, 0 0;
+  mask-repeat: repeat-x, repeat-x, no-repeat;
+  mask-composite: exclude, exclude, add;
 }
 
-/* Bottom sprocket bar with realistic perforations */
+/* Bottom film strip with perforations - Realistic Film Strip */
 .film-strip::after {
   content: '';
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 90px;
-  background: linear-gradient(0deg, #1a1820 0%, #0f0d12 100%);
-  border-top: 2px solid #2a2530;
+  height: 80px;
+  background: #000000;
+  border-top: 4px solid #000000;
+  animation: scrollFilmStrip 40s linear infinite;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.9);
+  z-index: 2;
   
-  /* Sprocket holes pattern - rectangular perforations */
-  background-image: 
+  /* Create actual sprocket hole cutouts */
+  -webkit-mask-image: 
+    /* Top row of sprockets */
     repeating-linear-gradient(
       90deg,
       transparent 0px,
-      transparent 20px,
-      #6b46c1 20px,
-      #6b46c1 22px,
-      #8b5cf6 22px,
-      #8b5cf6 38px,
-      #6b46c1 38px,
-      #6b46c1 40px,
-      transparent 40px,
-      transparent 60px
-    );
-  background-size: 60px 24px;
-  background-position: 0 33px;
-  animation: scrollFilmStrip 30s linear infinite;
+      transparent 15px,
+      #000000 15px,
+      #000000 25px,
+      transparent 25px,
+      transparent 50px
+    ),
+    /* Bottom row of sprockets */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 15px,
+      #000000 15px,
+      #000000 25px,
+      transparent 25px,
+      transparent 50px
+    ),
+    /* Main film body */
+    linear-gradient(#000000, #000000);
+  -webkit-mask-size: 100% 16px, 100% 16px, 100% 100%;
+  -webkit-mask-position: 0 8px, 0 56px, 0 0;
+  -webkit-mask-repeat: repeat-x, repeat-x, no-repeat;
+  -webkit-mask-composite: destination-out, destination-out, source-over;
   
-  z-index: 2;
+  mask-image: 
+    /* Top row of sprockets */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 15px,
+      #000000 15px,
+      #000000 25px,
+      transparent 25px,
+      transparent 50px
+    ),
+    /* Bottom row of sprockets */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 15px,
+      #000000 15px,
+      #000000 25px,
+      transparent 25px,
+      transparent 50px
+    ),
+    /* Main film body */
+    linear-gradient(#000000, #000000);
+  mask-size: 100% 16px, 100% 16px, 100% 100%;
+  mask-position: 0 8px, 0 56px, 0 0;
+  mask-repeat: repeat-x, repeat-x, no-repeat;
+  mask-composite: exclude, exclude, add;
 }
 
-/* Film frame boxes in the middle */
+/* Film frame boxes - Vertical frame dividers like real film */
 .hero-section::before {
   content: '';
   position: absolute;
-  top: 80px;
+  top: 70px;
   left: 0;
   width: 100%;
-  height: calc(100vh - 160px);
+  height: calc(100vh - 140px);
   z-index: 1;
   pointer-events: none;
   
-  /* Frame boxes with borders - looks like actual film frames */
+  /* Vertical frame dividers - thick black lines between frames */
   background-image: 
-    /* Vertical frame dividers */
     repeating-linear-gradient(
       90deg,
-      #2a2530 0px,
-      #2a2530 8px,
-      transparent 8px,
-      transparent 180px,
-      #2a2530 180px,
-      #2a2530 188px,
-      transparent 188px,
-      transparent 360px
-    ),
-    /* Inner frame borders (left side of each frame) */
-    repeating-linear-gradient(
-      90deg,
-      transparent 0px,
-      transparent 8px,
-      rgba(42, 37, 48, 0.6) 8px,
-      rgba(42, 37, 48, 0.6) 14px,
-      transparent 14px,
-      transparent 180px
-    ),
-    /* Inner frame borders (right side of each frame) */
-    repeating-linear-gradient(
-      90deg,
-      transparent 0px,
-      transparent 174px,
-      rgba(42, 37, 48, 0.6) 174px,
-      rgba(42, 37, 48, 0.6) 180px,
-      transparent 180px,
-      transparent 360px
+      #000000 0px,
+      #000000 6px,
+      transparent 6px,
+      transparent 200px
     );
   
-  background-size: 360px 100%, 180px 100%, 180px 100%;
-  background-position: 0 0, 0 0, 0 0;
-  animation: scrollFilmStrip 30s linear infinite;
-  
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+  background-size: 206px 100%;
+  background-position: 0 0;
+  animation: scrollFilmStrip 40s linear infinite;
 }
 
 @keyframes scrollFilmStrip {
   0% { 
-    background-position: 0 33px, 0 0, 0 0;
+    background-position: 0 8px, 0 56px;
   }
   100% { 
-    background-position: -360px 33px, -360px 0, -180px 0;
+    background-position: -50px 8px, -50px 56px;
   }
-}
-
-/* Particle Background */
-.particle-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.particle {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-  pointer-events: none;
-  transition: transform 0.3s ease;
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-40px) rotate(180deg); }
 }
 
 /* Hero Section */
@@ -581,7 +588,10 @@ onUnmounted(() => {
 }
 
 .gradient-text {
-  color: #800080;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .hero-subtitle {
@@ -595,13 +605,13 @@ onUnmounted(() => {
 
 /* Button Styles */
 .btn-main {
-  box-shadow: 0 10px 40px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
   position: relative;
 }
 
 .btn-main:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(168, 85, 247, 0.6);
+  box-shadow: 0 20px 60px rgba(59, 130, 246, 0.6);
 }
 
 .btn-gradient {
@@ -674,7 +684,7 @@ onUnmounted(() => {
 .section-divider {
   width: 100px;
   height: 4px;
-  background: linear-gradient(90deg, transparent, #a855f7, transparent);
+  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
   margin: 0 auto;
 }
 
@@ -703,8 +713,8 @@ onUnmounted(() => {
 
 .feature-card:hover .feature-card-inner {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(168, 85, 247, 0.3);
-  box-shadow: 0 20px 60px rgba(168, 85, 247, 0.2);
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 20px 60px rgba(59, 130, 246, 0.2);
 }
 
 .feature-number {
@@ -725,18 +735,18 @@ onUnmounted(() => {
   width: 80px;
   height: 80px;
   border-radius: 20px;
-  background: rgba(168, 85, 247, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.2);
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #a855f7;
+  color: #3b82f6;
   transition: all 0.4s ease;
 }
 
 .feature-card:hover .feature-icon {
-  background: rgba(168, 85, 247, 0.2);
-  border-color: rgba(168, 85, 247, 0.4);
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
   transform: scale(1.1);
 }
 
@@ -757,12 +767,12 @@ onUnmounted(() => {
 
 .feature-arrow {
   font-size: 32px;
-  color: rgba(168, 85, 247, 0.4);
+  color: rgba(59, 130, 246, 0.4);
   transition: all 0.4s ease;
 }
 
 .feature-card:hover .feature-arrow {
-  color: #a855f7;
+  color: #3b82f6;
   transform: translateX(10px);
 }
 
@@ -776,7 +786,7 @@ onUnmounted(() => {
 .cta-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
 }
 
 .btn-cta {
