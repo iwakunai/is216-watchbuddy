@@ -338,16 +338,15 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
       <div class="max-w-6xl mx-auto space-y-8">
         
         <!-- Header -->
-        <div class="py-6 text-center space-y-4">
-          <h1 class="text-4xl sm:text-5xl font-extrabold mb-3 leading-tight flex items-center justify-center gap-3">
-            <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-            </svg>
-            Get AI-Powered Recommendations
-          </h1>
-          <p class="text-lg text-gray-400">
-            Tell us your mood and preferences, our AI will find the perfect movie for you
-          </p>
+    <div class="py-6 text-center space-y-4">
+      <h1 class="text-4xl sm:text-5xl font-extrabold mb-3 leading-tight flex items-center justify-center gap-3">
+          Get AI-Powered Recommendations
+      </h1>
+    <p class="text-lg text-gray-400">
+       Tell us your mood and preferences, our AI will find the perfect movie for you
+    </p>
+
+
           
           <!-- AI Toggle -->
           <div v-if="aiService" class="flex items-center justify-center gap-3 pt-2">

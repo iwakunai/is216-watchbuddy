@@ -1,11 +1,9 @@
 <template>
-  <nav
-    :class="[
-      'w-full',
-      'bg-[#0b1220] border-b border-white/5 sticky top-0 z-50 backdrop-blur-md bg-opacity-95',
-      isOpen ? 'border-b border-gray-200' : 'border-b-0',
-    ]"
-  >
+  <nav :class="[
+    'w-full',
+    'bg-[#0b1220] border-b border-white/5 sticky top-0 z-50 backdrop-blur-md bg-opacity-95',
+    isOpen ? 'border-b border-gray-200' : 'border-b-0',
+  ]">
     <div class="mx-auto px-4">
       <div class="flex items-center justify-between h-16">
         <!-- User Button for Mobile -->
@@ -14,76 +12,38 @@
         </div>
 
         <!-- Logo/Brand -->
-        <RouterLink
-          to="/"
-          class="text-xl font-bold text-indigo-500 bg-clip-text"
-        >
+        <RouterLink to="/" class="text-xl font-bold text-indigo-500 bg-clip-text">
           WatchBuddy
         </RouterLink>
 
         <!-- Links + Search for Desktop -->
         <div class="hidden md:flex items-center gap-4">
           <NavLinks />
-          
+
           <!-- Search Bar for Desktop -->
           <div class="relative" ref="searchContainer">
             <div class="relative">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search"
+              <input v-model="searchQuery" type="text" placeholder="Search"
                 class="w-64 px-4 py-2 pl-10 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                @input="onSearchInput"
-                @focus="showResults = true"
-              />
-              <svg
-                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
+                @input="onSearchInput" @focus="showResults = true" />
+              <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
 
             <!-- Search Results Dropdown -->
-            <div
-              v-if="showResults && searchResults.length > 0"
-              class="absolute top-full mt-2 w-80 bg-[#0f1729] border border-white/10 rounded-lg shadow-xl max-h-96 overflow-y-auto z-50"
-            >
-              <div
-                v-for="result in searchResults"
-                :key="result.id"
-                @click="navigateToDetail(result)"
-                class="flex items-center gap-3 p-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-b-0"
-              >
-                <img
-                  v-if="result.poster_path"
-                  :src="`https://image.tmdb.org/t/p/w92${result.poster_path}`"
-                  :alt="result.title || result.name"
-                  class="w-12 h-18 object-cover rounded"
-                />
-                <div
-                  v-else
-                  class="w-12 h-18 bg-gray-700 rounded flex items-center justify-center"
-                >
-                  <svg
-                    class="w-6 h-6 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                    />
+            <div v-if="showResults && searchResults.length > 0"
+              class="absolute top-full mt-2 w-80 bg-[#0f1729] border border-white/10 rounded-lg shadow-xl max-h-96 overflow-y-auto z-50">
+              <div v-for="result in searchResults" :key="result.id" @click="navigateToDetail(result)"
+                class="flex items-center gap-3 p-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-b-0">
+                <img v-if="result.poster_path" :src="`https://image.tmdb.org/t/p/w92${result.poster_path}`"
+                  :alt="result.title || result.name" class="w-12 h-18 object-cover rounded" />
+                <div v-else class="w-12 h-18 bg-gray-700 rounded flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                   </svg>
                 </div>
                 <div class="flex-1">
@@ -101,10 +61,8 @@
             </div>
 
             <!-- No Results Message -->
-            <div
-              v-if="showResults && searchQuery.length >= 3 && searchResults.length === 0 && !isSearching"
-              class="absolute top-full mt-2 w-80 bg-[#0f1729] border border-white/10 rounded-lg shadow-xl p-4 z-50"
-            >
+            <div v-if="showResults && searchQuery.length >= 3 && searchResults.length === 0 && !isSearching"
+              class="absolute top-full mt-2 w-80 bg-[#0f1729] border border-white/10 rounded-lg shadow-xl p-4 z-50">
               <p class="text-gray-400 text-center">No results found</p>
             </div>
           </div>
@@ -113,26 +71,11 @@
         </div>
 
         <!-- Mobile dropdown menu -->
-        <button
-          class="md:hidden inline-flex items-center justify-center p-2 border border-gray-300 rounded-md"
-          type="button"
-          aria-label="Toggle navigation"
-          aria-controls="primary-menu"
-          :aria-expanded="isOpen ? 'true' : 'false'"
-          @click="toggle"
-        >
-          <svg
-            class="w-6 h-6 stroke-current text-indigo-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
+        <button class="md:hidden inline-flex items-center justify-center p-2 border border-gray-300 rounded-md"
+          type="button" aria-label="Toggle navigation" aria-controls="primary-menu"
+          :aria-expanded="isOpen ? 'true' : 'false'" @click="toggle">
+          <svg class="w-6 h-6 stroke-current text-indigo-500" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
       </div>
@@ -140,66 +83,31 @@
       <!-- Links for mobile on toggle -->
       <div v-if="isOpen" class="md:hidden flex flex-col gap-1 py-2">
         <NavLinks />
-        
+
         <!-- Search Bar for Mobile -->
         <div class="relative mt-2 mb-2" ref="mobileSearchContainer">
           <div class="relative">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search movies & TV shows..."
+            <input v-model="searchQuery" type="text" placeholder="Search movies & TV shows..."
               class="w-full px-4 py-2 pl-10 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              @input="onSearchInput"
-              @focus="showResults = true"
-            />
-            <svg
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
+              @input="onSearchInput" @focus="showResults = true" />
+            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
 
           <!-- Mobile Search Results -->
-          <div
-            v-if="showResults && searchResults.length > 0"
-            class="absolute top-full mt-2 w-full bg-[#0f1729] border border-white/10 rounded-lg shadow-xl max-h-96 overflow-y-auto z-50"
-          >
-            <div
-              v-for="result in searchResults"
-              :key="result.id"
-              @click="navigateToDetail(result)"
-              class="flex items-center gap-3 p-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-b-0"
-            >
-              <img
-                v-if="result.poster_path"
-                :src="`https://image.tmdb.org/t/p/w92${result.poster_path}`"
-                :alt="result.title || result.name"
-                class="w-12 h-18 object-cover rounded"
-              />
-              <div
-                v-else
-                class="w-12 h-18 bg-gray-700 rounded flex items-center justify-center"
-              >
-                <svg
-                  class="w-6 h-6 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                  />
+          <div v-if="showResults && searchResults.length > 0"
+            class="absolute top-full mt-2 w-full bg-[#0f1729] border border-white/10 rounded-lg shadow-xl max-h-96 overflow-y-auto z-50">
+            <div v-for="result in searchResults" :key="result.id" @click="navigateToDetail(result)"
+              class="flex items-center gap-3 p-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-b-0">
+              <img v-if="result.poster_path" :src="`https://image.tmdb.org/t/p/w92${result.poster_path}`"
+                :alt="result.title || result.name" class="w-12 h-18 object-cover rounded" />
+              <div v-else class="w-12 h-18 bg-gray-700 rounded flex items-center justify-center">
+                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                 </svg>
               </div>
               <div class="flex-1">
@@ -217,10 +125,8 @@
           </div>
 
           <!-- Mobile No Results -->
-          <div
-            v-if="showResults && searchQuery.length >= 3 && searchResults.length === 0 && !isSearching"
-            class="absolute top-full mt-2 w-full bg-[#0f1729] border border-white/10 rounded-lg shadow-xl p-4 z-50"
-          >
+          <div v-if="showResults && searchQuery.length >= 3 && searchResults.length === 0 && !isSearching"
+            class="absolute top-full mt-2 w-full bg-[#0f1729] border border-white/10 rounded-lg shadow-xl p-4 z-50">
             <p class="text-gray-400 text-center">No results found</p>
           </div>
         </div>
@@ -282,14 +188,14 @@ const performSearch = async () => {
     }
 
     const data = await response.json();
-    
+
     // Filter to only movies and TV shows, limit to 8 results
     searchResults.value = data.results
-      .filter((result: any) => 
+      .filter((result: any) =>
         result.media_type === "movie" || result.media_type === "tv"
       )
       .slice(0, 8);
-    
+
     showResults.value = true;
   } catch (error) {
     console.error("Error searching:", error);
@@ -304,7 +210,7 @@ const navigateToDetail = (result: any) => {
   showResults.value = false;
   searchQuery.value = "";
   searchResults.value = [];
-  
+
   // Close mobile menu if open
   isOpen.value = false;
 
