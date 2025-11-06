@@ -1,11 +1,14 @@
 <template>
     <div class="absolute inset-0 bg-cover bg-center -z-10"
-         style="background-image: url('/path/to/your/cinema-blur.jpg'); filter: blur(8px) brightness(0.5);">
+    :style="{ 
+           backgroundImage: `url(${backgroundImage})`, 
+           filter: 'blur(8px) brightness(0.5)' 
+         }">
     </div>
   
     <div class="h-screen flex flex-col bg-slate-900/50 text-white overflow-hidden">
       
-      <header class="flex items-center justify-between px-4 sm:px-6 py-4 bg-slate-800/80 backdrop-blur-sm border-b border-slate-700/50 flex-shrink-0 shadow-lg z-10">
+      <header class="flex items-center justify-between px-4 sm:px-6 py-4 bg-slate-800/80 backdrop-blur-sm border-b border-slate-700/50 flex-shrink-0 shadow-lg z-20">
         <button @click="goBack" 
                 class="flex items-center gap-2 text-sm text-gray-200 hover:text-white
                        bg-slate-700/50 hover:bg-slate-700/80 border border-slate-600/50
@@ -13,47 +16,41 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
           </svg>
-          <span>Back</span>
+          <span class="hidden sm:block">Back</span>
         </button>
         <div class="text-center">
           <h2 class="text-xl font-semibold">{{ room?.name }}</h2>
-          <p class="text-<sm text-purple-400 font-medium">{{ room?.movie }}</p>
+          <p class="text-sm text-purple-400 font-medium">{{ room?.movie }}</p>
         </div>
-        <div class="w-[88px]"></div> 
+        <div class="w-[88px] flex justify-end">
+            <button @click="isSidebarOpen = !isSidebarOpen" class="md:hidden p-2 rounded-full hover:bg-slate-700/50">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+            </button>
+        </div> 
       </header>
   
-      <div class="px-6 py-4 flex-shrink-0 z-0">
-        <div class="max-w-2xl mx-auto p-4 bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-lg">
-          <template v-if="hasStarted">
-            <div class="flex items-center justify-between gap-4">
-              <div class="flex-shrink-0">
-                <p class="text-xs text-gray-300">Now Playing</p>
-                <p class="text-sm font-semibold text-white">{{ room?.movie }}</p>
-              </div>
-              
-              <div class="flex-1 flex items-center gap-3 text-sm">
-                <span class="text-gray-300">{{ currentTime }}</span>
-                <div class="flex-1 bg-slate-700 rounded-full h-2.5">
-                  <div class="bg-purple-600 h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
-                </div>
-                <span class="text-gray-300">{{ totalDuration }}</span>
-              </div>
-              
-            </div>
-          </template>
-          <template v-else>
-            <div class="text-center">
-              <p class="text-lg font-semibold text-gray-300">Starting in...</p>
-              <span class="text-6xl font-bold text-purple-400 animate-pulse">{{ startCountdown }}s</span>
-            </div>
-          </template>
-        </div>
-      </div>
-  
-  
       <div class="flex flex-1 overflow-hidden z-0">
-        <aside class="w-1/4 min-w-[200px] bg-slate-800/80 backdrop-blur-sm border-r border-slate-700/50 p-4 overflow-y-auto flex-shrink-0 flex flex-col">
-          <h3 class="text-sm font-semibold mb-4 text-gray-300 flex items-center gap-2 flex-shrink-0">
+        
+        <div v-if="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-black/50 z-30 md:hidden"></div>
+
+        <aside class="fixed md:static top-0 left-0 h-full w-3/4 max-w-[300px] md:w-1/4 md:min-w-[200px] 
+                       bg-slate-800/80 backdrop-blur-sm border-r border-slate-700/50 
+                       p-4 overflow-y-auto flex flex-col z-40
+                       transition-transform duration-300 ease-in-out
+                       -translate-x-full md:translate-x-0"
+               :class="{ 'translate-x-0': isSidebarOpen }">
+          
+          <div class="flex items-center justify-between md:hidden pb-4 mb-4 border-b border-slate-700/50">
+            <h3 class="text-lg font-semibold text-white">In Room ({{ users.length }})</h3>
+            <button @click="isSidebarOpen = false" class="p-1 rounded-full hover:bg-slate-700/50">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+          </div>
+          <h3 class="text-sm font-semibold mb-4 text-gray-300 md:flex items-center gap-2 flex-shrink-0 hidden">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-2.122M17 20v-2m0 2H5.121a2 2 0 01-1.414-.586l-3-3a2 2 0 010-2.828l3-3a2 2 0 011.414-.586H17m0 0a3 3 0 00-5.356-2.122M17 20h5v-2a3 3 0 00-5.356-2.122M17 20v-2m0 2H5.121a2 2 0 01-1.414-.586l-3-3a2 2 0 010-2.828l3-3a2 2 0 011.414-.586H17m0 0a3 3 0 00-5.356-2.122"></path>
             </svg>
@@ -66,9 +63,17 @@
               <div class="flex items-center gap-3">
                 <div class="relative">
                   <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-sm font-semibold">
-                    {{ user.initial }}
+                    <img
+                      v-if="user.profile_image_url"
+                      :src="user.profile_image_url"
+                      alt="Profile"
+                      class="w-full h-full object-cover"
+                    />
+                    <span v-else>{{ user.initial }}</span>
                   </div>
-                  <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-slate-800"></div>
+                  <div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-slate-800"
+                       :class="[user.status === 'synced' ? 'bg-green-500' : 'bg-yellow-500']">
+                  </div>
                 </div>
                 <span>{{ user.name }}</span>
               </div>
@@ -79,27 +84,62 @@
             </li>
           </ul>
           <div class="flex-shrink-0 pt-2 border-t border-slate-700/50">
-            <p vStorage.prototype.key = "2-xs text-gray-400 italic h-4">
+            <p class="text-xs text-gray-400 italic h-4">
               <span v-if="whoIsTyping">{{ whoIsTyping }} is typing...</span>
             </p>
           </div>
         </aside>
   
-        <section class="flex-1 flex flex-col overflow-hidden">
+        <section class="flex-1 flex flex-col overflow-hidden bg-black/20">
           
-          <div ref="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
+          <div class="px-6 py-4 flex-shrink-0 z-0">
+            <div class="max-w-2xl mx-auto p-4 bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-lg">
+              <template v-if="hasStarted">
+                <div class="flex items-center justify-between gap-4">
+                  <div class="flex-shrink-0">
+                    <p class="text-xs text-gray-300">Now Playing</p>
+                    <p class="text-sm font-semibold text-white">{{ room?.movie }}</p>
+                  </div>
+                  
+                  <div class="flex-1 flex items-center gap-3 text-sm">
+                    <span class="text-gray-300">{{ currentTime }}</span>
+                    <div class="flex-1 bg-slate-700 rounded-full h-2.5">
+                      <div class="bg-purple-600 h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
+                    </div>
+                    <span class="text-gray-300">{{ totalDuration }}</span>
+                </div>
+
+                </div>
+              </template>
+              <template v-else>
+                <div class="text-center">
+                  <p class="text-lg font-semibold text-gray-300">Starting in...</p>
+                  <span class="text-6xl font-bold text-purple-400 animate-pulse">{{ startCountdown }}</span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <div ref="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4 relative">
             <div v-for="msg in messages" :key="msg.id" 
                  class="flex items-start gap-3 transition-all duration-300 opacity-0 animate-fade-in"
                  style="animation-fill-mode: forwards;">
               <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                {{ msg.user?.initial || '?' }}
+                <img
+                  v-if="msg.user?.profile_image_url"
+                  :src="msg.user.profile_image_url"
+                  alt="Profile"
+                  class="w-full h-full object-cover rounded-full"
+                />
+                <span v-else>{{ msg.user?.initial || '?' }}</span>
               </div>
-              <div class="flex flex-col">
+              <div class="flex flex-col text-left">
                 <p class="text-sm font-semibold" :style="{ color: msg.user?.color || '#a78bfa' }">{{ msg.user?.name || 'Unknown' }}</p>
                 <p class="text-sm text-gray-200">{{ msg.text }}</p>
               </div>
             </div>
-          </div>
+
+            </div>
   
           <div class="p-4 border-t border-slate-700/50 bg-slate-900 flex items-center gap-3 flex-shrink-0 shadow-2xl">
             <input
@@ -144,6 +184,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useUser } from "@clerk/vue";
 import { sendMessage as sendChatMessage, fetchMessages as fetchChatMessages, subscribeToMessages } from "@/lib/supabaseChat";
 import { joinRoom, leaveRoom, fetchRoomUsers, subscribeRoomUsers } from "@/lib/supabaseRoomUser";
+import backgroundImage from "@/assets/images/partyroombg.jpg";
 
 const { user } = useUser();
 const route = useRoute();
@@ -168,7 +209,7 @@ const hasStarted = ref(false);
 // Computed for display
 const startCountdown = computed(() => {
     let sec = timeUntilStartSec.value;
-    if (sec <= 0) return "00:00";
+    if (sec <= 0) return "00s";
 
     const days = Math.floor(sec / 86400);
     sec %= 86400;
@@ -233,6 +274,12 @@ function formatTime(seconds: number) {
 const currentTime = computed(() => formatTime(currentTimeSec.value));
 const totalDuration = computed(() => formatTime(totalDurationSec.value));
 
+// Added progressPercentage computed
+const progressPercentage = computed(() => {
+    if (totalDurationSec.value === 0) return 0;
+    return (currentTimeSec.value / totalDurationSec.value) * 100;
+});
+
 // Scroll chat to bottom
 function scrollToBottom() {
     nextTick(() => {
@@ -247,9 +294,9 @@ function goBack() {
     router.back();
 }
 
-// function inviteFriends() {
-//     alert("Invite link copied!");
-// }
+// Added placeholder for typing handler
+function handleTyping() {
+}
 
 // Send message
 async function handleSendMessage() {
@@ -305,9 +352,14 @@ let messageSubscription: any = null;
 onMounted(async () => {
     await fetchRoom();
 
+    if (!user.value?.id || !user.value?.username) {
+        console.error("User not loaded, cannot join room.");
+        return;
+    }
+
     // join presence
     if (user.value && user.value.id && user.value.username) {
-        await joinRoom(roomId, user.value.id, user.value.username);
+        await joinRoom(roomId, user.value.id, user.value.username, user.value.profile_image_url);
     }
 
     // fetch initial users
@@ -317,6 +369,12 @@ onMounted(async () => {
     const presenceChannel = subscribeRoomUsers(roomId, (updatedUsers) => {
         users.value = updatedUsers;
     });
+    // Track initial status
+    await presenceChannel.track({
+        user_id: user.value.id,
+        username: user.value.username,
+        status: 'synced'
+    });
 
     const msgs = await fetchChatMessages(roomId);
     messages.value = msgs.map((m: any) => ({
@@ -325,12 +383,23 @@ onMounted(async () => {
         user: {
             id: m.user_clerk_id,
             name: m.users?.username || "Unknown",
-            initial: m.users?.username?.[0]?.toUpperCase() || "?"
+            initial: m.users?.username?.[0]?.toUpperCase() || "?",
+            profile_image_url: m.users?.profile_image_url
         }
     }));
     scrollToBottom();
 
     messageSubscription = subscribeToMessages(roomId, (msg: any) => {
+        const newMsg = {
+            id: msg.id,
+            text: msg.text,
+            user: {
+                id: msg.user_clerk_id,
+                name: msg.users?.username || "Unknown",
+                initial: msg.users?.username?.[0]?.toUpperCase() || "?",
+                profile_image_url: msg.users?.profile_image_url // Added this
+            }
+        };
         messages.value.push(msg);
         scrollToBottom();
     });
@@ -341,7 +410,12 @@ onMounted(async () => {
 onBeforeUnmount(async() => {
     if (timerInterval) clearInterval(timerInterval);
     if (messageSubscription) supabase.removeChannel(messageSubscription);
-    if ((window as any).presenceChannel) supabase.removeChannel((window as any).presenceChannel);
+
+    // Use our channel ref for cleanup
+    if (presenceChannel) {
+        supabase.removeChannel(presenceChannel); // Unsubscribe
+    }
+
     if (user.value && user.value.id) {
         await leaveRoom(roomId, user.value.id);
     }
@@ -353,6 +427,9 @@ onBeforeUnmount(async() => {
 <style scoped>
 ::-webkit-scrollbar {
     width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
 }
 ::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);

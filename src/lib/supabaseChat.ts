@@ -14,18 +14,16 @@ export async function sendMessage(roomId: string, user_clerk_id: string, text: s
 
 export async function fetchMessages(roomId: string) {
     const { data, error } = await supabase
-        .from('pr_messages') // updated table name
+        .from('pr_messages')
         .select(`
             id,
             text,
             created_at,
             user_clerk_id,
-            users: user_clerk_id (username)
+            users: user_clerk_id (username, profile_image_url)
         `)
         .eq('room_id', roomId)
         .order('created_at', { ascending: true });
-
-     // debug
 
     if (error) throw error;
     return data;
@@ -47,7 +45,7 @@ export function subscribeToMessages(roomId: string, callback: (msg: any) => void
             const newMsg = payload.new;
             const { data: userData } = await supabase
                 .from("users")
-                .select("username")
+                .select("username, profile_image_url")
                 .eq("clerk_id", newMsg.user_clerk_id)
                 .single();
 
@@ -58,6 +56,7 @@ export function subscribeToMessages(roomId: string, callback: (msg: any) => void
                     id: newMsg.user_clerk_id,
                     name: userData?.username || "Unknown",
                     initial: userData?.username?.[0]?.toUpperCase() || "?",
+                    profile_image_url: userData?.profile_image_url || null
                 },
             });
         }
