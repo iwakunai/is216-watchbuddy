@@ -4,6 +4,8 @@ WatchBuddy is an intelligent movie discovery platform that uses AI to provide pe
 
 App Link : https://watchbuddy.win
 
+Do create an account and login or some features (recommender, watchparty, reviews) will be unavailable!
+
 ## ✨ Features
 
 - 🤖 **AI-Powered Recommendations** - Claude AI analyzes and ranks movies based on your mood and genre preferences
