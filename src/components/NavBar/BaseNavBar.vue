@@ -7,24 +7,20 @@
     ]"
   >
     <div class="mx-auto px-4">
-      <div class="flex items-center justify-between h-16">
-        <!-- User Button for Mobile -->
-        <div class="flex md:hidden">
-          <UserManagement />
-        </div>
-
+      <div class="flex items-center  h-[6rem]">
+        <ProfileButton class="md:hidden mr-aut p-2"/>
         <!-- Logo/Brand -->
         <RouterLink
           to="/"
-          class="text-xl font-bold text-indigo-500 bg-clip-text"
+          class="text-[2rem] font-bold text-indigo-500 bg-clip-text mx-auto md:mx-0"
         >
           WatchBuddy
         </RouterLink>
 
         <!-- Links + Search for Desktop -->
-        <div class="hidden md:flex items-center gap-4">
+        <div class="hidden md:flex ml-auto items-center gap-4">
           <NavLinks />
-          
+
           <!-- Search Bar for Desktop -->
           <div class="relative" ref="searchContainer">
             <div class="relative">
@@ -91,9 +87,14 @@
                     {{ result.title || result.name }}
                   </p>
                   <p class="text-gray-400 text-sm">
-                    {{ result.media_type === 'movie' ? 'Movie' : 'TV Show' }}
+                    {{ result.media_type === "movie" ? "Movie" : "TV Show" }}
                     <span v-if="result.release_date || result.first_air_date">
-                      • {{ (result.release_date || result.first_air_date).split('-')[0] }}
+                      •
+                      {{
+                        (result.release_date || result.first_air_date).split(
+                          "-"
+                        )[0]
+                      }}
                     </span>
                   </p>
                 </div>
@@ -102,7 +103,12 @@
 
             <!-- No Results Message -->
             <div
-              v-if="showResults && searchQuery.length >= 3 && searchResults.length === 0 && !isSearching"
+              v-if="
+                showResults &&
+                searchQuery.length >= 3 &&
+                searchResults.length === 0 &&
+                !isSearching
+              "
               class="absolute top-full mt-2 w-80 bg-[#0f1729] border border-white/10 rounded-lg shadow-xl p-4 z-50"
             >
               <p class="text-gray-400 text-center">No results found</p>
@@ -139,8 +145,11 @@
 
       <!-- Links for mobile on toggle -->
       <div v-if="isOpen" class="md:hidden flex flex-col gap-1 py-2">
+        <!-- User Button for Mobile -->
+        <UserManagement />
+
         <NavLinks />
-        
+
         <!-- Search Bar for Mobile -->
         <div class="relative mt-2 mb-2" ref="mobileSearchContainer">
           <div class="relative">
@@ -207,9 +216,14 @@
                   {{ result.title || result.name }}
                 </p>
                 <p class="text-gray-400 text-sm">
-                  {{ result.media_type === 'movie' ? 'Movie' : 'TV Show' }}
+                  {{ result.media_type === "movie" ? "Movie" : "TV Show" }}
                   <span v-if="result.release_date || result.first_air_date">
-                    • {{ (result.release_date || result.first_air_date).split('-')[0] }}
+                    •
+                    {{
+                      (result.release_date || result.first_air_date).split(
+                        "-"
+                      )[0]
+                    }}
                   </span>
                 </p>
               </div>
@@ -218,7 +232,12 @@
 
           <!-- Mobile No Results -->
           <div
-            v-if="showResults && searchQuery.length >= 3 && searchResults.length === 0 && !isSearching"
+            v-if="
+              showResults &&
+              searchQuery.length >= 3 &&
+              searchResults.length === 0 &&
+              !isSearching
+            "
             class="absolute top-full mt-2 w-full bg-[#0f1729] border border-white/10 rounded-lg shadow-xl p-4 z-50"
           >
             <p class="text-gray-400 text-center">No results found</p>
@@ -242,7 +261,7 @@ const isSearching = ref(false);
 const searchContainer = ref<HTMLElement | null>(null);
 const mobileSearchContainer = ref<HTMLElement | null>(null);
 
-let searchTimeout: NodeJS.Timeout | null = null;
+let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const toggle = () => {
   isOpen.value = !isOpen.value;
@@ -282,14 +301,15 @@ const performSearch = async () => {
     }
 
     const data = await response.json();
-    
+
     // Filter to only movies and TV shows, limit to 8 results
     searchResults.value = data.results
-      .filter((result: any) => 
-        result.media_type === "movie" || result.media_type === "tv"
+      .filter(
+        (result: any) =>
+          result.media_type === "movie" || result.media_type === "tv"
       )
       .slice(0, 8);
-    
+
     showResults.value = true;
   } catch (error) {
     console.error("Error searching:", error);
@@ -304,7 +324,7 @@ const navigateToDetail = (result: any) => {
   showResults.value = false;
   searchQuery.value = "";
   searchResults.value = [];
-  
+
   // Close mobile menu if open
   isOpen.value = false;
 
