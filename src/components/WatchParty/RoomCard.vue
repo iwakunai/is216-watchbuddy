@@ -80,7 +80,6 @@ const { status, formatStatus, formattedDatetime } = useRoomStatus(props.room);
 
 function joinRoom() {
   if (!user.value) {
-    // alert("You need to login to to join a party");
     return;
   }
   router.push(`/watchparty/room/${props.room.roomid}`);

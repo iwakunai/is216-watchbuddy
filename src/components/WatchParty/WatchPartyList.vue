@@ -61,7 +61,7 @@ import { useRoomStatus } from "../../composables/room";
 import { fetchPublicRooms } from "@/lib/partyRooms";
 
 const props = defineProps<{
-  statusFilter: "all" | "playing" | "scheduled" ; // remove ended and filter rooms for the day only
+  statusFilter: "all" | "playing" | "scheduled" ; 
   searchQuery: string;
 }>();
 

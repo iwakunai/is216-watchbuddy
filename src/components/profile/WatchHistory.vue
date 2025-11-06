@@ -28,7 +28,6 @@ const emit = defineEmits<{ (e: 'open', id: string | number): void }>()
         class="flex flex-col sm:flex-row items-center sm:items-start justify-between p-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-md hover:scale-[1.01] transition-all cursor-pointer group"
         @click="emit('open', h.id)"
       >
-        <!-- Responsive poster: smaller on mobile, bigger on desktop -->
         <div class="relative flex-shrink-0">
           <div class="w-20 h-28 sm:w-24 sm:h-36 bg-gradient-to-br from-gray-300 to-gray-400 rounded-lg shadow-lg overflow-hidden ring-2 ring-white dark:ring-gray-700">
             <img v-if="h.poster" :src="h.poster" :alt="h.title" class="w-full h-full object-cover" />

@@ -35,26 +35,6 @@
       <!-- SEARCH BAR-->
 
       <div class="flex max-w-xs mx-auto mt-4 w-full">
-        <!-- <button
-          @click="showSearch = !showSearch"
-          class="rounded-full  text-white w-8 h-8 flex items-center justify-center shadow hover:bg-indigo-700 transition ml-2"
-          aria-label="Open search"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            class="w-4 h-4"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.6 3.6a7.5 7.5 0 0013.05 13.05z"
-            />
-          </svg>
-        </button> -->
         <div
           class="rounded-full text-white w-8 h-8 flex items-center justify-center shadow transition ml-2"
         >

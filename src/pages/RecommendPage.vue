@@ -31,8 +31,8 @@ const selectedMood = ref<Mood | null>(null);
 const selectedGenres = ref<string[]>([]);
 
 // Data State
-const allRecommendations = ref<any[]>([]); 
-const displayedCount = ref(9); 
+const allRecommendations = ref<any[]>([]);
+const displayedCount = ref(9);
 const recommendations = computed(() =>
   allRecommendations.value.slice(0, displayedCount.value)
 );
@@ -325,7 +325,7 @@ const fetchRecommendations = async () => {
 
   isLoading.value = true;
   aiInsight.value = "";
-  displayedCount.value = INITIAL_DISPLAY; 
+  displayedCount.value = INITIAL_DISPLAY;
 
   try {
     const genreIds = getGenreIds();

@@ -35,7 +35,8 @@
                 ? 'M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z'
                 : currentWatchStatus === 'plan-to-watch'
                 ? 'M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
-                : 'M12 4v16m8-8H4'"
+                : 'M12 4v16m8-8H4'
+            "
             Z
           />
         </svg>
@@ -146,8 +147,6 @@
   </div>
 </template>
 
-
-
 <script setup lang="ts">
 import type { WatchStatus } from "@/composables/watchlist";
 import {
@@ -196,15 +195,15 @@ async function handleWatchlistAction(status: WatchStatus) {
 
   try {
     // Use 'title' for movies and 'name' for TV shows
-    const title = props.media === 'movie' 
-      ? (props.show.title ?? "") 
-      : (props.show.name ?? "");
-    
+    const title =
+      props.media === "movie" ? props.show.title ?? "" : props.show.name ?? "";
+
     // Use 'release_date' for movies and 'first_air_date' for TV shows
-    const dateField = props.media === 'movie' 
-      ? props.show.release_date 
-      : props.show.first_air_date;
-    
+    const dateField =
+      props.media === "movie"
+        ? props.show.release_date
+        : props.show.first_air_date;
+
     const year = dateField ? Number(dateField.slice(0, 4)) : null;
 
     await addToWatchlist(
