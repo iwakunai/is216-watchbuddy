@@ -9,10 +9,18 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+// Replace the cors() line with:
+app.use(cors({
+  origin: [
+    'http://localhost:5173',  // Local development
+    'https://watchbuddy.vercel.app',  // Replace with YOUR Vercel URL
+    /\.vercel\.app$/  // Allow all Vercel preview deployments
+  ],
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 
 // Environment variable for API key (server-side only)

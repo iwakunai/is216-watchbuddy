@@ -585,7 +585,7 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
 
           <!-- Debug Info (only visible in development) -->
           <div v-if="debugInfo" class="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-400 font-mono text-left max-w-2xl mx-auto">
-            <strong>Debug:</strong> {{ debugInfo }}
+            {{ debugInfo }}
           </div>
           
           <!-- AI Toggle -->

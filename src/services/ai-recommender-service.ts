@@ -29,11 +29,16 @@ export class AIRecommenderService {
   private requestCache: Map<string, { data: AIRecommendationResponse; timestamp: number }>;
   private cacheDuration = 3600000;
 
-  constructor(backendUrl: string = 'http://localhost:3001') {
-    this.backendUrl = backendUrl;
-    this.requestCache = new Map();
-    console.log("✅ AIRecommenderService initialized with backend:", backendUrl);
-  }
+  constructor(backendUrl: string = '') {
+  // Auto-detect environment
+  this.backendUrl = backendUrl || (
+    import.meta.env.PROD 
+      ? import.meta.env.VITE_BACKEND_URL || '' // Production: use env variable
+      : 'http://localhost:3001' // Development: use localhost
+  );
+  this.requestCache = new Map();
+  console.log("✅ AIRecommenderService initialized with backend:", this.backendUrl);
+}
 
   async getRankedRecommendations(request: AIRecommendationRequest): Promise<AIRecommendationResponse> {
     console.log("🎬 Calling backend API...");
