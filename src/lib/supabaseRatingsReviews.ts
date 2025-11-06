@@ -146,11 +146,8 @@ export async function deleteMovieReview(
   clerkUserId: string,
   reviewId: string
 ): Promise<void> {
-  console.log(reviewId)
   try {
     const userId = await fetchSupabaseUserId(clerkUserId);
-
-    console.log(userId)
     const { error } = await supabase
       .from("movie_reviews")
       .delete()

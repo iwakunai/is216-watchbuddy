@@ -83,13 +83,7 @@
                 >
               </h1>
 
-              <!-- Watchlist Button -->
-              <WatchListButton
-                :user="user"
-                :showId="showId"
-                :show="show"
-                :media="pageType"
-              />
+              
 
               <div
                 class="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-[#98a1b3]"
@@ -108,6 +102,14 @@
                 </span>
                 <span>{{ formattedDate }}</span>
               </div>
+
+              <!-- Watchlist Button -->
+              <WatchListButton
+                :user="user"
+                :showId="showId"
+                :show="show"
+                :media="pageType"
+              />
             </div>
           </div>
 
@@ -155,19 +157,19 @@
           </div>
 
           <!-- Production Info -->
-          <div class="mt-4 grid md:grid-cols-2 gap-6">
+          <div class="mt-4 grid md:grid-cols gap-6">
             <div>
               <h5 class="font-bold text-xl mb-3 text-white">Show Info</h5>
               <div class="grid gap-3 text-base text-[#98a1b3]">
                 <div class="grid grid-cols-2">
-                  <div class="font-semibold text-white text-left">Type:</div>
-                  <span class="text-left">{{ show.type || "-" }}</span>
+                  <div class="font-semibold text-white text-center">Type:</div>
+                  <span class="text-center">{{ show.type || "-" }}</span>
                 </div>
                 <div class="grid grid-cols-2">
-                  <div class="font-semibold text-white text-left">
+                  <div class="font-semibold text-white text-center">
                     Original Language:
                   </div>
-                  <span class="text-left">{{
+                  <span class="text-center">{{
                     show.original_language?.toUpperCase() || "-"
                   }}</span>
                 </div>
@@ -175,10 +177,10 @@
                   v-if="show.production_companies?.length"
                   class="grid grid-cols-2"
                 >
-                  <div class="font-semibold text-white text-left">
+                  <div class="font-semibold text-white text-center">
                     Production:
                   </div>
-                  <span class="text-left">
+                  <span class="text-center">
                     {{
                       show.production_companies
                         .map((c: any) => c.name)

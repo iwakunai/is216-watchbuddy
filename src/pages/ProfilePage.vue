@@ -16,11 +16,6 @@ import {
   updateWatchlistStatus,
 } from "@/lib/supabaseWatchlist";
 
-import {
-  getUserMovieReviews,
-  getUserTvReviews,
-} from "@/lib/supabaseRatingsReviews";
-import { fetchSupabaseUserId } from "@/lib/supabaseUser";
 import type { MovieItem, WatchItem } from "@/composables/watchlist";
 
 const router = useRouter();
@@ -35,7 +30,6 @@ const activeTab = ref<TabId>(
 
 const setTab = (id: TabId) => {
   activeTab.value = id;
-  // Update URL query parameter without page reload
   router.replace({ query: { tab: id } });
 };
 
@@ -49,10 +43,6 @@ const profile = ref<Profile>({
   defaultAvatar: "/avatar.png",
 });
 const joinDate = ref("Jan 2025");
-
-const averageMovieScore = ref(85);
-const averageTvScore = ref(78);
-const averageMoodEmoji = ref("😊");
 
 const totalMoviesWatched = computed(() => {
   return watchlistItems.value.filter(
@@ -118,13 +108,11 @@ async function loadProfile() {
   if (!user.value) return;
 
   try {
-    // Use Clerk's user data directly
     profile.value = {
       username: user.value.username || user.value.firstName || "User",
       defaultAvatar: user.value.imageUrl || "/avatar.png",
     };
 
-    // Use Clerk's creation date
     joinDate.value = user.value.createdAt
       ? new Date(user.value.createdAt).toLocaleDateString("en-SG", {
           month: "short",
@@ -194,7 +182,6 @@ async function loadHistory() {
       duration: item.party_rooms?.duration ?? '',
     }));
   } catch (err) {
-    // handle error (show toast, etc)
   }
 }
 
@@ -219,7 +206,6 @@ async function initializeData() {
   error.value = null;
 
   try {
-    // Set user context for RLS
     await setUserContext(user.value.id);
 
     // Load all data in parallel

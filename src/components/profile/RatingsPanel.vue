@@ -63,11 +63,9 @@ function shouldShowReadMore(text: string) {
 }
 
 async function deleteReview(review: CombinedReview, event: Event) {
-  // console.log(review)
   event.stopPropagation();
-
   if (!user.value) return;
-
+  
   // Confirm deletion
   if (
     !confirm(

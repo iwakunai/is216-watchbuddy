@@ -160,11 +160,11 @@ const roomName = ref("");
 const watchTitle = ref("");
 const duration = ref<number | null>(null);
 const publicRoom = ref(true);
-const scheduledTime = ref(""); // ISO string
+const scheduledTime = ref(""); 
 const contentType = ref<"movie" | "tv">("movie");
 let selectedPoster = ref("");
 
-const vibe = ref(""); // store only mood id
+const vibe = ref(""); 
 
 // TMDB search
 const movieQuery = ref("");
@@ -210,11 +210,10 @@ async function searchContent() {
 }
 
 async function selectMovie(item: any) {
-  movieQuery.value = item.title; // update what’s shown in input
-  watchTitle.value = item.title; // store for creating room
+  movieQuery.value = item.title; 
+  watchTitle.value = item.title; 
   searchResults.value = [];
 
-  // Fetch details for runtime/duration
   const url = `${TMDB_BASE_URL}/${contentType.value}/${item.id}?api_key=${TMDB_API_KEY}`;
   const res = await fetch(url);
   const data = await res.json();
@@ -254,16 +253,9 @@ async function createRoomHandler() {
   }
 
   emit("created", newRoom);
-  //   emit('close');
 }
 
-// Add invited friends from input
-// function addInvitedFriends() {
-//     if (!inviteInput.value.trim()) return
-//     const names = inviteInput.value.split(',').map(n => n.trim()).filter(Boolean)
-//     invitedFriends.value.push(...names)
-//     inviteInput.value = ''
-// }
+
 </script>
 
 <style scoped>

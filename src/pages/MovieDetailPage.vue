@@ -89,13 +89,6 @@
                 >
               </h1>
 
-              <WatchListButton
-                :user="user"
-                :showId="movieId"
-                :show="movie"
-                :media="pageType"
-              />
-
               <div
                 class="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-[#98a1b3]"
               >
@@ -106,19 +99,26 @@
                 <span>{{ formattedDate }}</span>
                 <span>{{ formattedRuntime }}</span>
               </div>
+
+              <WatchListButton
+                :user="user"
+                :showId="movieId"
+                :show="movie"
+                :media="pageType"
+              />
             </div>
           </div>
 
           <!-- Col 3 -->
-          <div class="grid md:grid-cols-3 gap-6">
+          <div class="grid md:grid-cols-3 gap-6 mt-4">
             <div class="md:col-span-3">
               <!-- Vibe -->
-              <div
+              <!-- <div
                 class="inline-block mb-4 px-4 py-2.5 rounded-lg border border-white/5 bg-white/[0.03] text-[#d6def8]"
               >
                 <strong class="text-lg text-white">Vibe:</strong>
                 <span class="ml-2 text-base">{{ vibe }}</span>
-              </div>
+              </div> -->
 
               <!-- Overview -->
               <div
@@ -186,25 +186,6 @@
                     movie.original_language?.toUpperCase() || "-"
                   }}</span>
                 </div>
-
-                <div class="grid grid-cols-2">
-                  <div
-                    v-if="movie.production_companies?.length"
-                    class="font-semibold text-white text-left"
-                  >
-                    Production Companies:
-                  </div>
-                  <span
-                    v-if="movie.production_companies?.length"
-                    class="text-left"
-                  >
-                    {{
-                      movie.production_companies
-                        .map((c: any) => c.name)
-                        .join(", ")
-                    }}
-                  </span>
-                </div>
               </div>
             </div>
 
@@ -228,6 +209,21 @@
                   }}</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div class="flex flex-cols-4">
+            <div
+              v-if="movie.production_companies?.length"
+              class="font-semibold text-white text-left flex-cols-1 mr-auto"
+            >
+              Production Companies:
+            </div>
+            <div
+             v-if="movie.production_companies?.length" class="flex-cols-3 mr-auto">
+              {{
+                movie.production_companies.map((c: any) => c.name).join(", ")
+              }}
             </div>
           </div>
 

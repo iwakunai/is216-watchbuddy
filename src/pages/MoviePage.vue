@@ -20,9 +20,7 @@
             @click="activeCategory = cat.id"
             :class="[
               'px-7 py-3.5 rounded-full font-semibold text-base whitespace-nowrap transition-all duration-200 border-2',
-              activeCategory === cat.id
-                ? 'active-tab'
-                : 'inactive-tab',
+              activeCategory === cat.id ? 'active-tab' : 'inactive-tab',
             ]"
           >
             {{ cat.label }}
@@ -201,7 +199,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from "vue";
 
 type MovieItem = {
   id: number;
@@ -316,19 +314,19 @@ onMounted(() => {
   background: linear-gradient(90deg, #6b6bff, #8b5cf6);
   border-color: #6b6bff;
   color: white;
-  box-shadow: 0 8px 24px rgba(107,107,255,0.25);
+  box-shadow: 0 8px 24px rgba(107, 107, 255, 0.25);
   transform: scale(1.05);
 }
 
 .inactive-tab {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
   color: #98a1b3;
 }
 
 .inactive-tab:hover {
-  border-color: rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .scrollbar-hide::-webkit-scrollbar {

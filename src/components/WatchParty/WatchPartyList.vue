@@ -56,12 +56,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import type { Room } from "../../composables/room";
-import { useRoomStatus } from "../../composables/room";
+import type { Room } from "@/composables/room";
+import { useRoomStatus } from "@/composables/room";
 import { fetchPublicRooms } from "@/lib/partyRooms";
 
 const props = defineProps<{
-  statusFilter: "all" | "playing" | "scheduled" ; // remove ended and filter rooms for the day only
+  statusFilter: "all" | "playing" | "scheduled" ; 
   searchQuery: string;
 }>();
 
