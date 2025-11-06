@@ -16,7 +16,7 @@
       </h1>
       <!-- SUBHEADING -->
       <p class="text-lg text-gray-400">
-        Enjoy Movies and TV Together, join a Watch Party room to chat in real time
+        Enjoy Movies and TV Shows together, join a Watch Party room to chat in real time!
       </p>
       <!-- WP INFO -->
       <!-- <p class="text-base mt-2 text-indigo-400 text-center font-medium">

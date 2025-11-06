@@ -5,11 +5,17 @@
     hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.03] cursor-pointer"
   >
     <!-- POSTER -->
-    <img
-      :src="props.room.posterUrl"
-      alt="Movie Poster"
-      class="w-full sm:w-40 h-52 sm:h-auto object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-t-none"
-    />
+    <div v-if="props.room.posterUrl" class="w-full sm:w-40 h-52 sm:h-auto">
+      <img
+        :src="props.room.posterUrl"
+        alt="Movie Poster"
+        class="w-full h-full object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-t-none"
+        @error="onImgError"
+      />
+    </div>
+    <div v-else class="w-full sm:w-40 h-52 sm:h-auto bg-gray-800 flex items-center justify-center rounded-t-xl sm:rounded-l-xl sm:rounded-t-none">
+      <span class="text-gray-400 text-sm font-semibold">No Poster</span>
+    </div>
 
     <!-- ROOM INFORMARION -->
     <div class="flex flex-col justify-between p-4 flex-1">
@@ -33,9 +39,9 @@
           {{ formatStatus(status) }}
         </span>
       </div>
-      <button
-        class="w-3/4 mx-auto py-1 border border-[1.5px] border-indigo-300 rounded-md text-base font-medium text-white bg-transparent transition-all hover:bg-indigo-600/20 hover:border-indigo-400 focus:outline-none"
+      <button 
         @click="joinRoom"
+        class="w-3/4 mx-auto py-1 mt-3 border border-[1.5px] border-indigo-300 rounded-md text-base font-medium text-white bg-transparent transition-all hover:bg-indigo-600/20 hover:border-indigo-400 focus:outline-none"
       >
         Join
       </button>
@@ -48,9 +54,10 @@
 import { useRouter } from "vue-router";
 import type { Room } from "../../composables/room";
 import { useRoomStatus } from "../../composables/room";
+import { useUser } from "@clerk/vue";
 
 const props = defineProps<{ room: Room }>();
-
+const { user } = useUser();
 const router = useRouter();
 
 const { status, formatStatus, formattedDatetime } = useRoomStatus(
@@ -58,7 +65,16 @@ const { status, formatStatus, formattedDatetime } = useRoomStatus(
 );
 
 function joinRoom() {
+  if (!user.value) {
+    alert("You need to login to to join a party")
+    return;
+  }
   router.push(`/watchparty/room/${props.room.roomid}`);
+}
+
+function onImgError(e: Event) {
+  const target = e.target as HTMLImageElement;
+  target.style.display = 'none';
 }
 </script>
 
