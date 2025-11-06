@@ -14,155 +14,131 @@
       <!-- HEADING -->
       <h2 class="text-2xl font-semibold mb-4">Create Scheduled Party</h2>
 
-      <!-- FORM -->
-      <form class="flex flex-col gap-4 text-left" @submit.prevent="createRoomHandler">
-        <!-- ROOM NAME -->
-        <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Room Name</label
-          >
-          <input
-            type="text"
-            v-model="roomName"
-            placeholder="e.g., Movie Night with Friends"
-            class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-          />
-        </div>
-
-        <div class="flex gap-4">
-          <label>
-            <input type="radio" value="movie" v-model="contentType" /> Movie
-          </label>
-          <label>
-            <input type="radio" value="tv" v-model="contentType" /> TV Show
-          </label>
-        </div>
-
-        <!-- MOVIE/SHOW TITLE -->
-        <div class="flex flex-col relative">
-          <input
-            type="text"
-            v-model="movieQuery"
-            @input="onSearchInput"
-            placeholder="Type to search..."
-            class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-          />
-
-          <ul
-            v-if="searchResults.length"
-            class="absolute top-full left-0 z-50 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg mt-1 overflow-y-auto shadow-lg"
-            style="max-height: 10rem"
-          >
-            <li
-              v-for="item in searchResults"
-              :key="item.id"
-              @click="selectMovie(item)"
-              class="px-3 py-2 cursor-pointer hover:bg-indigo-500 hover:text-white"
-            >
-              {{ item.title }} ({{ item.year }})
-            </li>
-          </ul>
-        </div>
-
-        <!-- DURATION -->
-        <div class="flex flex-col" v-if="duration !== null">
-          <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Duration (minutes)</label
-          >
-          <input
-            type="number"
-            v-model.number="duration"
-            readonly
-            class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
-          />
-        </div>
-
-        <!-- MAX PARTICIPANTS -->
-        <!-- <div class="flex flex-col">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Max Participants</label>
-                    <input
-                        type="number" v-model.number="maxParticipants"
-                        placeholder="10"
-                        class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    />
-                </div> -->
-
-        <!-- SCHEDULE START TIME -->
-        <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Scheduled Start Time</label
-          >
-          <input
-            type="datetime-local"
-            v-model="scheduledTime"
-            class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-          />
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            Users can join early before the scheduled start
-          </p>
-        </div>
-
-        <!-- PUBLIC STATUS -->
-        <div class="flex items-center justify-between">
-          <div>
+      <SignedIn>
+        <!-- FORM -->
+        <form
+          class="flex flex-col gap-4 text-left"
+          @submit.prevent="createRoomHandler"
+        >
+          <!-- ROOM NAME -->
+          <div class="flex flex-col">
             <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Public Room</label
+              >Room Name</label
             >
+            <input
+              type="text"
+              v-model="roomName"
+              placeholder="e.g., Movie Night with Friends"
+              class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          <div class="flex gap-4">
+            <label>
+              <input type="radio" value="movie" v-model="contentType" /> Movie
+            </label>
+            <label>
+              <input type="radio" value="tv" v-model="contentType" /> TV Show
+            </label>
+          </div>
+
+          <!-- MOVIE/SHOW TITLE -->
+          <div class="flex flex-col relative">
+            <input
+              type="text"
+              v-model="movieQuery"
+              @input="onSearchInput"
+              placeholder="Type to search..."
+              class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+
+            <ul
+              v-if="searchResults.length"
+              class="absolute top-full left-0 z-50 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg mt-1 overflow-y-auto shadow-lg"
+              style="max-height: 10rem"
+            >
+              <li
+                v-for="item in searchResults"
+                :key="item.id"
+                @click="selectMovie(item)"
+                class="px-3 py-2 cursor-pointer hover:bg-indigo-500 hover:text-white"
+              >
+                {{ item.title }} ({{ item.year }})
+              </li>
+            </ul>
+          </div>
+
+          <!-- DURATION -->
+          <div class="flex flex-col" v-if="duration !== null">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Duration (minutes)</label
+            >
+            <input
+              type="number"
+              v-model.number="duration"
+              readonly
+              class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
+            />
+          </div>
+
+          <!-- SCHEDULE START TIME -->
+          <div class="flex flex-col">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Scheduled Start Time</label
+            >
+            <input
+              type="datetime-local"
+              v-model="scheduledTime"
+              class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
             <p class="text-xs text-gray-500 dark:text-gray-400">
-              Allow anyone to join this room
+              Users can join early before the scheduled start
             </p>
           </div>
 
-          <input
-            type="checkbox"
-            v-model="publicRoom"
-            class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-          />
+          <!-- BUTTONS -->
+          <div class="flex flex-col gap-2 mt-2">
+            <button
+              type="submit"
+              class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+            >
+              Create Room
+            </button>
+          </div>
+        </form>
+      </SignedIn>
+      <SignedOut>
+        <div
+          class="flex flex-col items-center justify-center min-h-[200px] py-8"
+        >
+          <p
+            class="mb-6 text-gray-700 dark:text-gray-200 text-center text-lg font-semibold"
+          >
+            You must be logged in to create a party.
+          </p>
+          <SignInButton>
+            <button
+              class="px-5 py-2 bg-indigo-600 text-white rounded shadow font-semibold hover:bg-indigo-700"
+            >
+              Login to create a party!
+            </button>
+          </SignInButton>
+          <div class="mt-4">
+            <span class="text-gray-600 dark:text-gray-400"
+              >Don't have an account?</span
+            >
+            <div class="mt-2">
+              <SignUpButton>
+                <button
+                  class="ml-2 px-5 py-2 bg-gray-800 text-white rounded shadow font-semibold hover:bg-gray-900"
+                >
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </div>
+          </div>
         </div>
-
-        <!-- VIBE -->
-        <!-- <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Vibe</label
-          >
-          <select
-            v-model="vibe"
-            class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-          >
-            <option value="" disabled>Select vibe</option>
-            <option v-for="v in vibes" :key="v.id" :value="v.label">
-              {{ v.label }}
-            </option>
-          </select>
-        </div> -->
-
-        <!-- INVITE FRIENDS -->
-        <!-- <div class="flex flex-col">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Invite Friends</label>
-                    <input
-                        type="text"
-                        v-model="inviteInput"
-                        placeholder="Enter username(s) separated by commas"
-                        class="mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    />
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Invite multiple friends by separating names with commas</p>
-                    <button type="button" @click="addInvitedFriends" class="mt-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Add</button>
-
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        <span v-for="friend in invitedFriends" :key="friend" class="bg-indigo-600 text-white px-2 py-1 rounded">{{ friend }}</span>
-                    </div>
-                </div> -->
-
-        <!-- BUTTONS -->
-        <div class="flex flex-col gap-2 mt-2">
-          <button
-            type="submit"
-            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
-          >
-            Create Room
-          </button>
-        </div>
-      </form>
+      </SignedOut>
     </div>
   </div>
 </template>
@@ -170,13 +146,13 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useUser } from "@clerk/vue";
-import { vibes } from "@/composables/vibes";
 import { createRoom } from "@/lib/partyRooms";
+import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/vue";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
-const { user } = useUser(); 
+const { user } = useUser();
 const emit = defineEmits(["close", "created"]);
 
 // Form fields
@@ -249,13 +225,13 @@ async function selectMovie(item: any) {
     duration.value = data.episode_run_time?.[0] || 45;
   }
   selectedPoster.value = data.poster_path
-    ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : "";
+    ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
+    : "";
 }
 
 // Create Room
 async function createRoomHandler() {
   if (!user.value) {
-    alert('You must be logged in to create a room');
     return;
   }
 
@@ -273,12 +249,12 @@ async function createRoomHandler() {
   });
 
   if (!newRoom) {
-    alert('Failed to create room.');
+    alert("Failed to create room.");
     return;
   }
 
-  emit('created', newRoom);
-//   emit('close');
+  emit("created", newRoom);
+  //   emit('close');
 }
 
 // Add invited friends from input

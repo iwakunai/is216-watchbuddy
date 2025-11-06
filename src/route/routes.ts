@@ -47,7 +47,7 @@ const routes = [
     path: "/recommend",
     name: "recommend",
     component: RecommendPage,
-    meta: { label: "Recommend", showInNav: true },
+    meta: { label: "Recommender", showInNav: true },
   },
   {
     path: "/watchparty",
