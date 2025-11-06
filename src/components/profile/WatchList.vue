@@ -88,47 +88,46 @@ const statusCounts = computed(() => {
     @click="openDropdownId = null"
   >
     <!-- Header with Title and Controls -->
-    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-      <div class="flex items-center gap-4">
-        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          My Watchlist
-        </h3>
-        <div class="flex items-center gap-3 text-sm">
-          <button
-            @click="activeMediaTab = 'movies'; activeStatusTab = 'watching'"
-            :class="[
-              'px-4 py-1.5 rounded-md font-medium transition-colors',
-              activeMediaTab === 'movies'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-            ]"
-          >
-            Movies {{ movieCount }}
-          </button>
-          <button
-            @click="activeMediaTab = 'tv'; activeStatusTab = 'watching'"
-            :class="[
-              'px-4 py-1.5 rounded-md font-medium transition-colors',
-              activeMediaTab === 'tv'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-            ]"
-          >
-            TV {{ tvCount }}
-          </button>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-3">
+    <div class="flex flex-col gap-4 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+        My Watchlist
+      </h3>
+      
+      <div class="flex items-center flex-wrap gap-2 sm:gap-3">
+        <!-- Media Type Buttons -->
+        <button
+          @click="activeMediaTab = 'movies'; activeStatusTab = 'watching'"
+          :class="[
+            'px-3 sm:px-4 py-1.5 rounded-md font-medium transition-colors text-sm',
+            activeMediaTab === 'movies'
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+          ]"
+        >
+          Movies {{ movieCount }}
+        </button>
+        <button
+          @click="activeMediaTab = 'tv'; activeStatusTab = 'watching'"
+          :class="[
+            'px-3 sm:px-4 py-1.5 rounded-md font-medium transition-colors text-sm',
+            activeMediaTab === 'tv'
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+          ]"
+        >
+          TV {{ tvCount }}
+        </button>
+        
         <!-- Sort Order Toggle -->
         <button
           @click="sortOrder = sortOrder === 'desc' ? 'asc' : 'desc'"
-          class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+          class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           :title="sortOrder === 'desc' ? 'Newest First' : 'Oldest First'"
         >
-          <span>{{ sortOrder === 'desc' ? 'Newest First' : 'Oldest First' }}</span>
+          <span class="hidden sm:inline">{{ sortOrder === 'desc' ? 'Newest First' : 'Oldest First' }}</span>
+          <span class="sm:hidden">{{ sortOrder === 'desc' ? 'Newest' : 'Oldest' }}</span>
           <svg 
-            class="w-5 h-5 transition-transform" 
+            class="w-4 h-4 sm:w-5 sm:h-5 transition-transform" 
             :class="{ 'rotate-180': sortOrder === 'asc' }"
             fill="none" 
             stroke="currentColor" 
@@ -141,18 +140,19 @@ const statusCounts = computed(() => {
     </div>
 
     <!-- Status Tabs (Completed, Currently Watching, Plan to Watch) -->
-    <div class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-      <div class="flex items-center gap-1 px-6">
+    <div class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+      <div class="flex items-center gap-1 px-4 sm:px-6 min-w-max">
         <button
           @click="activeStatusTab = 'watching'"
           :class="[
-            'px-6 py-3 text-sm font-medium uppercase tracking-wide transition-colors relative',
+            'px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium uppercase tracking-wide transition-colors relative whitespace-nowrap',
             activeStatusTab === 'watching'
               ? 'text-gray-900 dark:text-gray-100'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
           ]"
         >
-          Currently Watching
+          <span class="hidden sm:inline">Currently Watching</span>
+          <span class="sm:hidden">Watching</span>
           <div 
             v-if="activeStatusTab === 'watching'"
             class="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"
@@ -161,7 +161,7 @@ const statusCounts = computed(() => {
         <button
           @click="activeStatusTab = 'plan-to-watch'"
           :class="[
-            'px-6 py-3 text-sm font-medium uppercase tracking-wide transition-colors relative',
+            'px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium uppercase tracking-wide transition-colors relative whitespace-nowrap',
             activeStatusTab === 'plan-to-watch'
               ? 'text-gray-900 dark:text-gray-100'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -176,7 +176,7 @@ const statusCounts = computed(() => {
         <button
           @click="activeStatusTab = 'completed'"
           :class="[
-            'px-6 py-3 text-sm font-medium uppercase tracking-wide transition-colors relative',
+            'px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium uppercase tracking-wide transition-colors relative whitespace-nowrap',
             activeStatusTab === 'completed'
               ? 'text-gray-900 dark:text-gray-100'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -192,7 +192,7 @@ const statusCounts = computed(() => {
     </div>
 
     <!-- Content Area -->
-    <div class="p-6">
+    <div class="p-4 sm:p-6">
       <!-- Empty State -->
       <div v-if="filteredItems.length === 0" class="text-center py-12">
         <p class="text-gray-600 dark:text-gray-300 text-lg">
@@ -205,78 +205,80 @@ const statusCounts = computed(() => {
         <div 
           v-for="(item, index) in filteredItems" 
           :key="item.id"
-          class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-all cursor-pointer group"
+          class="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-all cursor-pointer group"
           @click="emit('open', item.id)"
         >
           <!-- Index Number -->
-          <div class="flex-shrink-0 w-8 text-center">
-            <span class="text-lg font-bold text-gray-400 dark:text-gray-500">{{ index + 1 }}</span>
+          <div class="flex-shrink-0 w-6 sm:w-8 text-center">
+            <span class="text-base sm:text-lg font-bold text-gray-400 dark:text-gray-500">{{ index + 1 }}</span>
           </div>
 
           <!-- Poster -->
           <div class="flex-shrink-0">
-            <div class="w-16 h-24 bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 rounded-lg overflow-hidden shadow-md">
+            <div class="w-12 h-18 sm:w-16 sm:h-24 bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 rounded-lg overflow-hidden shadow-md">
               <img v-if="item.poster" :src="item.poster" :alt="item.title" class="w-full h-full object-cover" />
             </div>
           </div>
 
           <!-- Content -->
           <div class="flex-1 min-w-0">
-            <div class="flex items-start justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
               <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
                   <span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
                     {{ item.type === 'movie' ? 'Movie' : 'TV' }}
                   </span>
-                  <h4 class="font-bold text-gray-900 dark:text-gray-100 text-base group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                  <h4 class="font-bold text-gray-900 dark:text-gray-100 text-sm sm:text-base group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {{ item.title }}
                   </h4>
                 </div>
-                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   <span v-if="item.year">{{ item.year }}</span>
                   <span v-if="item.year && item.addedAt">•</span>
-                  <span v-if="item.addedAt">Added {{ item.addedAt }}</span>
+                  <span v-if="item.addedAt" class="truncate">Added {{ item.addedAt }}</span>
                 </div>
               </div>
 
-              <!-- Status Change Button -->
-              <div class="flex-shrink-0 relative">
-                <button
-                  @click.stop="toggleDropdown(item.id)"
-                  class="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg transition-colors text-sm font-medium"
-                  title="Change status"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12M8 12h12M8 17h12M3 7h.01M3 12h.01M3 17h.01" />
-                  </svg>
-                  Move to...
-                </button>
-
-                <!-- Dropdown Menu -->
-                <div 
-                  v-if="openDropdownId === item.id"
-                  class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 overflow-hidden"
-                  @click.stop
-                >
+              <!-- Actions - Mobile and Desktop -->
+              <div class="flex items-center gap-2 sm:flex-shrink-0">
+                <!-- Status Change Button -->
+                <div class="relative">
                   <button
-                    v-for="status in getStatusOptions(item.status!)"
-                    :key="status"
-                    @click="changeItemStatus(item, status)"
-                    class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    @click.stop="toggleDropdown(item.id)"
+                    class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg transition-colors text-xs sm:text-sm font-medium whitespace-nowrap"
+                    title="Change status"
                   >
-                    {{ getStatusLabel(status) }}
+                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12M8 12h12M8 17h12M3 7h.01M3 12h.01M3 17h.01" />
+                    </svg>
+                    <span class="hidden sm:inline">Move to...</span>
+                    <span class="sm:hidden">Move</span>
                   </button>
-                </div>
-              </div>
 
-              <!-- Remove Button -->
-              <div class="flex-shrink-0">
+                  <!-- Dropdown Menu -->
+                  <div 
+                    v-if="openDropdownId === item.id"
+                    class="absolute right-0 top-full mt-2 w-44 sm:w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 overflow-hidden"
+                    @click.stop
+                  >
+                    <button
+                      v-for="status in getStatusOptions(item.status!)"
+                      :key="status"
+                      @click="changeItemStatus(item, status)"
+                      class="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      {{ getStatusLabel(status) }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Remove Button -->
                 <button
                   @click.stop="emit('remove', item.id)"
-                  class="p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                  class="p-1.5 sm:p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                   title="Remove from watchlist"
                 >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
