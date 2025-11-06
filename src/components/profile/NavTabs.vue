@@ -10,7 +10,7 @@ const emit = defineEmits<{ (e: 'change', id: TabId): void }>()
 </script>
 
 <template>
-  <div class="border-b border-gray-200 dark:border-gray-700 mb-6 bg-white/5 dark:bg-gray-900/30 rounded-t-lg shadow-sm overflow-x-auto">
+  <div class="border-b border-gray-200 dark:border-gray-700 mb-6 bg-white/5 dark:bg-gray-900/30 rounded-t-lg shadow-sm overflow-x-auto overflow-y-hidden">
     <nav class="flex space-x-1 px-4 -mb-px" role="tablist">
       <button
         v-for="tab in tabs"
