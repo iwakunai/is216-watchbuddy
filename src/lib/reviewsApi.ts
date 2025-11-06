@@ -63,17 +63,20 @@ export async function fetchUserMovieReview(
   clerkUserId: string | null = null
 ): Promise<Review | null> {
   const userId = await fetchSupabaseUserId(clerkUserId);
-  if (!userId) throw new Error("User record not found." + userId);
+
+  if (!userId) {
+    return null;
+  }
 
   const { data, error } = await supabase
-  .from("movie_reviews")
-  .select("*")
-  .eq("user_id", userId)
-  .eq("movie_id", movieId)
-  .single();
-  
-  if(error || !data ) {
-    return null
+    .from("movie_reviews")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("movie_id", movieId)
+    .single();
+
+  if (error || !data) {
+    return null;
   }
 
   return data
@@ -97,10 +100,10 @@ export async function submitMovieReview(
   rating: number,
   comment: string
 ): Promise<Review | null> {
-  // if (!clerkUserId) throw new Error("Login to submit a review!");
-
   const userId = await fetchSupabaseUserId(clerkUserId);
-  if (!userId) throw new Error("User record not found.");
+  if (!userId) {
+    return null;
+  }
 
   const { data, error } = await supabase
     .from("movie_reviews")
@@ -116,11 +119,7 @@ export async function submitMovieReview(
     .single();
 
   if (error) {
-    if (error.code === "23505") {
-      throw new Error("You have already reviewed this movie!");
-    } else {
-      throw error;
-    }
+    return null;
   }
 
   return data
@@ -197,17 +196,19 @@ export async function fetchUserTvReview(
   clerkUserId: string | null = null
 ): Promise<Review | null> {
   const userId = await fetchSupabaseUserId(clerkUserId);
-  if (!userId) throw new Error("User record not found." + userId);
+  if (!userId) {
+    return null;
+  }
 
   const { data, error } = await supabase
-  .from("tv_reviews")
-  .select("*")
-  .eq("user_id", userId)
-  .eq("tv_id", tvId)
-  .single();
-  
-  if(error || !data ) {
-    return null
+    .from("tv_reviews")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("tv_id", tvId)
+    .single();
+
+  if (error || !data) {
+    return null;
   }
 
   return data
@@ -231,10 +232,10 @@ export async function submitTvReview(
   rating: number,
   comment: string
 ): Promise<Review | null> {
-  if (!clerkUserId) throw new Error("Login to submit a review!");
-
   const userId = await fetchSupabaseUserId(clerkUserId);
-  if (!userId) throw new Error("User record not found.");
+  if (!userId) {
+    return null;
+  }
 
   const { data, error } = await supabase
     .from("tv_reviews")
@@ -250,11 +251,7 @@ export async function submitTvReview(
     .single();
 
   if (error) {
-    if (error.code === "23505") {
-      throw new Error("You have already reviewed this TV series!");
-    } else {
-      throw error;
-    }
+    return null;
   }
 
   return data
