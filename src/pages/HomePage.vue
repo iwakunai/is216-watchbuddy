@@ -56,9 +56,8 @@
         
         <!-- Subtitle -->
         <p class="hero-subtitle text-lg md:text-xl text-white/70 max-w-3xl mx-auto mb-12 leading-relaxed font-light">
-          Goodbye endless scrolling.
           <br class="hidden md:block"/>
-          Let your emotions guide your next movie, and watch together in real time.
+          Let your emotions guide your next watch.
         </p>
         
         <!-- CTA Buttons -->
@@ -86,7 +85,7 @@
         <h2 class="text-5xl md:text-7xl font-black mb-8 gradient-text">Everything You Need</h2>
         <div class="section-divider"></div>
         <p class="text-xl md:text-2xl text-white/60 max-w-3xl mx-auto font-light mt-8">
-          Transform how you experience movies
+          Transform how you experience movies & shows
         </p>
       </div>
       
@@ -105,7 +104,7 @@
             </div>
             <h3 class="feature-title">Smart Recommendations</h3>
             <p class="feature-description">
-              AI-powered suggestions tailored to your taste, mood, and viewing history
+              AI-powered suggestions tailored to your mood, taste, and viewing history
             </p>
           </div>
         </div>
@@ -123,7 +122,7 @@
             </div>
             <h3 class="feature-title">Watch Parties</h3>
             <p class="feature-description">
-              Synchronis  ed viewing with real-time chat and interactive features for the ultimate shared experience
+              Synchronised viewing with real-time chat and interactive features for the ultimate shared experience
             </p>
           </div>
         </div>
@@ -154,9 +153,7 @@
     <div class="cta-bg"></div>
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
       <h2 class="text-5xl md:text-7xl font-black mb-10">Ready to Start?</h2>
-      <p class="text-xl md:text-2xl text-white/60 max-w-3xl mx-auto mb-16 font-light">
-        Join thousands of movie lovers transforming their viewing experience
-      </p>
+
       <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
         <button
           @click="navigateToTop('/movies')"
