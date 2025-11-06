@@ -159,34 +159,44 @@ async function loadWatchlist() {
   } catch (err) {}
 }
 
-// async function loadHistory() {
-//   if (!user.value) return;
+const watchpartyHistory = ref<any[]>([]);
 
-//   try {
-//     const data = await getWatchHistory(user.value.id);
-//     historyItems.value = data.map(item => ({
-//       id: String(item.tmdb_id),
-//       title: item.title,
-//       poster: item.poster_path || '',
-//       year: item.release_year || 0,
-//       type: item.media_type,
-//       watchedAt: new Date(item.watched_at!).toLocaleDateString('en-SG', {
-//         month: 'short',
-//         day: 'numeric'
-//       }),
-//       rating: item.rating
-//     }));
+import { fetchWatchpartyHistory } from "@/lib/supabaseProfile";
 
-//     // Calculate stats from history
-//     const movies = historyItems.value.filter(h => h.type === 'movie');
-//     const shows = historyItems.value.filter(h => h.type === 'tv');
-
-//     totalMoviesWatched.value = movies.length;
-//     totalShowsWatched.value = shows.length;
-//   } catch (err) {
-
-//   }
-// }
+async function loadHistory() {
+  if (!user.value) return;
+  
+  try {
+    const data = await fetchWatchpartyHistory();
+    watchpartyHistory.value = (data as any[]).map(item => ({
+      id: item.id,
+      roomName: item.party_rooms?.room_name ?? '',
+      title: item.party_rooms?.title ?? '',
+      poster: item.party_rooms?.poster_url ?? '',
+      scheduledTime: item.party_rooms?.scheduled_time
+        ? new Date(item.party_rooms.scheduled_time).toLocaleString('en-SG', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          })
+        : '',
+      lastJoinedAt: new Date(item.last_joined_at).toLocaleString('en-SG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }),
+      duration: item.party_rooms?.duration ?? '',
+    }));
+  } catch (err) {
+    // handle error (show toast, etc)
+  }
+}
 
 async function loadRatingsAndCalculateAverages() {
   if (!user.value) return;
@@ -270,7 +280,7 @@ async function initializeData() {
     await Promise.all([
       loadProfile(),
       loadWatchlist(),
-      // loadHistory(),
+      loadHistory(),
       loadRatingsAndCalculateAverages(),
     ]);
   } catch (err) {
@@ -355,12 +365,11 @@ async function initializeData() {
           />
         </div>
 
-        <!-- <div v-else-if="activeTab === 'history'">
+        <div v-else-if="activeTab === 'history'">
           <WatchHistory
-            :items="historyItems"
-            @open="openHistoryItem"
+            :items="watchpartyHistory"
           />
-        </div> -->
+        </div>
       </template>
     </div>
   </div>
