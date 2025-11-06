@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 export async function sendMessage(roomId: string, user_clerk_id: string, text: string) {
     const { data, error } = await supabase
-        .from('pr_messages') // updated table name
+        .from('pr_messages') 
         .insert([{ room_id: roomId, user_clerk_id, text }]) // match table columns
         .select()
         .single();

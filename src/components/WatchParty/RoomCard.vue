@@ -68,8 +68,8 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import type { Room } from "../../composables/room";
-import { useRoomStatus } from "../../composables/room";
+import type { Room } from "@/composables/room";
+import { useRoomStatus } from "@/composables/room";
 import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/vue";
 
 const props = defineProps<{ room: Room }>();

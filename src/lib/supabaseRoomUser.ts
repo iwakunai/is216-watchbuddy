@@ -10,6 +10,7 @@ export interface RoomUser {
 
 // Join a room: insert or update a user in the room.
 export async function joinRoom(roomId: string, userId: string, username: string, profile_image_url: string) {
+  console.log(roomId, userId)
   const { data, error } = await supabase
     .from("party_room_user")
     .upsert(
