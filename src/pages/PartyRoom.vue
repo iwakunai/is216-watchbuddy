@@ -305,6 +305,9 @@ const users = ref<any[]>([]);
 const messages = ref<any[]>([]);
 const newMessage = ref("");
 const chatContainer = ref<HTMLElement | null>(null);
+const isSidebarOpen = ref(false); 
+const whoIsTyping = ref(""); 
+let presenceChannel: any = null;
 
 // Timer
 const currentTimeSec = ref(0);
@@ -474,7 +477,7 @@ onMounted(async () => {
       roomId,
       user.value.id,
       user.value.username,
-      user.value.profile_image_url
+      user.value.imageUrl
     );
   }
 
@@ -505,22 +508,22 @@ onMounted(async () => {
   }));
   scrollToBottom();
 
-  messageSubscription = subscribeToMessages(roomId, (msg: any) => {
-    const newMsg = {
-      id: msg.id,
-      text: msg.text,
-      user: {
-        id: msg.user_clerk_id,
-        name: msg.users?.username || "Unknown",
-        initial: msg.users?.username?.[0]?.toUpperCase() || "?",
-        profile_image_url: msg.users?.profile_image_url, // Added this
-      },
-    };
-    messages.value.push(msg);
-    scrollToBottom();
-  });
-  // Store so we can clean up later
-  (window as any).presenceChannel = presenceChannel;
+    messageSubscription = subscribeToMessages(roomId, (msg: any) => {
+        const newMsg = {
+            id: msg.id,
+            text: msg.text,
+            user: {
+                id: msg.user_clerk_id,
+                name: msg.users?.username || "Unknown",
+                initial: msg.users?.username?.[0]?.toUpperCase() || "?",
+                profile_image_url: msg.users?.profile_image_url // Added this
+            }
+        };
+        messages.value.push(newMsg);
+        scrollToBottom();
+    });
+    // Store so we can clean up later
+    (window as any).presenceChannel = presenceChannel;
 });
 
 onBeforeUnmount(async () => {

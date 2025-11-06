@@ -9,7 +9,7 @@ export interface RoomUser {
 }
 
 // Join a room: insert or update a user in the room.
-export async function joinRoom(roomId: string, userId: string, username: string) {
+export async function joinRoom(roomId: string, userId: string, username: string, profile_image_url: string) {
   const { data, error } = await supabase
     .from("party_room_user")
     .upsert(
@@ -17,6 +17,7 @@ export async function joinRoom(roomId: string, userId: string, username: string)
         room_id: roomId,
         user_id: userId,
         user_username: username,
+        profile_image_url: profile_image_url,
         joined_at: new Date().toISOString(),
     },
     {
@@ -61,7 +62,7 @@ export async function fetchRoomUsers(roomId: string): Promise<RoomUser[]> {
       user_id,
       user_username,
       joined_at,
-      users:user_id (profile_image_url)
+      profile_image_url
     `)
     .eq("room_id", roomId);
 
@@ -74,7 +75,7 @@ export async function fetchRoomUsers(roomId: string): Promise<RoomUser[]> {
     name: u.user_username,
     initial: u.user_username?.[0]?.toUpperCase() || "?",
     joinedAt: u.joined_at,
-    profile_image_url: u.users?.profile_image_url || ""
+    profile_image_url: u.profile_image_url || ""
   }));
 }
 
