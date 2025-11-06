@@ -195,16 +195,26 @@ async function handleWatchlistAction(status: WatchStatus) {
   showWatchlistMenu.value = false;
 
   try {
+    // Use 'title' for movies and 'name' for TV shows
+    const title = props.media === 'movie' 
+      ? (props.show.title ?? "") 
+      : (props.show.name ?? "");
+    
+    // Use 'release_date' for movies and 'first_air_date' for TV shows
+    const dateField = props.media === 'movie' 
+      ? props.show.release_date 
+      : props.show.first_air_date;
+    
+    const year = dateField ? Number(dateField.slice(0, 4)) : null;
+
     await addToWatchlist(
       user.value.id,
       props.showId,
       props.media,
       status,
-      props.show.name ?? "",
+      title,
       props.show.poster_path ?? null,
-      props.show.first_air_date
-        ? Number(props.show.first_air_date.slice(0, 4))
-        : null
+      year
     );
     currentWatchStatus.value = status;
   } catch (err: any) {
