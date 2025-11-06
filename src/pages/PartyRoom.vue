@@ -145,7 +145,7 @@
             <input
               v-model="newMessage"
               @keyup.enter="handleSendMessage"
-              @input="handleTyping"
+              
               type="text"
               placeholder="Type a message..."
               class="flex-1 bg-slate-700 rounded-lg px-4 py-2 text-sm outline-none text-white
@@ -200,7 +200,6 @@ const newMessage = ref("");
 const chatContainer = ref<HTMLElement | null>(null);
 const isSidebarOpen = ref(false); 
 const whoIsTyping = ref(""); 
-let presenceChannel: any = null;
 
 // Timer
 const currentTimeSec = ref(0);
@@ -297,10 +296,6 @@ function goBack() {
     router.back();
 }
 
-// Added placeholder for typing handler
-function handleTyping() {
-}
-
 // Send message
 async function handleSendMessage() {
     if (!newMessage.value.trim() || !user.value) return;
@@ -353,19 +348,11 @@ async function fetchRoom() {
 let messageSubscription: any = null;
 
 onMounted(async () => {
-
-    
     await fetchRoom();
-
-
-    if (!user.value?.id || !user.value?.username) {
-        console.error("User not loaded, cannot join room.");
-        return;
-    }
 
     // join presence
     if (user.value && user.value.id && user.value.username) {
-        await joinRoom(roomId, user.value.id, user.value.username, user.value.imageUrl);
+        await joinRoom(roomId, user.value.id, user.value.username);
     }
 
     // fetch initial users
@@ -374,12 +361,6 @@ onMounted(async () => {
     // subscribe to changes
     const presenceChannel = subscribeRoomUsers(roomId, (updatedUsers) => {
         users.value = updatedUsers;
-    });
-    // Track initial status
-    await presenceChannel.track({
-        user_id: user.value.id,
-        username: user.value.username,
-        status: 'synced'
     });
 
     const msgs = await fetchChatMessages(roomId);
@@ -390,25 +371,17 @@ onMounted(async () => {
             id: m.user_clerk_id,
             name: m.users?.username || "Unknown",
             initial: m.users?.username?.[0]?.toUpperCase() || "?",
-            profile_image_url: m.users?.profile_image_url
+            profile_image_url: m.users?.profile_image_url || null
         }
     }));
     scrollToBottom();
 
+    
     messageSubscription = subscribeToMessages(roomId, (msg: any) => {
-        const newMsg = {
-            id: msg.id,
-            text: msg.text,
-            user: {
-                id: msg.user_clerk_id,
-                name: msg.users?.username || "Unknown",
-                initial: msg.users?.username?.[0]?.toUpperCase() || "?",
-                profile_image_url: msg.users?.profile_image_url // Added this
-            }
-        };
-        messages.value.push(newMsg);
+        messages.value.push(msg);
         scrollToBottom();
     });
+
     // Store so we can clean up later
     (window as any).presenceChannel = presenceChannel;
 });
@@ -417,11 +390,7 @@ onBeforeUnmount(async() => {
     if (timerInterval) clearInterval(timerInterval);
     if (messageSubscription) supabase.removeChannel(messageSubscription);
 
-    // Use our channel ref for cleanup
-    if (presenceChannel) {
-        supabase.removeChannel(presenceChannel); // Unsubscribe
-    }
-
+    if ((window as any).presenceChannel) supabase.removeChannel((window as any).presenceChannel);
     if (user.value && user.value.id) {
         await leaveRoom(roomId, user.value.id);
     }
