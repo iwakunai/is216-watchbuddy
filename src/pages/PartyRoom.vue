@@ -198,6 +198,9 @@ const users = ref<any[]>([]);
 const messages = ref<any[]>([]);
 const newMessage = ref("");
 const chatContainer = ref<HTMLElement | null>(null);
+const isSidebarOpen = ref(false); 
+const whoIsTyping = ref(""); 
+let presenceChannel: any = null;
 
 // Timer
 const currentTimeSec = ref(0);
@@ -359,7 +362,7 @@ onMounted(async () => {
 
     // join presence
     if (user.value && user.value.id && user.value.username) {
-        await joinRoom(roomId, user.value.id, user.value.username, user.value.profile_image_url);
+        await joinRoom(roomId, user.value.id, user.value.username, user.value.imageUrl);
     }
 
     // fetch initial users
@@ -400,7 +403,7 @@ onMounted(async () => {
                 profile_image_url: msg.users?.profile_image_url // Added this
             }
         };
-        messages.value.push(msg);
+        messages.value.push(newMsg);
         scrollToBottom();
     });
     // Store so we can clean up later
