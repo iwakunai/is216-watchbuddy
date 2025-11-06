@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { ref, watch, h, computed } from "vue";
-import { useUser } from "@clerk/vue";
-import { useRouter } from "vue-router";
-import { AIRecommenderService } from "../services/ai-recommender-service";
+import { ref, watch, h, computed, onMounted } from 'vue'
+import { useUser } from '@clerk/vue'
+import { useRouter } from 'vue-router'
+import { AIRecommenderService } from '../services/ai-recommender-service'
 
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
-const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY || "";
-const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || ''
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
+const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'
 
-// Initialize AI service
-const aiService = ANTHROPIC_API_KEY
-  ? new AIRecommenderService(ANTHROPIC_API_KEY)
-  : null;
+// Initialize AI service with backend URL
+const aiService = new AIRecommenderService('http://localhost:3001')
 
-const { user, isLoaded } = useUser();
-const router = useRouter();
+console.log("✅ AI Service initialized successfully");
+
+// Auth
+const { user, isLoaded } = useUser()
+const router = useRouter()
+
+// ... rest of your code stays the same
 
 // Mood and Genre State
 type Mood =
@@ -31,25 +33,26 @@ const selectedMood = ref<Mood | null>(null);
 const selectedGenres = ref<string[]>([]);
 
 // Data State
-const allRecommendations = ref<any[]>([]);
-const displayedCount = ref(9);
-const recommendations = computed(() =>
-  allRecommendations.value.slice(0, displayedCount.value)
-);
-const hasMore = computed(
-  () => displayedCount.value < allRecommendations.value.length
-);
+const allRecommendations = ref<any[]>([])
+const displayedCount = ref(9)
+const recommendations = computed(() => allRecommendations.value.slice(0, displayedCount.value))
+const hasMore = computed(() => displayedCount.value < allRecommendations.value.length)
 
-const shuffleResult = ref<any | null>(null);
-const isLoading = ref(false);
-const isLoadingMore = ref(false);
-const aiInsight = ref<string>("");
-const useAI = ref(false);
+const shuffleResult = ref<any | null>(null)
+const isLoading = ref(false)
+const isLoadingMore = ref(false)
+const aiInsight = ref<string>('')
+const useAI = ref(true)
 
-const INITIAL_DISPLAY = 9;
-const LOAD_MORE_INCREMENT = 6;
-const MAX_RECOMMENDATIONS = 30;
+// Debug info
+const debugInfo = ref<string>('')
 
+// Pagination settings
+const INITIAL_DISPLAY = 9
+const LOAD_MORE_INCREMENT = 6
+const MAX_RECOMMENDATIONS = 30
+
+// Moods Configuration
 const moods = [
   {
     value: "happy" as Mood,
@@ -320,55 +323,72 @@ const getGenreIds = (): number[] => {
   return [];
 };
 
+// Enhanced fetch with debugging
 const fetchRecommendations = async () => {
-  if (!TMDB_API_KEY) return;
+  if (!TMDB_API_KEY) {
+    console.error("❌ Cannot fetch - TMDB_API_KEY missing");
+    return;
+  }
 
-  isLoading.value = true;
-  aiInsight.value = "";
-  displayedCount.value = INITIAL_DISPLAY;
+  console.log("\n🎬 === FETCHING RECOMMENDATIONS ===");
+  console.log("Mood:", selectedMood.value);
+  console.log("Genres:", selectedGenres.value);
+  console.log("Use AI:", useAI.value);
+  console.log("AI Service:", aiService ? "Available" : "Not available");
 
+  isLoading.value = true
+  aiInsight.value = ''
+  displayedCount.value = INITIAL_DISPLAY
+  debugInfo.value = `Starting fetch... Mood: ${selectedMood.value}, Genres: ${selectedGenres.value.join(', ')}`
+  
   try {
-    const genreIds = getGenreIds();
-
-    // Special handling for mood+genre combinations
-    let genreQuery = "";
+    const genreIds = getGenreIds()
+    console.log("Genre IDs:", genreIds);
+    
+    let genreQuery = ''
     if (selectedGenres.value.length > 0) {
-      // When genres are explicitly selected, use them
-      genreQuery = `&with_genres=${genreIds.join(",")}`;
+      genreQuery = `&with_genres=${genreIds.join(',')}`
     } else if (selectedMood.value) {
-      // When only mood is selected, get broader results for AI to filter
-      // Don't restrict by genre too much, let AI handle it
-      const moodGenres = moodGenreMap[selectedMood.value];
-      genreQuery = `&with_genres=${moodGenres.join("|")}`; // OR instead of AND
+      const moodGenres = moodGenreMap[selectedMood.value]
+      genreQuery = `&with_genres=${moodGenres.join('|')}`
     }
-
-    // Fetch 5 pages (100 movies) for better selection
-    const allResults: any[] = [];
-    for (let page = 1; page <= 5; page++) {
+    
+    console.log("Fetching movies from TMDB...");
+    const allResults: any[] = []
+    for (let page = 1; page <= 3; page++) {
       const response = await fetch(
         `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&include_adult=false&page=${page}${genreQuery}&vote_count.gte=100`
       );
 
       if (response.ok) {
-        const data = await response.json();
-        allResults.push(...data.results);
+        const data = await response.json()
+        allResults.push(...data.results)
+        console.log(`  Page ${page}: ${data.results.length} movies`);
       }
     }
-
+    
+    console.log(`Total movies fetched: ${allResults.length}`);
+    debugInfo.value = `Fetched ${allResults.length} movies from TMDB`
+    
     // Use AI to rank movies if available and enabled
-    if (
-      aiService &&
-      useAI.value &&
-      (selectedMood.value || selectedGenres.value.length > 0)
-    ) {
+    if (aiService && useAI.value && (selectedMood.value || selectedGenres.value.length > 0)) {
+      console.log("\n🤖 === CALLING AI SERVICE ===");
+      debugInfo.value = `AI ranking ${allResults.length} movies...`
+      
       try {
-        // Send top 40 movies to AI for deep analysis
+        const aiStartTime = Date.now()
         const aiResponse = await aiService.getRankedRecommendations({
           mood: selectedMood.value || "",
           genres: selectedGenres.value,
-          movies: allResults.slice(0, 40),
-        });
-
+          movies: allResults.slice(0, 30)
+        })
+        const aiEndTime = Date.now()
+        
+        console.log(`AI processing took ${aiEndTime - aiStartTime}ms`);
+        console.log("AI Response:", aiResponse);
+        
+        debugInfo.value = `AI ranked ${aiResponse.rankedMovies.length} movies in ${aiEndTime - aiStartTime}ms`
+        
         // Sort movies by AI scores
         const movieMap = new Map(allResults.map((m) => [m.id, m]));
         const rankedMovies = aiResponse.rankedMovies
@@ -383,36 +403,36 @@ const fetchRecommendations = async () => {
               : null;
           })
           .filter(Boolean)
-          .sort((a: any, b: any) => b.aiScore - a.aiScore);
-
-        aiInsight.value = aiResponse.personalizedInsight;
-
-        // Store ALL ranked movies, show first 9
-        allRecommendations.value = rankedMovies
-          .slice(0, MAX_RECOMMENDATIONS)
-          .map((item: any) => ({
-            id: item.id,
-            title: item.title,
-            description: item.overview,
-            thumbnailUrl: item.poster_path
-              ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}`
-              : null,
-            releaseYear: item.release_date
-              ? new Date(item.release_date).getFullYear()
-              : null,
-            duration: null,
-            rating: item.vote_average,
-            genres: item.genre_ids
-              ?.map(
-                (id: number) =>
-                  Object.entries(genreIdMap).find(([_, gid]) => gid === id)?.[0]
-              )
-              .filter(Boolean)
-              .join(", "),
-            aiScore: item.aiScore,
-            aiReasoning: item.aiReasoning,
-          }));
+          .sort((a: any, b: any) => b.aiScore - a.aiScore)
+        
+        aiInsight.value = aiResponse.personalizedInsight
+        
+        console.log("Top 5 AI scores:", rankedMovies.slice(0, 5).map((m: any) => ({
+          title: m.title,
+          score: m.aiScore,
+          reasoning: m.aiReasoning
+        })));
+        
+        allRecommendations.value = rankedMovies.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          description: item.overview,
+          thumbnailUrl: item.poster_path ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` : null,
+          releaseYear: item.release_date ? new Date(item.release_date).getFullYear() : null,
+          duration: null,
+          rating: item.vote_average,
+          genres: item.genre_ids?.map((id: number) => 
+            Object.entries(genreIdMap).find(([_, gid]) => gid === id)?.[0]
+          ).filter(Boolean).join(', '),
+          aiScore: item.aiScore,
+          aiReasoning: item.aiReasoning
+        }))
+        
+        console.log("✅ AI recommendations ready:", allRecommendations.value.length);
       } catch (aiError) {
+        console.error("💥 AI Error:", aiError);
+        debugInfo.value = `AI failed: ${aiError}. Using fallback.`
+        
         // Fallback to basic sorting
         allRecommendations.value = allResults
           .slice(0, MAX_RECOMMENDATIONS)
@@ -438,6 +458,9 @@ const fetchRecommendations = async () => {
           }));
       }
     } else {
+      console.log("⚠️ Skipping AI (useAI:", useAI.value, ", aiService:", !!aiService, ")");
+      debugInfo.value = "Using basic sorting (AI disabled or unavailable)"
+      
       // Standard sorting without AI
       allRecommendations.value = allResults
         .slice(0, MAX_RECOMMENDATIONS)
@@ -462,7 +485,11 @@ const fetchRecommendations = async () => {
             .join(", "),
         }));
     }
+    
+    console.log("=== FETCH COMPLETE ===\n");
   } catch (err) {
+    console.error("💥 Fetch error:", err);
+    debugInfo.value = `Error: ${err}`
   } finally {
     isLoading.value = false;
   }
@@ -490,11 +517,9 @@ const handleShuffle = async () => {
     );
 
     if (response.ok) {
-      const data = await response.json();
-      const selectedMovie =
-        data.results[Math.floor(Math.random() * data.results.length)];
-
-      // Fetch movie details for runtime
+      const data = await response.json()
+      const selectedMovie = data.results[Math.floor(Math.random() * data.results.length)]
+      
       const detailsResponse = await fetch(
         `${TMDB_BASE_URL}/movie/${selectedMovie.id}?api_key=${TMDB_API_KEY}`
       );
@@ -516,28 +541,28 @@ const handleShuffle = async () => {
         genres: details?.genres?.map((g: any) => g.name).join(", ") || "",
       };
     }
-  } catch (err) {}
-};
+  } catch (err) {
+    console.error("Shuffle error:", err);
+  }
+}
 
 const navigateToMovie = (id: number) => {
   router.push(`/movie/${id}`);
 };
 
 // Watch for changes and fetch recommendations
-watch(
-  [selectedMood, selectedGenres, useAI],
-  () => {
-    if (user.value) {
-      fetchRecommendations();
-    }
-  },
-  { deep: true }
-);
+watch([selectedMood, selectedGenres, useAI], () => {
+  if (user.value) {
+    console.log("🔄 Mood/Genre/AI changed, refetching...");
+    fetchRecommendations()
+  }
+}, { deep: true })
 
 // Initial load
 watch([user, isLoaded], ([currentUser, loaded]) => {
   if (loaded && currentUser) {
-    fetchRecommendations();
+    console.log("👤 User loaded, fetching initial recommendations");
+    fetchRecommendations()
   }
 });
 </script>
@@ -550,17 +575,19 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="max-w-6xl mx-auto space-y-8">
         <!-- Header -->
-        <div class="py-6 text-center space-y-4">
-          <h1
-            class="text-4xl sm:text-5xl font-extrabold mb-3 leading-tight flex items-center justify-center gap-3"
-          >
-            Get AI-Powered Recommendations
-          </h1>
-          <p class="text-lg text-gray-400">
-            Tell us your mood and preferences, our AI will find the perfect
-            movie for you
-          </p>
+    <div class="py-6 text-center space-y-4">
+      <h1 class="text-4xl sm:text-5xl font-extrabold mb-3 leading-tight flex items-center justify-center gap-3">
+          Get AI-Powered Recommendations
+      </h1>
+    <p class="text-lg text-gray-400">
+       Tell us your mood and preferences, our AI will find the perfect movie for you
+    </p>
 
+          <!-- Debug Info (only visible in development) -->
+          <div v-if="debugInfo" class="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-400 font-mono text-left max-w-2xl mx-auto">
+            <strong>Debug:</strong> {{ debugInfo }}
+          </div>
+          
           <!-- AI Toggle -->
           <div
             v-if="aiService"
@@ -572,9 +599,12 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
                 class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
               ></div>
               <span class="ml-3 text-sm font-medium text-gray-300">
-                🤖 AI-Enhanced (More Accurate)
+                🤖 AI-Enhanced ({{ useAI ? 'ON' : 'OFF' }})
               </span>
             </label>
+          </div>
+          <div v-else class="text-sm text-yellow-500">
+            ⚠️ AI service unavailable - check ANTHROPIC_API_KEY in .env
           </div>
         </div>
 
@@ -608,82 +638,58 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
           </div>
         </div>
 
-        <!-- Genre Selection -->
-        <details
-          class="rounded-xl shadow-xl border border-slate-700/50 bg-slate-800/40 p-0"
-        >
-          <!--Summary style -->
-          <summary
-            class="list-none cursor-pointer flex items-center justify-between gap-4 p-6 rounded-xl hover:bg-slate-700/50 transition-colors"
-            role="button"
-            aria-label="Toggle genres"
-          >
-            <div>
-              <h2 class="text-xl font-semibold text-white leading-tight">
-                Genres
-              </h2>
-              <p class="text-sm text-gray-400 mt-1">
-                Refine recommendations — expand to choose genres
-              </p>
-            </div>
+        <!-- Compact Genre Selection -->
+<details class="rounded-xl shadow-xl border border-slate-700/50 bg-slate-800/40 p-0">
+  <summary
+    class="list-none cursor-pointer flex items-center justify-between gap-4 p-6 rounded-xl hover:bg-slate-700/50 transition-colors"
+    role="button"
+    aria-label="Toggle genres"
+  >
+    <div>
+      <h2 class="text-xl font-semibold text-white leading-tight">Genres</h2>
+      <p class="text-sm text-gray-400 mt-1">Refine recommendations — expand to choose genres</p>
+    </div>
 
-            <div class="flex items-center gap-3">
-              <!-- Selected count badge -->
-              <div
-                class="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/50 border border-slate-600/40"
-              >
-                {{ selectedGenres.length }} selected
-              </div>
+    <div class="flex items-center gap-3">
+      <div class="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/50 border border-slate-600/40">
+        {{ selectedGenres.length }} selected
+      </div>
+      <svg class="w-5 h-5 text-gray-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  </summary>
 
-              <svg
-                class="w-5 h-5 text-gray-300 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-          </summary>
+  <div class="px-4 pb-4 pt-3">
+    <div class="flex flex-wrap gap-2">
+      <button
+        v-for="genre in genres"
+        :key="genre"
+        @click="toggleGenre(genre)"
+        :aria-pressed="selectedGenres.includes(genre)"
+        :class="[
+          'px-3 py-1.5 text-sm rounded-full font-medium transition-all duration-150 shadow-sm focus:outline-none',
+          selectedGenres.includes(genre)
+            ? 'bg-blue-500 text-white shadow-blue-500/30 border border-blue-400/30'
+            : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50 border border-slate-600/40'
+        ]"
+      >
+        {{ genre }}
+      </button>
+    </div>
 
-          <div class="px-4 pb-4 pt-3">
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="genre in genres"
-                :key="genre"
-                @click="toggleGenre(genre)"
-                :aria-pressed="selectedGenres.includes(genre)"
-                :class="[
-                  'px-3 py-1.5 text-sm rounded-full font-medium transition-all duration-150 shadow-sm focus:outline-none',
-                  selectedGenres.includes(genre)
-                    ? 'bg-blue-500 text-white shadow-blue-500/30 border border-blue-400/30'
-                    : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50 border border-slate-600/40',
-                ]"
-              >
-                {{ genre }}
-              </button>
-            </div>
-
-            <div
-              class="mt-3 flex items-center justify-between text-xs text-gray-400"
-            >
-              <div>Choose multiple genres to narrow results.</div>
-              <button
-                v-if="selectedGenres.length > 0"
-                @click="selectedGenres = []"
-                class="px-2 py-1 rounded bg-transparent border border-slate-600/40 text-gray-300 hover:bg-slate-700/60 transition"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </details>
+    <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
+      <div>Choose multiple genres to narrow results.</div>
+      <button
+        v-if="selectedGenres.length > 0"
+        @click="selectedGenres = []"
+        class="px-2 py-1 rounded bg-transparent border border-slate-600/40 text-gray-300 hover:bg-slate-700/60 transition"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+</details>
 
         <!-- AI Insight Banner -->
         <transition
