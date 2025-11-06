@@ -16,7 +16,10 @@
 
       <SignedIn>
         <!-- FORM -->
-        <form class="flex flex-col gap-4 text-left" @submit.prevent="createRoomHandler">
+        <form
+          class="flex flex-col gap-4 text-left"
+          @submit.prevent="createRoomHandler"
+        >
           <!-- ROOM NAME -->
           <div class="flex flex-col">
             <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -92,7 +95,7 @@
               Users can join early before the scheduled start
             </p>
           </div>
-          
+
           <!-- BUTTONS -->
           <div class="flex flex-col gap-2 mt-2">
             <button
@@ -105,26 +108,34 @@
         </form>
       </SignedIn>
       <SignedOut>
-        <div class="flex flex-col items-center justify-center min-h-[200px] py-8">
-          <p class="mb-6 text-gray-700 dark:text-gray-200 text-center text-lg font-semibold">
+        <div
+          class="flex flex-col items-center justify-center min-h-[200px] py-8"
+        >
+          <p
+            class="mb-6 text-gray-700 dark:text-gray-200 text-center text-lg font-semibold"
+          >
             You must be logged in to create a party.
           </p>
           <SignInButton>
             <button
               class="px-5 py-2 bg-indigo-600 text-white rounded shadow font-semibold hover:bg-indigo-700"
             >
-              Login to create a party
+              Login to create a party!
             </button>
           </SignInButton>
-          <div class="mt-2">
-            <span class="text-gray-600 dark:text-gray-400">Don't have an account?</span>
-            <SignUpButton>
-              <button
-                class="ml-2 px-5 py-2 bg-gray-800 text-white rounded shadow font-semibold hover:bg-gray-900"
-              >
-                Sign Up
-              </button>
-            </SignUpButton>
+          <div class="mt-4">
+            <span class="text-gray-600 dark:text-gray-400"
+              >Don't have an account?</span
+            >
+            <div class="mt-2">
+              <SignUpButton>
+                <button
+                  class="ml-2 px-5 py-2 bg-gray-800 text-white rounded shadow font-semibold hover:bg-gray-900"
+                >
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </div>
           </div>
         </div>
       </SignedOut>
@@ -138,11 +149,10 @@ import { useUser } from "@clerk/vue";
 import { createRoom } from "@/lib/partyRooms";
 import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/vue";
 
-
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || "";
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
-const { user } = useUser(); 
+const { user } = useUser();
 const emit = defineEmits(["close", "created"]);
 
 // Form fields
@@ -215,7 +225,8 @@ async function selectMovie(item: any) {
     duration.value = data.episode_run_time?.[0] || 45;
   }
   selectedPoster.value = data.poster_path
-    ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : "";
+    ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
+    : "";
 }
 
 // Create Room
@@ -238,12 +249,12 @@ async function createRoomHandler() {
   });
 
   if (!newRoom) {
-    alert('Failed to create room.');
+    alert("Failed to create room.");
     return;
   }
 
-  emit('created', newRoom);
-//   emit('close');
+  emit("created", newRoom);
+  //   emit('close');
 }
 
 // Add invited friends from input
