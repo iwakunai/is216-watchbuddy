@@ -26,5 +26,5 @@ dist-ssr
 # Local environment files
 .env
 .env.*
-src/types/components.d.ts
+frontend/src/types/components.d.ts
 tsconfig.tsbuildinfo

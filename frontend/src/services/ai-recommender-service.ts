@@ -25,11 +25,13 @@ interface AIRecommendationResponse {
 }
 
 export class AIRecommenderService {
-  private backendUrl: string;
+  private backendUrl: string = "";
   private requestCache: Map<string, { data: AIRecommendationResponse; timestamp: number }>;
   private cacheDuration = 3600000;
 
+
   constructor(backendUrl: string = '') {
+
   // Auto-detect environment
   this.backendUrl = backendUrl || (
     import.meta.env.PROD 

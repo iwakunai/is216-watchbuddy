@@ -1,6 +1,4 @@
 // server.js - Backend API proxy for Anthropic Claude
-// Run this with: node server.js
-
 import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
@@ -16,7 +14,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
   origin: [
     'http://localhost:5173',  // Local development
-    'https:/watchbuddy.win',  // Deployment
+    'https://watchbuddy.win',  // Deployment
   ],
   credentials: true
 }));
@@ -33,7 +31,7 @@ if (!ANTHROPIC_API_KEY) {
 console.log('✅ Anthropic API key loaded');
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
@@ -228,7 +226,7 @@ function parseAIResponse(response) {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on  port ${PORT}`);
   console.log(`📍 Endpoints:
-  - GET  /health
+  - GET  /api/health
   - POST /api/recommend
   `);
 });

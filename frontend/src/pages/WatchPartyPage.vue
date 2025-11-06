@@ -17,8 +17,6 @@
     @close="closeCreateParty"
     @created="onRoomCreated"
   />
-
-  <!-- <BaseFooter /> -->
 </template>
 
 <script setup lang="ts">

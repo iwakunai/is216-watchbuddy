@@ -22,7 +22,7 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 1500, // optional: raise informational threshold
+    chunkSizeWarningLimit: 1500, 
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -51,6 +51,6 @@ export default defineConfig({
     },
   },
   esbuild: {
-        drop: ['console', 'debugger'], 
+    drop: ['console', 'debugger']
   }
 })
