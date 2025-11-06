@@ -58,8 +58,17 @@ const averageMovieScore = ref(85);
 const averageTvScore = ref(78);
 const averageMoodEmoji = ref("😊");
 
-const totalMoviesWatched = ref(42);
-const totalShowsWatched = ref(18);
+const totalMoviesWatched = computed(() => {
+  return watchlistItems.value.filter(
+    item => item.type === 'movie' && item.status === 'completed'
+  ).length;
+});
+
+const totalShowsWatched = computed(() => {
+  return watchlistItems.value.filter(
+    item => item.type === 'tv' && item.status === 'completed'
+  ).length;
+});
 
 const topGenres = ref<GenreCount[]>([]);
 

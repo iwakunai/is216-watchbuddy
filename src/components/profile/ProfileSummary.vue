@@ -33,7 +33,7 @@ const props = defineProps<{
             </div>
             <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
               <p class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ totalShowsWatched }}</p>
-              <p class="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">Shows Watched</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">TV Shows Watched</p>
             </div>
           </div>
         </div>
