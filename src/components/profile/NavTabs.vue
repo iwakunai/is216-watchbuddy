@@ -19,7 +19,7 @@ const emit = defineEmits<{ (e: 'change', id: TabId): void }>()
         :aria-selected="activeTab === tab.id"
         @click="emit('change', tab.id)"
         :class="[
-          'py-3 px-4 border-b-2 font-medium text-sm transition-colors duration-200 whitespace-nowrap',
+          'py-3 px-4 border-b-2 font-bold text-l transition-colors duration-200 whitespace-nowrap',
           activeTab === tab.id
             ? 'border-gray-900 dark:border-gray-100 text-gray-900 dark:text-gray-100'
             : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'

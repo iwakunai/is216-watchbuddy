@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useUser } from '@clerk/vue'
-import { getUserReviews } from '@/lib/supabaseRatingsReviews'
+import { getUserReviews, deleteMovieReview, deleteTvReview } from '@/lib/supabaseRatingsReviews'
 import { useRouter } from 'vue-router'
 import type { CombinedReview } from '@/composables/review'
 
@@ -12,6 +12,7 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const filterType = ref<'all' | 'movie' | 'tv'>('all')
 const expandedReviews = ref<Set<string>>(new Set())
+const deletingReviews = ref<Set<string>>(new Set())
 
 const filteredReviews = computed(() => {
   if (filterType.value === 'all') return allReviews.value
@@ -54,6 +55,39 @@ function isExpanded(reviewId: string) {
 
 function shouldShowReadMore(text: string) {
   return text.length > 200
+}
+
+async function deleteReview(review: CombinedReview, event: Event) {
+  event.stopPropagation()
+  
+  if (!user.value) return
+  
+  // Confirm deletion
+  if (!confirm(`Are you sure you want to delete your review for "${review.title}"?`)) {
+    return
+  }
+  
+  deletingReviews.value.add(review.id)
+  
+  try {
+    // Delete based on media type
+    if (review.media_type === 'movie') {
+      await deleteMovieReview(user.value.id, review.id)
+    } else {
+      await deleteTvReview(user.value.id, review.id)
+    }
+    
+    // Remove from local state
+    allReviews.value = allReviews.value.filter(r => r.id !== review.id)
+  } catch (err) {
+    error.value = 'Failed to delete review. Please try again.'
+  } finally {
+    deletingReviews.value.delete(review.id)
+  }
+}
+
+function isDeleting(reviewId: string) {
+  return deletingReviews.value.has(reviewId)
 }
 
 onMounted(() => {
@@ -134,6 +168,22 @@ onMounted(() => {
         :key="review.id"
         class="p-5 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors border border-gray-200 dark:border-gray-700 group relative"
       >
+        <!-- Delete Button -->
+        <button
+          @click="deleteReview(review, $event)"
+          :disabled="isDeleting(review.id)"
+          class="absolute top-3 right-3 p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50"
+          title="Delete review"
+        >
+          <svg v-if="!isDeleting(review.id)" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+
         <div class="flex items-start gap-4">
           <!-- Poster -->
           <div 
