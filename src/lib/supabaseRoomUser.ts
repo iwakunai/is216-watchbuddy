@@ -1,5 +1,13 @@
 import { supabase } from "@/lib/supabaseClient";
 
+export interface RoomUser {
+  id: string;
+  name: string;
+  initial: string;
+  joinedAt: string;
+  profile_image_url?: string;
+}
+
 // Join a room: insert or update a user in the room.
 export async function joinRoom(roomId: string, userId: string, username: string) {
   const { data, error } = await supabase
@@ -46,22 +54,28 @@ export async function leaveRoom(roomId: string, userId: string) {
 }
 
 // Fetch all current users in a room.
-export async function fetchRoomUsers(roomId: string) {
-    const { data, error } = await supabase
-        .from("party_room_user")
-        .select("user_id, user_username, joined_at")
-        .eq("room_id", roomId);
+export async function fetchRoomUsers(roomId: string): Promise<RoomUser[]> {
+  const { data, error } = await supabase
+    .from("party_room_user")
+    .select(`
+      user_id,
+      user_username,
+      joined_at,
+      users:user_id (profile_image_url)
+    `)
+    .eq("room_id", roomId);
 
-    if (error) {
-        throw error;
-    }
+  if (error) {
+    throw error;
+  }
 
-    return data.map((u) => ({
-        id: u.user_id,
-        name: u.user_username,
-        initial: u.user_username?.[0]?.toUpperCase() || "?",
-        joinedAt: u.joined_at,
-    }));
+  return data.map((u: any) => ({
+    id: u.user_id,
+    name: u.user_username,
+    initial: u.user_username?.[0]?.toUpperCase() || "?",
+    joinedAt: u.joined_at,
+    profile_image_url: u.users?.profile_image_url || ""
+  }));
 }
 
 
