@@ -87,11 +87,6 @@
           </button>
         </div>
       </div>
-      
-      <!-- Scroll Indicator -->
-      <div class="scroll-indicator">
-        <div class="mouse"></div>
-      </div>
     </div>
   </div>
   
@@ -624,43 +619,6 @@ onUnmounted(() => {
   transform: translateY(-4px) scale(1.02);
   background: rgba(255, 255, 255, 0.05);
   box-shadow: 0 20px 60px rgba(255, 255, 255, 0.1);
-}
-
-/* Scroll Indicator */
-.scroll-indicator {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.mouse {
-  width: 30px;
-  height: 50px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  position: relative;
-}
-
-.mouse::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  opacity: 1;
-  animation: wheel 2s infinite;
-}
-
-@keyframes wheel {
-  to {
-    opacity: 0;
-    top: 32px;
-  }
 }
 
 /* Features Section */
