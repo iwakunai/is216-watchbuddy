@@ -14,5 +14,7 @@ onUnmounted(() => {
 
 <template>
   <RouterView />
-  
 </template>
+
+<style>
+</style>

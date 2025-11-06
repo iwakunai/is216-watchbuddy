@@ -83,6 +83,28 @@ export const addToWatchHistory = async (item: WatchHistoryItem) => {
   return data
 }
 
+export async function fetchWatchpartyHistory() {
+  const { data, error } = await supabase
+  .from("wp_history")
+  .select(`
+    id,
+    room_id,
+    last_joined_at,
+    created_at,
+    party_rooms:room_id (
+      room_name,
+      title,
+      poster_url,
+      scheduled_time,
+      duration
+    )
+  `)
+  .order("last_joined_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
 // ============================================
 // CUSTOM LISTS OPERATIONS
 // ============================================
