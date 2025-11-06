@@ -29,12 +29,12 @@ import type { MovieItem, WatchItem } from "@/composables/watchlist";
 
 const router = useRouter();
 
-// Initialize activeTab from query parameter or default to 'overview'
+// Initialize activeTab from query parameter or default to 'rating'
 const tabFromQuery = router.currentRoute.value.query.tab as TabId;
 const activeTab = ref<TabId>(
   tabFromQuery && tabs.some((t) => t.id === tabFromQuery)
     ? tabFromQuery
-    : "overview"
+    : "ratings"
 );
 
 const setTab = (id: TabId) => {
@@ -344,15 +344,7 @@ async function initializeData() {
 
         <NavTabs :tabs="tabs" :active-tab="activeTab" @change="setTab" />
 
-        <div v-if="activeTab === 'overview'" class="space-y-5">
-          <OverviewPanel
-            :top-genres="topGenres"
-            :top-moods="topMoods"
-            :favourites="favourites"
-          />
-        </div>
-
-        <div v-else-if="activeTab === 'ratings'">
+        <div v-if="activeTab === 'ratings'">
           <RatingsPanel />
         </div>
 
