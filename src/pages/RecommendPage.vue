@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import { ref, watch, h, computed } from 'vue'
+import { ref, watch, h, computed, onMounted } from 'vue'
 import { useUser } from '@clerk/vue'
 import { useRouter } from 'vue-router'
 import { AIRecommenderService } from '../services/ai-recommender-service'
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || ''
-const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY || ''
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'
 
-// Initialize AI service
-const aiService = ANTHROPIC_API_KEY ? new AIRecommenderService(ANTHROPIC_API_KEY) : null
+// Initialize AI service with backend URL
+const aiService = new AIRecommenderService('http://localhost:3001')
+
+console.log("✅ AI Service initialized successfully");
 
 // Auth
 const { user, isLoaded } = useUser()
 const router = useRouter()
+
+// ... rest of your code stays the same
 
 // Mood and Genre State
 type Mood = 'happy' | 'sad' | 'excited' | 'relaxed' | 'scared' | 'romantic' | 'curious' | 'motivated'
@@ -22,8 +25,8 @@ const selectedMood = ref<Mood | null>(null)
 const selectedGenres = ref<string[]>([])
 
 // Data State
-const allRecommendations = ref<any[]>([]) // Store all fetched recommendations
-const displayedCount = ref(9) // How many to show initially
+const allRecommendations = ref<any[]>([])
+const displayedCount = ref(9)
 const recommendations = computed(() => allRecommendations.value.slice(0, displayedCount.value))
 const hasMore = computed(() => displayedCount.value < allRecommendations.value.length)
 
@@ -32,6 +35,9 @@ const isLoading = ref(false)
 const isLoadingMore = ref(false)
 const aiInsight = ref<string>('')
 const useAI = ref(true)
+
+// Debug info
+const debugInfo = ref<string>('')
 
 // Pagination settings
 const INITIAL_DISPLAY = 9
@@ -146,32 +152,39 @@ const getGenreIds = (): number[] => {
   return []
 }
 
-// Enhanced fetch with more movies and better AI ranking
+// Enhanced fetch with debugging
 const fetchRecommendations = async () => {
-  if (!TMDB_API_KEY) return
+  if (!TMDB_API_KEY) {
+    console.error("❌ Cannot fetch - TMDB_API_KEY missing");
+    return;
+  }
+
+  console.log("\n🎬 === FETCHING RECOMMENDATIONS ===");
+  console.log("Mood:", selectedMood.value);
+  console.log("Genres:", selectedGenres.value);
+  console.log("Use AI:", useAI.value);
+  console.log("AI Service:", aiService ? "Available" : "Not available");
 
   isLoading.value = true
   aiInsight.value = ''
-  displayedCount.value = INITIAL_DISPLAY // Reset display count
+  displayedCount.value = INITIAL_DISPLAY
+  debugInfo.value = `Starting fetch... Mood: ${selectedMood.value}, Genres: ${selectedGenres.value.join(', ')}`
   
   try {
     const genreIds = getGenreIds()
+    console.log("Genre IDs:", genreIds);
     
-    // Special handling for mood+genre combinations
     let genreQuery = ''
     if (selectedGenres.value.length > 0) {
-      // When genres are explicitly selected, use them
       genreQuery = `&with_genres=${genreIds.join(',')}`
     } else if (selectedMood.value) {
-      // When only mood is selected, get broader results for AI to filter
-      // Don't restrict by genre too much, let AI handle it
       const moodGenres = moodGenreMap[selectedMood.value]
-      genreQuery = `&with_genres=${moodGenres.join('|')}` // OR instead of AND
+      genreQuery = `&with_genres=${moodGenres.join('|')}`
     }
     
-    // Fetch 5 pages (100 movies) for better selection
+    console.log("Fetching movies from TMDB...");
     const allResults: any[] = []
-    for (let page = 1; page <= 5; page++) {
+    for (let page = 1; page <= 3; page++) {
       const response = await fetch(
         `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&include_adult=false&page=${page}${genreQuery}&vote_count.gte=100`
       )
@@ -179,20 +192,31 @@ const fetchRecommendations = async () => {
       if (response.ok) {
         const data = await response.json()
         allResults.push(...data.results)
+        console.log(`  Page ${page}: ${data.results.length} movies`);
       }
     }
     
+    console.log(`Total movies fetched: ${allResults.length}`);
+    debugInfo.value = `Fetched ${allResults.length} movies from TMDB`
+    
     // Use AI to rank movies if available and enabled
     if (aiService && useAI.value && (selectedMood.value || selectedGenres.value.length > 0)) {
+      console.log("\n🤖 === CALLING AI SERVICE ===");
+      debugInfo.value = `AI ranking ${allResults.length} movies...`
+      
       try {
-        
-        
-        // Send top 40 movies to AI for deep analysis
+        const aiStartTime = Date.now()
         const aiResponse = await aiService.getRankedRecommendations({
           mood: selectedMood.value || '',
           genres: selectedGenres.value,
-          movies: allResults.slice(0, 40)
+          movies: allResults.slice(0, 30)
         })
+        const aiEndTime = Date.now()
+        
+        console.log(`AI processing took ${aiEndTime - aiStartTime}ms`);
+        console.log("AI Response:", aiResponse);
+        
+        debugInfo.value = `AI ranked ${aiResponse.rankedMovies.length} movies in ${aiEndTime - aiStartTime}ms`
         
         // Sort movies by AI scores
         const movieMap = new Map(allResults.map(m => [m.id, m]))
@@ -210,9 +234,12 @@ const fetchRecommendations = async () => {
         
         aiInsight.value = aiResponse.personalizedInsight
         
+        console.log("Top 5 AI scores:", rankedMovies.slice(0, 5).map((m: any) => ({
+          title: m.title,
+          score: m.aiScore,
+          reasoning: m.aiReasoning
+        })));
         
-        
-        // Store ALL ranked movies, show first 9
         allRecommendations.value = rankedMovies.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
           id: item.id,
           title: item.title,
@@ -227,7 +254,11 @@ const fetchRecommendations = async () => {
           aiScore: item.aiScore,
           aiReasoning: item.aiReasoning
         }))
+        
+        console.log("✅ AI recommendations ready:", allRecommendations.value.length);
       } catch (aiError) {
+        console.error("💥 AI Error:", aiError);
+        debugInfo.value = `AI failed: ${aiError}. Using fallback.`
         
         // Fallback to basic sorting
         allRecommendations.value = allResults.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
@@ -244,6 +275,9 @@ const fetchRecommendations = async () => {
         }))
       }
     } else {
+      console.log("⚠️ Skipping AI (useAI:", useAI.value, ", aiService:", !!aiService, ")");
+      debugInfo.value = "Using basic sorting (AI disabled or unavailable)"
+      
       // Standard sorting without AI
       allRecommendations.value = allResults.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
         id: item.id,
@@ -258,8 +292,11 @@ const fetchRecommendations = async () => {
         ).filter(Boolean).join(', ')
       }))
     }
-  } catch (err) {
     
+    console.log("=== FETCH COMPLETE ===\n");
+  } catch (err) {
+    console.error("💥 Fetch error:", err);
+    debugInfo.value = `Error: ${err}`
   } finally {
     isLoading.value = false
   }
@@ -289,7 +326,6 @@ const handleShuffle = async () => {
       const data = await response.json()
       const selectedMovie = data.results[Math.floor(Math.random() * data.results.length)]
       
-      // Fetch movie details for runtime
       const detailsResponse = await fetch(
         `${TMDB_BASE_URL}/movie/${selectedMovie.id}?api_key=${TMDB_API_KEY}`
       )
@@ -308,7 +344,7 @@ const handleShuffle = async () => {
       }
     }
   } catch (err) {
-    
+    console.error("Shuffle error:", err);
   }
 }
 
@@ -319,6 +355,7 @@ const navigateToMovie = (id: number) => {
 // Watch for changes and fetch recommendations
 watch([selectedMood, selectedGenres, useAI], () => {
   if (user.value) {
+    console.log("🔄 Mood/Genre/AI changed, refetching...");
     fetchRecommendations()
   }
 }, { deep: true })
@@ -326,6 +363,7 @@ watch([selectedMood, selectedGenres, useAI], () => {
 // Initial load
 watch([user, isLoaded], ([currentUser, loaded]) => {
   if (loaded && currentUser) {
+    console.log("👤 User loaded, fetching initial recommendations");
     fetchRecommendations()
   }
 })
@@ -346,7 +384,10 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
        Tell us your mood and preferences, our AI will find the perfect movie for you
     </p>
 
-
+          <!-- Debug Info (only visible in development) -->
+          <div v-if="debugInfo" class="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-400 font-mono text-left max-w-2xl mx-auto">
+            <strong>Debug:</strong> {{ debugInfo }}
+          </div>
           
           <!-- AI Toggle -->
           <div v-if="aiService" class="flex items-center justify-center gap-3 pt-2">
@@ -354,9 +395,12 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
               <input type="checkbox" v-model="useAI" class="sr-only peer">
               <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
               <span class="ml-3 text-sm font-medium text-gray-300">
-                🤖 AI-Enhanced (More Accurate)
+                🤖 AI-Enhanced ({{ useAI ? 'ON' : 'OFF' }})
               </span>
             </label>
+          </div>
+          <div v-else class="text-sm text-yellow-500">
+            ⚠️ AI service unavailable - check ANTHROPIC_API_KEY in .env
           </div>
         </div>
 
@@ -384,34 +428,28 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
           </div>
         </div>
 
-        <!-- Compact Genre Selection — Button-style (replace the old Genre Selection block) -->
-<details class="rounded-xl shadow-xl border border-slate-700/50 bg-slate-800/40 p-0" >
-  <!-- Big button-style summary (no '(optional)') -->
+        <!-- Compact Genre Selection -->
+<details class="rounded-xl shadow-xl border border-slate-700/50 bg-slate-800/40 p-0">
   <summary
     class="list-none cursor-pointer flex items-center justify-between gap-4 p-6 rounded-xl hover:bg-slate-700/50 transition-colors"
     role="button"
     aria-label="Toggle genres"
   >
     <div>
-      <!-- Matches the 'How are you feeling?' size -->
       <h2 class="text-xl font-semibold text-white leading-tight">Genres</h2>
       <p class="text-sm text-gray-400 mt-1">Refine recommendations — expand to choose genres</p>
     </div>
 
     <div class="flex items-center gap-3">
-      <!-- Selected count badge -->
       <div class="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/50 border border-slate-600/40">
         {{ selectedGenres.length }} selected
       </div>
-
-      <!-- Chevron (rotates when open via small inline style) -->
       <svg class="w-5 h-5 text-gray-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
       </svg>
     </div>
   </summary>
 
-  <!-- Hidden content: pill buttons -->
   <div class="px-4 pb-4 pt-3">
     <div class="flex flex-wrap gap-2">
       <button
@@ -430,7 +468,6 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
       </button>
     </div>
 
-    <!-- Helper row with Clear button -->
     <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
       <div>Choose multiple genres to narrow results.</div>
       <button
@@ -443,7 +480,6 @@ watch([user, isLoaded], ([currentUser, loaded]) => {
     </div>
   </div>
 </details>
-
 
         <!-- AI Insight Banner -->
         <transition
