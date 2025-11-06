@@ -50,37 +50,28 @@
       <!-- Main Heading with Stagger Animation -->
       <div class="hero-content">
         <h1 class="hero-title text-5xl md:text-6xl lg:text-7xl font-black mb-8 leading-tight">
-          <span class="title-line">Your Social Movie</span><br />
-          <span class="title-line gradient-text">Watching Experience</span>
+          <span class="title-line">Find Your Perfect Watch</span><br />
+          <span class="title-line gradient-text">Based On Your Mood</span>
         </h1>
         
         <!-- Subtitle -->
         <p class="hero-subtitle text-lg md:text-xl text-white/70 max-w-3xl mx-auto mb-12 leading-relaxed font-light">
-          Host synchronized watch parties, discover personalized recommendations, 
+          Goodbye endless scrolling.
           <br class="hidden md:block"/>
-          and share reviews with a vibrant community
+          Let your emotions guide your next movie, and watch together in real time.
         </p>
         
         <!-- CTA Buttons -->
-        <div class="cta-container flex flex-col sm:flex-row items-center justify-center gap-6">
-          <button
-            @click="navigate('/movies')"
-            class="btn-main group relative px-12 py-6 bg-blue-600 text-white text-lg font-bold rounded-2xl transition-all overflow-hidden"
-          >
-            <span class="relative z-10 flex items-center gap-3">
-              <span class="text-2xl">🎬</span>
-              <span>Browse Movies</span>
-            </span>
-            <div class="btn-gradient"></div>
-          </button>
+        <div class="cta-container flex items-center justify-center">
           <button
             @click="navigate('/recommend')"
-            class="btn-secondary group relative px-12 py-6 bg-transparent text-white text-lg font-bold rounded-2xl transition-all border-2 border-white/20 backdrop-blur-md hover:border-white/40"
+            class="btn-main group relative px-16 py-8 bg-blue-600 text-white text-2xl font-bold rounded-2xl transition-all overflow-hidden"
           >
-            <span class="flex items-center gap-3">
-              <span class="text-2xl">✨</span>
-              <span>Get Recommendations</span>
+            <span class="relative z-10 flex items-center gap-3">
+              <span class="text-3xl">✨</span>
+              <span>Discover By Mood</span>
             </span>
+            <div class="btn-gradient"></div>
           </button>
         </div>
       </div>
@@ -101,35 +92,10 @@
       
       <!-- Features Grid -->
       <div class="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        <!-- Watch Parties -->
-        <div 
-          @click="$router.push('/watchparty')"
-          class="feature-card group cursor-pointer"
-        >
+        <!-- Smart Recommendations -->
+        <div class="feature-card group">
           <div class="feature-card-inner">
             <div class="feature-number">01</div>
-            <div class="feature-icon-wrapper">
-              <div class="feature-icon">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-            </div>
-            <h3 class="feature-title">Watch Parties</h3>
-            <p class="feature-description">
-              Synchronized viewing with real-time chat and interactive features for the ultimate shared experience
-            </p>
-            <div class="feature-arrow">→</div>
-          </div>
-        </div>
-        
-        <!-- Smart Recommendations -->
-        <div 
-          @click="$router.push('/recommend')"
-          class="feature-card group cursor-pointer"
-        >
-          <div class="feature-card-inner">
-            <div class="feature-number">02</div>
             <div class="feature-icon-wrapper">
               <div class="feature-icon">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,15 +107,29 @@
             <p class="feature-description">
               AI-powered suggestions tailored to your taste, mood, and viewing history
             </p>
-            <div class="feature-arrow">→</div>
+          </div>
+        </div>
+        
+        <!-- Watch Parties -->
+        <div class="feature-card group">
+          <div class="feature-card-inner">
+            <div class="feature-number">02</div>
+            <div class="feature-icon-wrapper">
+              <div class="feature-icon">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+            <h3 class="feature-title">Watch Parties</h3>
+            <p class="feature-description">
+              Synchronis  ed viewing with real-time chat and interactive features for the ultimate shared experience
+            </p>
           </div>
         </div>
         
         <!-- Reviews & Community -->
-        <div 
-          @click="$router.push('/movies')"
-          class="feature-card group cursor-pointer"
-        >
+        <div class="feature-card group">
           <div class="feature-card-inner">
             <div class="feature-number">03</div>
             <div class="feature-icon-wrapper">
@@ -159,17 +139,16 @@
                 </svg>
               </div>
             </div>
-            <h3 class="feature-title">Vibrant Community</h3>
+            <h3 class="feature-title">Track & Review</h3>
             <p class="feature-description">
-              Share reviews, discover perspectives, and connect with passionate movie enthusiasts
+              Track your watching progress on your watchlist, rate and review movies, and discover perspectives from fellow enthusiasts
             </p>
-            <div class="feature-arrow">→</div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  
+ 
   <!-- CTA Section -->
   <div class="cta-section text-white py-32 relative overflow-hidden">
     <div class="cta-bg"></div>
@@ -178,17 +157,26 @@
       <p class="text-xl md:text-2xl text-white/60 max-w-3xl mx-auto mb-16 font-light">
         Join thousands of movie lovers transforming their viewing experience
       </p>
-      <button
-        @click="$router.push('/movies')"
-        class="btn-cta group relative px-16 py-7 bg-white text-gray-900 text-xl font-bold rounded-2xl transition-all overflow-hidden"
-      >
-        <span class="relative z-10 flex items-center gap-3">
-          <span>Get Started Now</span>
-          <svg class="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </span>
-      </button>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+        <button
+          @click="navigateToTop('/movies')"
+          class="btn-cta group relative px-16 py-7 bg-blue-600 text-white text-xl font-bold rounded-2xl transition-all overflow-hidden"
+        >
+          <span class="relative z-10 flex items-center gap-3">
+            <span class="text-2xl">🎬</span>
+            <span>Browse Movies</span>
+          </span>
+        </button>
+        <button
+          @click="navigateToTop('/tv')"
+          class="btn-cta-secondary group relative px-16 py-7 bg-blue-600 text-white text-xl font-bold rounded-2xl transition-all overflow-hidden"
+        >
+          <span class="relative z-10 flex items-center gap-3">
+            <span class="text-2xl">📺</span>
+            <span>Browse TV Shows</span>
+          </span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -200,6 +188,14 @@ const router = useRouter();
 
 const navigate = (path: string) => {
   router.push(path);
+};
+
+const navigateToTop = async (path: string) => {
+  // Scroll to top first, before navigation
+  window.scrollTo(0, 0);
+  await router.push(path);
+  // Ensure we're at top after navigation completes
+  window.scrollTo(0, 0);
 };
 </script>
 
@@ -347,6 +343,8 @@ const navigate = (path: string) => {
   height: 80px;
   background: #000000;
   border-bottom: 4px solid #000000;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
   
   /* Sprocket holes on LEFT side */
   background-image: 
@@ -380,7 +378,6 @@ const navigate = (path: string) => {
   background-size: 50px 20px, 50px 20px, 100% 100%;
   background-position: 0 15px, 0 45px, 0 0;
   background-repeat: repeat-x, repeat-x, no-repeat;
-  animation: scrollFilmStrip 40s linear infinite;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.9);
   z-index: 2;
   
@@ -412,6 +409,7 @@ const navigate = (path: string) => {
   -webkit-mask-position: 0 8px, 0 56px, 0 0;
   -webkit-mask-repeat: repeat-x, repeat-x, no-repeat;
   -webkit-mask-composite: destination-out, destination-out, source-over;
+  animation: scrollFilmStripMask 10s linear infinite;
   
   mask-image: 
     /* Top row of sprockets */
@@ -452,7 +450,8 @@ const navigate = (path: string) => {
   height: 80px;
   background: #000000;
   border-top: 4px solid #000000;
-  animation: scrollFilmStrip 40s linear infinite;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
   box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.9);
   z-index: 2;
   
@@ -484,6 +483,7 @@ const navigate = (path: string) => {
   -webkit-mask-position: 0 8px, 0 56px, 0 0;
   -webkit-mask-repeat: repeat-x, repeat-x, no-repeat;
   -webkit-mask-composite: destination-out, destination-out, source-over;
+  animation: scrollFilmStripMask 10s linear infinite;
   
   mask-image: 
     /* Top row of sprockets */
@@ -512,40 +512,68 @@ const navigate = (path: string) => {
   mask-position: 0 8px, 0 56px, 0 0;
   mask-repeat: repeat-x, repeat-x, no-repeat;
   mask-composite: exclude, exclude, add;
+  animation: scrollFilmStripMask 10s linear infinite;
 }
 
 /* Film frame boxes - Vertical frame dividers like real film */
 .hero-section::before {
   content: '';
   position: absolute;
-  top: 70px;
+  top: 80px;
   left: 0;
   width: 100%;
-  height: calc(100vh - 140px);
+  height: calc(100vh - 160px);
   z-index: 1;
   pointer-events: none;
+  
+  /* Black background with rounded corners */
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 0 0 0 0;
   
   /* Vertical frame dividers - thick black lines between frames */
   background-image: 
     repeating-linear-gradient(
       90deg,
       #000000 0px,
-      #000000 6px,
-      transparent 6px,
-      transparent 200px
+      #000000 12px,
+      transparent 12px,
+      transparent 400px
     );
   
-  background-size: 206px 100%;
+  background-size: 412px 100%;
   background-position: 0 0;
-  animation: scrollFilmStrip 40s linear infinite;
+  animation: scrollFilmStripVertical 10s linear infinite;
+  
+  /* Clip path to create rounded corners that connect to strips */
+  clip-path: inset(0 0 0 0 round 0 0 0 0);
 }
 
 @keyframes scrollFilmStrip {
   0% { 
-    background-position: 0 8px, 0 56px;
+    background-position: 0 15px, 0 45px, 0 0;
   }
   100% { 
-    background-position: -50px 8px, -50px 56px;
+    background-position: -50px 15px, -50px 45px, 0 0;
+  }
+}
+
+@keyframes scrollFilmStripMask {
+  0% { 
+    -webkit-mask-position: 0 8px, 0 56px, 0 0;
+    mask-position: 0 8px, 0 56px, 0 0;
+  }
+  100% { 
+    -webkit-mask-position: -412px 8px, -412px 56px, 0 0;
+    mask-position: -412px 8px, -412px 56px, 0 0;
+  }
+}
+
+@keyframes scrollFilmStripVertical {
+  0% { 
+    background-position: 0 0;
+  }
+  100% { 
+    background-position: -412px 0;
   }
 }
 
@@ -678,7 +706,7 @@ const navigate = (path: string) => {
 .feature-number {
   font-size: 80px;
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.03);
+  color: rgb(90, 108, 213);
   position: absolute;
   top: 20px;
   right: 30px;
@@ -748,12 +776,22 @@ const navigate = (path: string) => {
 }
 
 .btn-cta {
-  box-shadow: 0 10px 40px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
   transition: all 0.4s ease;
 }
 
 .btn-cta:hover {
   transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 20px 60px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 60px rgba(59, 130, 246, 0.6);
+}
+
+.btn-cta-secondary {
+  box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+  transition: all 0.4s ease;
+}
+
+.btn-cta-secondary:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 20px 60px rgba(59, 130, 246, 0.6);
 }
 </style>
