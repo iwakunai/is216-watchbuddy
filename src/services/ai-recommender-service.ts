@@ -37,17 +37,17 @@ export class AIRecommenderService {
       : 'http://localhost:3001' // Development: use localhost
   );
   this.requestCache = new Map();
-  console.log("✅ AIRecommenderService initialized with backend:", this.backendUrl);
+    
 }
 
   async getRankedRecommendations(request: AIRecommendationRequest): Promise<AIRecommendationResponse> {
-    console.log("🎬 Calling backend API...");
+      
     
     const cacheKey = this.getCacheKey(request);
     const cached = this.requestCache.get(cacheKey);
 
     if (cached && Date.now() - cached.timestamp < this.cacheDuration) {
-      console.log("💾 Using cached result");
+        
       return cached.data;
     }
 
@@ -67,12 +67,12 @@ export class AIRecommenderService {
       }
 
       const result = await response.json();
-      console.log("✅ Got AI result");
+        
       
       this.requestCache.set(cacheKey, { data: result, timestamp: Date.now() });
       return result;
     } catch (error) {
-      console.error("💥 Error:", error);
+      
       return this.fallbackRanking(request.movies);
     }
   }

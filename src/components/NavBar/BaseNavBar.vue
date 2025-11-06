@@ -312,7 +312,7 @@ const performSearch = async () => {
 
     showResults.value = true;
   } catch (error) {
-    console.error("Error searching:", error);
+    
     searchResults.value = [];
   } finally {
     isSearching.value = false;

@@ -16,8 +16,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
   origin: [
     'http://localhost:5173',  // Local development
-    'https://watchbuddy.vercel.app',  // Replace with YOUR Vercel URL
-    /\.vercel\.app$/  // Allow all Vercel preview deployments
+    'https:/watchbuddy.win',  // Replace with YOUR Vercel URL
   ],
   credentials: true
 }));

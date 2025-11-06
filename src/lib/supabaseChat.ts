@@ -1,4 +1,3 @@
-// src/lib/supabaseChat.ts
 import { supabase } from '@/lib/supabaseClient';
 
 export async function sendMessage(roomId: string, user_clerk_id: string, text: string) {

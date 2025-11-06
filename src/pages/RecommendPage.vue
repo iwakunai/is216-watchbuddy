@@ -11,7 +11,7 @@ const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'
 // Initialize AI service with backend URL
 const aiService = new AIRecommenderService('http://localhost:3001')
 
-console.log("✅ AI Service initialized successfully");
+  
 
 // Auth
 const { user, isLoaded } = useUser()
@@ -326,15 +326,15 @@ const getGenreIds = (): number[] => {
 // Enhanced fetch with debugging
 const fetchRecommendations = async () => {
   if (!TMDB_API_KEY) {
-    console.error("❌ Cannot fetch - TMDB_API_KEY missing");
+    
     return;
   }
 
-  console.log("\n🎬 === FETCHING RECOMMENDATIONS ===");
-  console.log("Mood:", selectedMood.value);
-  console.log("Genres:", selectedGenres.value);
-  console.log("Use AI:", useAI.value);
-  console.log("AI Service:", aiService ? "Available" : "Not available");
+    
+    
+    
+    
+    
 
   isLoading.value = true
   aiInsight.value = ''
@@ -343,7 +343,7 @@ const fetchRecommendations = async () => {
   
   try {
     const genreIds = getGenreIds()
-    console.log("Genre IDs:", genreIds);
+      
     
     let genreQuery = ''
     if (selectedGenres.value.length > 0) {
@@ -353,7 +353,7 @@ const fetchRecommendations = async () => {
       genreQuery = `&with_genres=${moodGenres.join('|')}`
     }
     
-    console.log("Fetching movies from TMDB...");
+      
     const allResults: any[] = []
     for (let page = 1; page <= 3; page++) {
       const response = await fetch(
@@ -363,16 +363,16 @@ const fetchRecommendations = async () => {
       if (response.ok) {
         const data = await response.json()
         allResults.push(...data.results)
-        console.log(`  Page ${page}: ${data.results.length} movies`);
+          
       }
     }
     
-    console.log(`Total movies fetched: ${allResults.length}`);
+      
     debugInfo.value = `Fetched ${allResults.length} movies from TMDB`
     
     // Use AI to rank movies if available and enabled
     if (aiService && useAI.value && (selectedMood.value || selectedGenres.value.length > 0)) {
-      console.log("\n🤖 === CALLING AI SERVICE ===");
+        
       debugInfo.value = `AI ranking ${allResults.length} movies...`
       
       try {
@@ -384,8 +384,8 @@ const fetchRecommendations = async () => {
         })
         const aiEndTime = Date.now()
         
-        console.log(`AI processing took ${aiEndTime - aiStartTime}ms`);
-        console.log("AI Response:", aiResponse);
+          
+          
         
         debugInfo.value = `AI ranked ${aiResponse.rankedMovies.length} movies in ${aiEndTime - aiStartTime}ms`
         
@@ -407,11 +407,7 @@ const fetchRecommendations = async () => {
         
         aiInsight.value = aiResponse.personalizedInsight
         
-        console.log("Top 5 AI scores:", rankedMovies.slice(0, 5).map((m: any) => ({
-          title: m.title,
-          score: m.aiScore,
-          reasoning: m.aiReasoning
-        })));
+    
         
         allRecommendations.value = rankedMovies.slice(0, MAX_RECOMMENDATIONS).map((item: any) => ({
           id: item.id,
@@ -428,9 +424,9 @@ const fetchRecommendations = async () => {
           aiReasoning: item.aiReasoning
         }))
         
-        console.log("✅ AI recommendations ready:", allRecommendations.value.length);
+          
       } catch (aiError) {
-        console.error("💥 AI Error:", aiError);
+        
         debugInfo.value = `AI failed: ${aiError}. Using fallback.`
         
         // Fallback to basic sorting
@@ -458,7 +454,7 @@ const fetchRecommendations = async () => {
           }));
       }
     } else {
-      console.log("⚠️ Skipping AI (useAI:", useAI.value, ", aiService:", !!aiService, ")");
+        
       debugInfo.value = "Using basic sorting (AI disabled or unavailable)"
       
       // Standard sorting without AI
@@ -486,9 +482,9 @@ const fetchRecommendations = async () => {
         }));
     }
     
-    console.log("=== FETCH COMPLETE ===\n");
+      
   } catch (err) {
-    console.error("💥 Fetch error:", err);
+    
     debugInfo.value = `Error: ${err}`
   } finally {
     isLoading.value = false;
@@ -542,7 +538,7 @@ const handleShuffle = async () => {
       };
     }
   } catch (err) {
-    console.error("Shuffle error:", err);
+    
   }
 }
 
@@ -553,7 +549,7 @@ const navigateToMovie = (id: number) => {
 // Watch for changes and fetch recommendations
 watch([selectedMood, selectedGenres, useAI], () => {
   if (user.value) {
-    console.log("🔄 Mood/Genre/AI changed, refetching...");
+      
     fetchRecommendations()
   }
 }, { deep: true })
@@ -561,7 +557,7 @@ watch([selectedMood, selectedGenres, useAI], () => {
 // Initial load
 watch([user, isLoaded], ([currentUser, loaded]) => {
   if (loaded && currentUser) {
-    console.log("👤 User loaded, fetching initial recommendations");
+      
     fetchRecommendations()
   }
 });
