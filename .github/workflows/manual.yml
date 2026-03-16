@@ -1,0 +1,22 @@
+name: Manual Deployment Cleanup
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    # inputs:
+    #   name:
+    #     description: 'Person to greet'
+    #     default: 'World'
+    #     required: true
+    #     type: string
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: 🗑 Delete deployment
+        uses: strumwolf/delete-deployment-environment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: WatchBuddy / production
+          onlyRemoveDeployments: true{{ inputs.name }}"
